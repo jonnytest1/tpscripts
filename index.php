@@ -91,6 +91,7 @@
 		if(!($exceptionHeader==" ")){
 				header("exception: ".$exceptionHeader);
 		}
+
 		$json="(function all(){ try{\n";
 		
 		$json=$json.preProcessFileName('BASE').".then((BASE)=>{";

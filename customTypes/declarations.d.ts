@@ -30,7 +30,7 @@ interface ElementGetter {
 
     I: (string: string, iF?: Element) => HTMLElement | null;
     C: <E extends Element = Element>(string: string, iF?: Element, compress?: Boolean) => E;
-    T: (string: string, iF?: Element, compress?: Boolean) => HTMLElement | HTMLCollectionOf<HTMLElement>;
+    T: (string: string, iF?: Element, compress?: Boolean) => any;
 
     c0: (iF: Element, count: number) => Element,
     W: (top?: boolean, wnd?: Element) => Window,

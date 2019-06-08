@@ -21,7 +21,7 @@
                 curl_close($ch);
 
                 if($this->checkRequest($data,$url,$matcher)){
-                    $js=$js.$this->additional;
+                    $js=$js."/*".$this->additional."*/";
                     $js=$js."alert('".$url." changed');open('".$url."')\n";
                 }else{
                     $js=$js."// ".$url." is up top date\n";
@@ -43,7 +43,7 @@
             if($matcher == NULL){
                 $html=$this->db->sql("SELECT html FROM rotate_request_content WHERE url = ?","s",array($url));
                 if(sizeof($html)==0){
-                    $this->additional="// $html is empty ";
+                    $this->additional=" html is empty ";
                     $this->db->sql(
                         "INSERT INTO rotate_request_content (url,html,timestamp) VALUES (?,?,NOW())",
                         "ss",
@@ -54,7 +54,7 @@
                     );
                     return TRUE;
                 }else if($html[0][0]!=$data){
-                    $this->additional=$html[0][0]." is not ".$data." */";
+                    $this->additional=$html[0][0]." is not ".$data." ";
                     $this->db->sql(
                         "UPDATE rotate_request_content SET html=? WHERE url=?",
                         "ss",
@@ -67,7 +67,7 @@
                 }
                 return FALSE;
             }else if(strpos($data,$matcher)==FALSE){
-                $this->additional="/* ".$matcher." is not in ".$data." */";
+                $this->additional=$matcher." is not in ".$data;
                 return TRUE;
             }
             return FALSE;

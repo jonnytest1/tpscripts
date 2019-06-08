@@ -39,38 +39,20 @@ class NeuralWrapper {
         this.options = options;
         this.mutation = options.mutation || 0.1
         this.decrease = options.decrease || 0.95;
-        this.score = 0;
-    }
 
-    reward(amount) {
-        this.score += amount;
     }
 
     dispose() {
         this.model.dispose();
     }
 
-
-
-    /**
-     * 
-     * @param {GeneticImplementation} object 
-     */
-    predict(object) {
+    /**@param {TensorObject} tensor */
+    predict(tensor) {
         const prediction = tf.tidy(() => {
-            const tensor = object.getTensor();
-            try {
-                const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape])
-                return this.model.predict(reshaped);
-            } catch (e) {
-                debugger;
-            }
-
+            const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape])
+            return this.model.predict(reshaped);
         });
-        const result = prediction.dataSync();
-        this.score = object.getReward(result);
-        return result;
-
+        return prediction.dataSync();
     }
 
     addLayer(type, options) {
@@ -80,19 +62,6 @@ class NeuralWrapper {
 
     copy() {
         return this.mutate((x) => x);
-        /*return tf.tidy(() => {
-            const model = new NeuralWrapper(undefined, this.options);
-            for (let layer of this.layers) {
-                model.addLayer(layer.type, layer.options);
-            }
-            const w = this.model.getWeights();
-            let newWeigths = []
-            for (let i = 0; i < w.length; i++) {
-                newWeigths[i] = w[i].clone();
-            }
-            model.model.setWeights(newWeigths);
-            return model;
-        });*/
     }
     mutate(func = this.mutateWeight) {
         return tf.tidy(() => {
@@ -144,6 +113,46 @@ class NeuralWrapper {
         return nn;
     }
 }
+
+class GeneticNeuralWrapper extends NeuralWrapper {
+
+    constructor() {
+        super();
+        this.score = 0;
+    }
+
+    reward(amount) {
+        this.score += amount;
+    }
+
+    /**
+     * @param {GeneticImplementation} object 
+     */
+    predict(object) {
+        const prediction = super.predict(tensor);
+        this.score = object.getReward(prediction.test());
+        return result;
+    }
+
+    static denseFromExample(example, hidden = 10, outputs = 2) {
+        if (example instanceof Array) {
+            example = tf.tensor(example);
+        }
+        const nn = new GeneticNeuralWrapper();
+        nn.addLayer("dense", {
+            units: hidden,
+            inputShape: example.shape,
+            activation: 'sigmoid'
+        });
+        nn.addLayer("dense", {
+            units: outputs,
+            activation: 'sigmoid'
+        });
+        return nn;
+    }
+
+
+}
 /**
  * 
  * @template {GeneticImplementation} T
@@ -158,7 +167,7 @@ class NeuralGeneration {
     constructor(amount, objectContructor, hiddenLayers) {
         this.amount = amount
         /**
-         * @type {Array<NeuralWrapper>}
+         * @type {Array<GeneticNeuralWrapper>}
          */
         this.models = [];
 
@@ -171,15 +180,15 @@ class NeuralGeneration {
         for (let i = 0; i < this.amount; i++) {
             const object = objectContructor(i);
             this.objects.push(object);
-            this.models.push(NeuralWrapper.denseFromExample(this.objects[i].getTensor(), hiddenLayers, 2))
+            this.models.push(GeneticNeuralWrapper.denseFromExample(this.objects[i].getTensor(), hiddenLayers, 2))
         }
     }
     /**
      * 
      * @param {{
      *  shouldPredict?:(object?:T,index?:number)=>boolean
-     *  afterEach?:(object?:T,model?:NeuralWrapper,index?:number)=>void
-     *  forBest?:(object?:T,model?:NeuralWrapper,index?:number)=>void
+     *  afterEach?:(object?:T,model?:GeneticNeuralWrapper,index?:number)=>void
+     *  forBest?:(object?:T,model?:GeneticNeuralWrapper,index?:number)=>void
      * }} [options] 
      */
     frame(options = {}) {
@@ -190,12 +199,9 @@ class NeuralGeneration {
             for (let i = 0; i < this.amount; i++) {
                 let object = this.objects[i];
                 let model = this.models[i];
-                /*if (i == 0) {
-                    console.log(i + " " + model.model.getWeights()[0].dataSync()[0])
-                }*/
+
                 if (shouldPredict(object, i)) {
                     model.predict(object);
-                    // car.predict(model, target.copy());
                 }
                 afterEach(object, model, i);
             }
@@ -225,7 +231,7 @@ class NeuralGeneration {
 
 
     /**
-     * @typedef {NeuralWrapper &{
+     * @typedef {GeneticNeuralWrapper &{
      *  fitness?:number
      * }} GenerationNeuralWrapper
      *
@@ -304,9 +310,6 @@ class NeuralGeneration {
                 // newArray.push(bestModel.mutate());
             }
 
-            /**
-             * might reference the same model in the next iteration
-             */
             for (let model of this.models) {
                 model.dispose();
             }
@@ -318,13 +321,6 @@ class NeuralGeneration {
             console.log(this.models[0].mutation)
             this.models = pick.call(this);
         });
-        /* const best = models[index].copy();
-     
-         for (let i = 0; i < models.length; i++) {
-             newArray.push(best.mutate());
-     
-         }
-         return newArray;*/
     }
 }
 window.NeuralWrapper = NeuralWrapper;
@@ -333,11 +329,5 @@ tfs.onload = (e) => {
     if (e.isAsync) {
         return;
     }
-
-    /**
-     * NeuralWrapper
-     */
-
     finished(undefined, true, tfScript);
 }
-

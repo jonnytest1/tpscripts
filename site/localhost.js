@@ -4,8 +4,8 @@
 (async function localhost() {
     await reqS("DOM/dependencyCheck")
     //await reqS("learning/tensorflow");
-    await reqS("DOM/customSlider");
-    await reqT("video")
+    //await reqS("DOM/customSlider");
+    //await reqT("video")
 
     //await reqT("multiplemenu")
     // await reqS("DOM/rectMenu")

@@ -2,7 +2,16 @@
 /// <reference path="../customTypes/index.d.ts" />
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../time.js" />
-
+/**
+ * @typedef {HTMLDivElement & {
+*  videohref:String,
+*  autoScrollButton:HTMLElement&{timestmap?:HTMLDivElement},
+*  currentIndex:number,
+*  wentLiveDate:Date
+*  origWentLive:string
+* }} CustomYoutubeVideoElement
+* 
+*/
 /**@type {CustomHTMLscript} */
 var youtubeScript = document.currentScript;
 youtubeScript.isModular = true;
@@ -66,6 +75,12 @@ youtubeScript.reset = () => {
             }
         });
 
+    } else {
+        /**@type {HTMLCollectionOf<any>} */
+        let elements = sc.g.T('ytd-grid-video-renderer')
+        for (let el of elements) {
+            checkTime(el)
+        }
     }
     function scroll(menuElementYoutubeIndex) {
         async function checklength() {
@@ -85,48 +100,51 @@ youtubeScript.reset = () => {
         if (list.length > 20) {
             for (let i = 0; i < list.length; i++) {
                 try {
-                    let vidobj = sc.g("ytd-thumbnail-overlay-resume-playback-renderer", list[i]);
-                    list[i]['videohref'] = sc.g("yt-simple-endpoint ytd-thumbnail", list[i]).href;
-                    list[i]['currentIndex'] = i;
+                    /**@type { CustomYoutubeVideoElement } */
+                    const current = list[i];
+                    let vidobj = sc.g("ytd-thumbnail-overlay-resume-playback-renderer", current);
+                    current.videohref = sc.g("yt-simple-endpoint ytd-thumbnail", current).href;
+                    current.currentIndex = i;
 
-                    if (vidobj || list[i]['videohref'] === toscroll) {
+                    if (vidobj || current.videohref === toscroll) {
                         seen = true;
-                        list[i]['autoScrollButton'] = crIN(list[i], "seen3", undefined, undefined, undefined, undefined, {
+                        current.autoScrollButton = crIN(current, "seen3", undefined, undefined, undefined, undefined, {
                             style: {
-                                left: list[i]['offsetLeft'] - 100 + "px",
-                                top: list[i]['offsetTop'] + 80 + "px",
+                                left: current.offsetLeft - 100 + "px",
+                                top: current.offsetTop + 80 + "px",
                                 backgroundColor: "green",
                                 position: "absolute",
                                 width: "60px",
                                 height: "100px"
                             }
                         });
-                        createdElements.push(list[i]['autoScrollButton']);
+                        createdElements.push(current.autoScrollButton);
                         console.log('scrolling to last checked');
-                        sc.g.W().scrollTo(0, list[i]['offsetTop'] - 650);
+                        sc.g.W().scrollTo(0, current.offsetTop - 650);
                         break;
                     }
-                    if (list[i]['autoScrollButton']) {
-                        list[i]['autoScrollButton'].remove();
+                    if (current.autoScrollButton) {
+                        current.autoScrollButton.remove();
                     }
-                    list[i]['autoScrollButton'] = crIN(list[i], "mark\nseen", function (btn) {
+                    current.autoScrollButton = crIN(current, "mark\nseen", function (btn) {
                         Storage_localStorage.s(youtubemostrecent, btn.parentElement.videohref);
                         for (let i = btn.parentElement.currentIndex; i < list.length; i++) {
-                            if (list[i]['autoScrollButton']) {
-                                list[i]['autoScrollButton'].remove();
+                            if (list[i].autoScrollButton) {
+                                list[i].autoScrollButton.remove();
                             }
                         }
                     }, undefined, undefined, undefined, {
                             style: {
-                                left: list[i]['offsetLeft'] - 100 + "px",
-                                top: list[i]['offsetTop'] + 80 + "px",
+                                left: current.offsetLeft - 100 + "px",
+                                top: current.offsetTop + 80 + "px",
                                 backgroundColor: "lightgreen",
                                 position: "absolute",
                                 width: "60px",
                                 height: "100px"
                             }
                         });
-                    createdElements.push(list[i]['autoScrollButton']);
+                    createdElements.push(current.autoScrollButton);
+                    checkTime(current);
                 } catch (e) {
                     debugger;
                     handleError(e);
@@ -140,12 +158,52 @@ youtubeScript.reset = () => {
         if (!seen) {
             setTimeout(function () {
                 for (let i = 0; i < list.length; i++) {
-                    if (list[i]['autoScrollButton']) {
-                        list[i]['autoScrollButton'].remove();
+                    /**@type { CustomYoutubeVideoElement } */
+                    const current = list[i];
+                    /**@type HTMLElement */
+                    let ts = current.querySelector('#metadata-line > span:nth-child(2)')
+                    ts.style.backgroundColor = "transparent";
+                    if (current.autoScrollButton) {
+                        current.autoScrollButton.remove();
                     }
                 }
                 scrollToLastSeen(menuElementYoutubeIndex);
             }, 1000);
         }
+    }
+    /**@param {CustomYoutubeVideoElement} element */
+    function checkTime(element) {
+        if (!element.wentLiveDate) {
+            /**@type {string} */
+            const wentListString = element.querySelector('#metadata-line').children[1].textContent.split("vor ")[1];
+            /**@type {Number} */
+            let duration;
+
+            if (!wentListString) {
+                setTimeout(checkTime, 1000, element);
+                return;
+            }
+            if (wentListString.includes("Minute")) {
+                duration = (Number(wentListString.split(" Minute")[0]) * (1000 * 60));
+            } else {
+                duration = (Number(wentListString.split(" Stunde")[0]) * (1000 * 60 * 60))
+            }
+            const wentLiveDate = new Date(Date.now() - duration);
+            element.origWentLive = wentListString;
+            element.wentLiveDate = wentLiveDate;
+        }
+        let duration = Math.floor((Date.now() - element.wentLiveDate.valueOf()) / 1000);
+        let min = duration % 60;
+        let hours = Math.floor(duration / 60);
+        /**@type HTMLElement */
+        const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
+        let durationStr = hours + ":" + min;
+        if (durationStr.includes('NaN')) {
+            durationStr = "∞";
+        } else {
+            timeTExt.style.backgroundColor = "#11d1ecb8"
+        }
+        timeTExt.textContent = element.origWentLive + " => " + durationStr
+        setTimeout(checkTime, 1000, element);
     }
 })();

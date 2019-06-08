@@ -1,9 +1,1 @@
-{
-    "javascript.preferences.quoteStyle": "single",
-    "javascript.suggest.autoImports": false,
-    "javascript.suggest.completeFunctionCalls": true,
-    "javascript.implicitProjectConfig.checkJs": true,
-    "javascript.referencesCodeLens.enabled": true,
-    "php.executablePath": "D:/dprogramme/php/php.exe",
-    "php.validate.executablePath": "D:/dprogramme/php.exe",
-}
+{}

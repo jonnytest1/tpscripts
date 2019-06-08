@@ -14,10 +14,10 @@ debugger;
 
     Storage_SessionStorage.s("image", {});
     if (location.search == "") {
-        find('a').click();
+        sc.g('a').click();
         return;
     }
-    let formContainer = await find.a("formVerify1");
+    let formContainer = await sc.g.a("formVerify1");
 
     if (!formContainer) {
         // eslint-disable-next-line no-console
@@ -193,8 +193,7 @@ debugger;
      */
 
     /**@type { HTMLCollectionOf<HTMLElement &{complete:boolean,tag1?:TagTextElement,tag2?:TagTextElement}> } */
-    // @ts-ignore
-    let images = find("img", formContainer);
+    let images = sc.g("img", formContainer);
 
     [...images].forEach(
         /**@param  i */
