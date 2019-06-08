@@ -1,0 +1,19 @@
+{
+  "name": "tpscripts",
+  "version": "1.0.1",
+  "description": "tpscripts",
+  "main": "BASE.js",
+  "dependencies": {
+    "@tensorflow/tfjs": "^1.1.2",
+    "eslint-plugin-jsdoc": "^4.8.3",
+    "eslint-plugin-jsdoc-typecheck": "file:linter"
+  },
+  "devDependencies": {
+    "@types/p5": "^0.7.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

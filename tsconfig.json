@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "typeRoots": [
+            "node_modules/@types",
+            "customTypes/*"
+        ],
+        "lib": [
+            "dom",
+            "esnext"
+        ]
+    },
+    "include": [
+        "customTypes/index.d.ts",
+    ],
+    "exclude": [
+        "tpscripts/compiledjs/main.js",
+    ],
+}
