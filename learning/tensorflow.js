@@ -35,6 +35,7 @@ class NeuralWrapper {
         if (type == "sequential") {
             this.model = tf.sequential();
         }
+        this.type = type;
         this.layers = [];
         this.options = options;
         this.mutation = options.mutation || 0.1
@@ -65,7 +66,8 @@ class NeuralWrapper {
     }
     mutate(func = this.mutateWeight) {
         return tf.tidy(() => {
-            const model = new NeuralWrapper(undefined, this.options);
+
+            const model = new this.constructor(this.type, this.options);
             for (let layer of this.layers) {
                 model.addLayer(layer.type, layer.options);
             }
@@ -81,7 +83,7 @@ class NeuralWrapper {
                 mutatedWeights[i] = newW;
             }
             model.mutation = Math.max(0.1, this.decrease * this.mutation);
-            // console.log("mutation rate: " + this.mutation);
+
             model.model.setWeights(mutatedWeights);
             return model;
         });
