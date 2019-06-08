@@ -3,7 +3,7 @@
 /// <reference path="../logging.js" />
 /// <reference path="../find.js" />
 
-declare interface CWindow extends Window {
+declare interface Window {
     backendUrl: string
     finished: Function
 
@@ -17,9 +17,9 @@ declare interface CWindow extends Window {
     evalError: Function
     logKibana: Function
 
-
+    sc: scI
 }
-declare var window: CWindow;
+declare var window: Window;
 
 interface HTMLChildren extends HTMLElement {
     children: HTMLCollectionOf<HTMLChildren>
@@ -57,7 +57,7 @@ interface CustomStorage {
 
     filter?: (identfier: string, filterFunction: Function, standard?: any) => void;
 }
-interface sc {
+interface scI {
     menu?: CircularMenu;
     menuContainer: HTMLElement;
     D: Debug;
@@ -74,11 +74,11 @@ declare let scriptContent: String
 
 declare let backendUrl: string
 //declare let reqS: Function
-//declare let sc: sc;
+//declare let sc: scI;
 declare let IMPORT: any
 /*declare global {
     let handleError: Function
     let scriptContent: String
     let backendUrl: string
-    let sc: sc
+    let sc: scI
 }*/

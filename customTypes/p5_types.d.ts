@@ -21,7 +21,6 @@ interface p5I {
 declare let p5: p5I
 declare global {
     let p5: p5I
-
     interface Window {
         setup?: Function;
 

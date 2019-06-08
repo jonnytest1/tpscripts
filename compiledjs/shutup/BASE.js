@@ -1,21 +1,13 @@
-
 console.log("entrypoint");
-/**@type {Document&{window?}} */
-const d = document;
-for (let att in d.window) {
+// @ts-ignore
+for (let att in document.window) {
     if (att.startsWith("GM_")) {
         // @ts-ignore
         window[att] = document.window[att];
     }
 }
-/**
- * @type {HTMLElement &{
- *   canInject?:boolean
- * }}
- */
 let baseContainer = document.createElement("tampermonkey_base_container");
 document.body.insertBefore(baseContainer, document.body.children[0]);
-
 /** @type {scI} */
 var sc = {
     D: {
@@ -24,12 +16,7 @@ var sc = {
     },
     menuContainer: baseContainer
 };
-
 window.sc = sc;
-
-
-
-
 /**
  * @typedef {{
  *  resolve?:Function,
@@ -41,11 +28,10 @@ window.sc = sc;
  *  isModular?:boolean,
  *  reset?:()=>void
  * }} CustomScript
- * 
- * 
+ *
+ *
  *  @typedef {HTMLOrSVGScriptElement & CustomScript } CustomHTMLscript
 */
-
 /**
  * inject script with path as url
  * @param {string} path
@@ -61,19 +47,18 @@ function req(path, urlTest = false) {
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
                         resolver(e.args);
-                    } else {
+                    }
+                    else {
                         console.log("target already loaded " + (e.target.source || e.target.src));
                         resolver(e.target.args);
                     }
-                } else {
+                }
+                else {
                     //console.log("got standard finish for async target NOT RESOLVING " + (e.target.source || e.target.src));
                 }
-            }
-        })
-
-
+            };
+        });
         let rootElements = document.body.children;
-
         for (let i = 0; i < rootElements.length; i++) {
             /**
              * @type {Element&CustomScript}
@@ -83,18 +68,18 @@ function req(path, urlTest = false) {
                 if (injectedScript.loaded) {
                     console.log("resolving loaded for " + (injectedScript.source || injectedScript.src));
                     resolve(injectedScript.args);
-                } else {
+                }
+                else {
                     injectedScript.addEventListener("load", onScriptLoad(resolve));
                 }
                 return;
             }
         }
         // console.log("injecting " + path);
-
         if (urlTest || baseContainer.canInject == true) {
             injectScriptNyUrl(path);
-        } else {
-            // @ts-ignore
+        }
+        else {
             injectSCriptByText({ src: path, resolve: resolve });
         }
         function injectScriptNyUrl(path) {
@@ -105,8 +90,10 @@ function req(path, urlTest = false) {
             injectingScript.src = path;
             injectingScript.onload = onScriptLoad(resolve);
             injectingScript.resolve = resolve;
+            injectingScript.reqS = reqS;
+            injectingScript.finished = finished;
             /**
-            * @param {any} e
+            * @param {Event} e
             */
             injectingScript.onerror = (e) => {
                 if (urlTest && e == "done") {
@@ -114,27 +101,26 @@ function req(path, urlTest = false) {
                     return;
                 }
                 if (e.eventPhase == 2) {
-                    injectSCriptByText(e.target)
-                } else {
+                    injectSCriptByText(e.target);
+                }
+                else {
                     handleError(e);
                 }
-            }
+            };
             try {
                 document.body.appendChild(injectingScript);
-            } catch (e) {
+            }
+            catch (e) {
                 debugger;
                 if (!urlTest) {
-                    injectSCriptByText(injectingScript)
+                    injectSCriptByText(injectingScript);
                 }
             }
-
         }
-
         /**
          * @param {CustomHTMLscript} failedScriptElement
          */
         function injectSCriptByText(failedScriptElement) {
-
             /**
              * @type {CustomHTMLscript}
              */
@@ -142,7 +128,6 @@ function req(path, urlTest = false) {
             errorFixScript.onload = onScriptLoad(failedScriptElement.resolve);
             console.log("blocked ? injecting extension " + path);
             errorFixScript.source = failedScriptElement.src;
-
             /**
              * @type {EventTarget & CustomScript}
              */
@@ -161,13 +146,13 @@ function req(path, urlTest = false) {
                 onabort: (e) => handleError(e)
             });
         }
-    })
+    });
 }
 window.req = req;
 //random change
 /**
  * inject script with path as url from local backend
- * @param {String } path 
+ * @param {String } path
  * @global
  */
 function reqS(path, urlTest = false) {
@@ -176,13 +161,12 @@ function reqS(path, urlTest = false) {
 window.reqS = reqS;
 Object.assign(window, { reqS });
 /**
- * @param {*} content 
- * @param {*} async 
- * @param {*} currentScript 
+ * @param {*} content
+ * @param {*} async
+ * @param {*} currentScript
  */
 function finished(content, async = false, currentScript = document.currentScript) {
     //console.log("finishing for " + (currentScript.source || currentScript.src));
-
     /**
      * @type {Event & {args?:any,isAsync?:boolean}}
      */
@@ -192,39 +176,29 @@ function finished(content, async = false, currentScript = document.currentScript
     currentScript.dispatchEvent(event);
 }
 window.finished = finished;
-
 function checkScript() {
     return new Promise((res) => {
         reqS("injectTest", true).then((ret) => {
             res(!!ret);
-        })
-        setTimeout(() => res(false), 1000)
-    })
+        });
+        setTimeout(() => res(false), 1000);
+    });
 }
 new Promise(async (resolver) => {
     baseContainer.canInject = await checkScript();
-
     // eslint-disable-next-line no-unused-vars
     let logging = await reqS("logging");
     // @ts-ignore 
     let notification = await reqS("notification");
-
     //await reqS("DOM/dependencyCheck");
     // eslint-disable-next-line no-unused-vars
-
     /**@type {ElementGetter} */
     let find = await reqS("find");
     // eslint-disable-next-line no-unused-vars
     let overwrites = IMPORT;
-
     await reqS("DOM/CircularMenu");
-
     let Storage_greaseStorage = IMPORT;
     await CircularMenu.main();
-
     window.backendUrl = 'http://localhost:4280';
-
-    resolver({})
-})
-
-
+    resolver({});
+});
