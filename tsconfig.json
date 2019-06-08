@@ -1,10 +1,12 @@
 {
+    "compileOnSave": false,
     "compilerOptions": {
         "target": "esnext",
         "typeRoots": [
             "node_modules/@types",
             "customTypes/*"
         ],
+        "outDir": "compiledjs/shutup",
         "lib": [
             "dom",
             "esnext"

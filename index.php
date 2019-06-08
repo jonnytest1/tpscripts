@@ -91,8 +91,9 @@
 		if(!($exceptionHeader==" ")){
 				header("exception: ".$exceptionHeader);
 		}
-		$json="(async function all(){ try{\n";
-		$json=$json.preProcessFileName('BASE');
+		$json="(function all(){ try{\n";
+		
+		$json=$json.preProcessFileName('BASE').".then((BASE)=>{";
 		
 		$queryPAramas=getQueryParams();
 		if(!array_key_exists("url",$queryPAramas)){
@@ -137,7 +138,7 @@
 		}
 		$json=$json."//_________________________end of site___________________________\n";
 
-		$json=$json."\n}catch(e){\n\tconsole.trace(e);\n\thandleError(e);\n}})();";
+		$json=$json."\n});}catch(e){\n\tconsole.trace(e);\n\thandleError(e);\n}})();";
 		echo $json;
 	}catch(Exception $e){
 		http_response_code(400);

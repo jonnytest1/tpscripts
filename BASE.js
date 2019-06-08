@@ -1,7 +1,6 @@
 
 console.log("entrypoint");
-/* global IMPORT */
-// @ts-ignore
+
 for (let att in document.window) {
     if (att.startsWith("GM_")) {
         // @ts-ignore
@@ -12,8 +11,8 @@ for (let att in document.window) {
 let baseContainer = document.createElement("tampermonkey_base_container");
 document.body.insertBefore(baseContainer, document.body.children[0]);
 
-/** @global */
-let sc = {
+/** @type {sc} */
+var sc = {
     D: {
         //created element id counter
         n: 0
@@ -87,7 +86,7 @@ function req(path, urlTest = false) {
         }
         // console.log("injecting " + path);
 
-        if (canINjecT == true || urlTest) {
+        if (urlTest || baseContainer.canInject == true) {
             injectScriptNyUrl(path);
         } else {
             injectSCriptByText({ src: path, resolve: resolve });
@@ -100,6 +99,8 @@ function req(path, urlTest = false) {
             injectingScript.src = path;
             injectingScript.onload = onScriptLoad(resolve);
             injectingScript.resolve = resolve;
+            injectingScript.reqS = reqS;
+            injectingScript.finished = finished;
             /**
             * @param {Event} e
             */
@@ -163,8 +164,9 @@ window.req = req;
 /**
  * inject script with path as url from local backend
  * @param {String } path 
+ * @global
  */
-var reqS = function reqS(path, urlTest = false) {
+function reqS(path, urlTest = false) {
     return req("http://localhost:4280/" + path + ".js", urlTest);
 }
 window.reqS = reqS;
@@ -195,29 +197,30 @@ function checkScript() {
         setTimeout(() => res(false), 1000)
     })
 }
+new Promise(async (resolver) => {
+    baseContainer.canInject = await checkScript();
 
-var canINjecT = await checkScript();
+    // eslint-disable-next-line no-unused-vars
+    let logging = await reqS("logging");
+    // @ts-ignore 
+    let notification = await reqS("notification");
 
-// eslint-disable-next-line no-unused-vars
-let logging = IMPORT; //await reqS("logging");
-// @ts-ignore
-let notification = await reqS("notification");
+    //await reqS("DOM/dependencyCheck");
+    // eslint-disable-next-line no-unused-vars
 
-//await reqS("DOM/dependencyCheck");
-// eslint-disable-next-line no-unused-vars
+    /**@type {ElementGetter} */
+    let find = await reqS("find");
+    // eslint-disable-next-line no-unused-vars
+    let overwrites = IMPORT;
 
-/**@type {ElementGetter} */
-let find = IMPORT;
-// eslint-disable-next-line no-unused-vars
-let overwrites = IMPORT;
-// @ts-ignore
-await reqS("DOM/CircularMenu");
+    await reqS("DOM/CircularMenu");
 
-// eslint-disable-next-line no-unused-vars
-let Storage_greaseStorage = IMPORT;
-debugger;
-await CircularMenu.main();
+    let Storage_greaseStorage = IMPORT;
+    await CircularMenu.main();
 
-window.backendUrl = 'http://localhost:4280';
+    window.backendUrl = 'http://localhost:4280';
+
+    resolver({})
+})
 
 

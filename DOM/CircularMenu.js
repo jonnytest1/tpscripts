@@ -1,5 +1,6 @@
 /* global sc,handleError */
 /// <reference path="../DOM/line.js" />
+let scr = document.currentScript;
 class MenuElement {
 
     /**
@@ -290,10 +291,10 @@ class CircularMenu {
         }
     }
     static async main() {
-        debugger;
-        await reqS("DOM/line");
 
-        await reqS("DOM/button");
+        await scr.reqS("DOM/line");
+
+        await scr.reqS("DOM/button");
 
         async function activator() {
             return new Promise((resolver) => {

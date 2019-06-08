@@ -5,12 +5,16 @@
  * @returns {boolean}
 */
 function shouldLogResponse(response, htmlErrorCheck = true) {
-	let docText = "<!DOCTYPE html";
+	let refTExt = '<reference path="customTypes/index.d.ts" />';
 	let brText = "<br />";
 	if (response.includes('console.log("entrypoint");') && response.includes("tampermonkey_base_container")) {
-		return response.split(brText).length > 2 && htmlErrorCheck && response.split(docText).length == 1;
+		return response.split(brText).length > 2 && htmlErrorCheck && response.split(refTExt).length == 1;
 	} else {
-		return response && response.includes(brText) && htmlErrorCheck && !response.includes(docText);
+		const ret = response && response.includes(brText) && htmlErrorCheck && !response.includes(refTExt);
+		if (ret) {
+			debugger;
+		}
+		return ret;
 	}
 }
 

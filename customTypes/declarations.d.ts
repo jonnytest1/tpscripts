@@ -73,7 +73,8 @@ interface sc {
 declare let scriptContent: String
 
 declare let backendUrl: string
-
+//declare let reqS: Function
+//declare let sc: sc;
 declare let IMPORT: any
 /*declare global {
     let handleError: Function

@@ -8,11 +8,15 @@ depCheckScript.reset = () => {
 
 var scriptContents = {}
 var url = "http://localhost:4280?url=" + location.href;
+function getSCriptsArray() {
+    return [...document.body.getElementsByTagName("script")];
+}
+
 (async function initAutoRefresh() {
     await reqS("http");
 
     /** @type {Array<HTMLScriptElement>} */
-    let scripts = [...document.head.getElementsByTagName("script")]
+    let scripts = getSCriptsArray();
     try {
         scriptContents[url] = await gm_fetch(url);
     } catch (e) {
@@ -33,7 +37,7 @@ var url = "http://localhost:4280?url=" + location.href;
 })();
 
 async function scriptCheck() {
-    let scripts = [...document.head.getElementsByTagName("script")];
+    let scripts = getSCriptsArray();
     for (let script of scripts) {
         await checkScript(script)
     }
