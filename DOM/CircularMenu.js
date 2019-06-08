@@ -292,9 +292,9 @@ class CircularMenu {
     }
     static async main() {
 
-        await scr.reqS("DOM/line");
+        await reqS("DOM/line");
 
-        await scr.reqS("DOM/button");
+        await reqS("DOM/button");
 
         async function activator() {
             return new Promise((resolver) => {

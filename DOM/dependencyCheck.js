@@ -1,3 +1,5 @@
+/// <reference path="../customTypes/index.d.ts" />
+/// <reference path="../http.js" />
 /**@type {CustomHTMLscript}*/
 var depCheckScript = document.currentScript
 depCheckScript.isModular = true;
@@ -13,6 +15,7 @@ function getSCriptsArray() {
 }
 
 (async function initAutoRefresh() {
+
     await reqS("http");
 
     /** @type {Array<HTMLScriptElement>} */

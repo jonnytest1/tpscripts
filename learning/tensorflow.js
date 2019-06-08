@@ -11,7 +11,7 @@ document.head.appendChild(tfs);
 
 class NeuralWrapper {
 
-    /**
+    /** 
      * 
      * @typedef NeuralWrapperOption 
      * @property {number} [mutation]

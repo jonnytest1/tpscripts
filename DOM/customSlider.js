@@ -1,3 +1,5 @@
+/// <reference path="../customTypes/index.d.ts" />
+
 /**@type {CustomHTMLscript}*/
 var sliderScript = document.currentScript
 sliderScript.isModular = true;
