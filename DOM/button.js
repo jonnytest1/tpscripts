@@ -11,7 +11,7 @@ buttonScript.isModular = true;
      *  @name dom_b
      */
 
-    const constants = await buttonScript.reqS("DOM/DOMConstants")
+    const constants = await reqS("DOM/DOMConstants")
     /**
      * 
      * @param {HTMLElement} element 
@@ -222,7 +222,7 @@ buttonScript.isModular = true;
     }
     window.crIN = Button.crIN;
     window.crBE = Button.crBE;
-    buttonScript.finished({
+    finished({
         crIN: Button.crIN,
         crBE: Button.crBE
     }, true, buttonScript);

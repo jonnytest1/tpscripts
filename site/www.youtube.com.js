@@ -66,7 +66,7 @@ youtubeScript.reset = () => {
         time.waitFor({
             duration: 1000 * 60 * 60,
             timeout: 500,
-            callback: window.location.reload,
+            callback: () => location.reload(),
             onStep: (percent) => {
                 if (rotationSlider) {
                     rotationSlider.setPercent(1 - percent);
