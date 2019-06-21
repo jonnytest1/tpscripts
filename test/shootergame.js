@@ -5,20 +5,20 @@ class Triangle {
         this.height = height;
     }
     draw() {
-        this.point2 = p5.Vector.add(this.position, createVector(this.height / 2, - this.height))
+        this.point2 = p5.Vector.add(this.position, createVector(this.height / 2, - this.height));
         this.point3 = window.p5.Vector.add(this.position, createVector(-this.height / 2, -this.height));
-        fill("black");
+        fill('black');
         p5a.tr(this.position, this.point2, this.point3);
     }
     move(vec) {
         this.position.add(vec);
     }
-    isInside(point_) {
+    isInside(point) {
         const area = this.calculateArea(this.position, this.point3, this.point2);
 
-        const area1 = this.calculateArea(this.position, point_, this.point2);
-        const area2 = this.calculateArea(this.position, point_, this.point3);
-        const area3 = this.calculateArea(this.point3, point_, this.point2);
+        const area1 = this.calculateArea(this.position, point, this.point2);
+        const area2 = this.calculateArea(this.position, point, this.point3);
+        const area3 = this.calculateArea(this.point3, point, this.point2);
 
         if (Math.abs((area1 + area2 + area3) - area) < 0.01) {
             return true;
@@ -52,15 +52,15 @@ class Enemy {
     isOutOfHeight(height) {
         return this.shape.isOutOfHeight(height);
     }
-    diff(spaceShip) {
-        return spaceShip.position.x - this.shape.position.x;
+    diff(ship) {
+        return ship.position.x - this.shape.position.x;
     }
 
-    isRight(spaceShip) {
-        return this.diff(spaceShip) < -10;
+    isRight(ship) {
+        return this.diff(ship) < -10;
     }
-    isLeft(spaceShip) {
-        return this.diff(spaceShip) > 10;
+    isLeft(ship) {
+        return this.diff(ship) > 10;
     }
 }
 class Projectile {
@@ -84,7 +84,8 @@ class Projectile {
 
     isColliding(enemy) {
 
-        if (p5.Vector.sub(this.position, enemy.position).mag() > this.height + enemy.size) {
+        if (p5.Vector.sub(this.position, enemy.position)
+            .mag() > this.height + enemy.size) {
             return false;
         }
         let points = [
@@ -92,7 +93,7 @@ class Projectile {
             p5.Vector.add(this.position, createVector(this.width, this.height)),
             p5.Vector.add(this.position, createVector(0, 0)),
             p5.Vector.add(this.position, createVector(this.width, 0))
-        ]
+        ];
         for (let point of points) {
             if (enemy.isColliding(point)) {
                 return true;
@@ -129,11 +130,11 @@ class Ship {
             this.moveRight();
         }
         if (keyIsDown(32)) {
-
+            //
         }
-        const point2 = window.p5.Vector.add(this.position, createVector(this.size / 2, this.size))
+        const point2 = window.p5.Vector.add(this.position, createVector(this.size / 2, this.size));
         const point3 = window.p5.Vector.add(this.position, createVector(-this.size / 2, this.size));
-        fill("black");
+        fill('black');
         p5a.tr(this.position, point2, point3);
 
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
@@ -150,18 +151,16 @@ class Ship {
         this.position.add(createVector(-this.speed, 0));
     }
     shoot() {
-        this.projectiles.push(new Projectile(this.position))
+        this.projectiles.push(new Projectile(this.position));
     }
 }
-
-
 
 let spaceShip;
 let enemies = [];
 
 let mlModel;
 setups.push((width, height) => {
-    console.log("setup start")
+    console.log('setup start');
 
     createCanvas(width, height);
 
@@ -177,7 +176,7 @@ setups.push((width, height) => {
         activation: 'relu',
         kernelInitializer: 'VarianceScaling'
 
-    }))
+    }));
 
     mlModel.add(tf.layers.maxPooling2d({
         poolSize: [2, 2],
@@ -210,7 +209,7 @@ setups.push((width, height) => {
     });
 
     spaceShip = new Ship(width / 2, height - 40);
-    console.log("setup end")
+    console.log('setup end');
     frameRate(3000000);
 });
 draws.push(async function shootergame() {
@@ -218,10 +217,11 @@ draws.push(async function shootergame() {
         return;
     }
     let imageDAta = tf.tidy(() => {
-        const imgD = getImageData(width, height)
+        const imgD = getImageData(width, height);
         return imgD.reshape([-1, ...imgD.shape]);
-    })
-    const prediction = mlModel.predict([imageDAta]).dataSync();
+    });
+    const prediction = mlModel.predict([imageDAta])
+        .dataSync();
 
     debugger;
     if (prediction[0] > 0.8) {
@@ -233,11 +233,9 @@ draws.push(async function shootergame() {
         spaceShip.shoot();
     }
 
-
     spaceShip.draw();
 
-
-    if (Math.random() > 0.98 || enemies.length == 0) {
+    if (Math.random() > 0.98 || enemies.length === 0) {
         //enemies.push(new Enemy(0.5 * width, Math.random()));
         enemies.push(new Enemy(Math.random() * width, Math.random()));
     }
@@ -250,15 +248,15 @@ draws.push(async function shootergame() {
             let e = enemies[i];
 
             if (e.isRight(spaceShip)) {
-                const xy = tf.tensor([[0, 1, 1]])
+                const xy = tf.tensor([[0, 1, 1]]);
                 await mlModel.fit([imageDAta], xy);
                 xy.dispose();
             } else if (e.isLeft(spaceShip)) {
-                const xy = tf.tensor([[1, 0, 1]])
+                const xy = tf.tensor([[1, 0, 1]]);
                 await mlModel.fit([imageDAta], xy);
                 xy.dispose();
             } else {
-                const xy = tf.tensor([[-1, -1, 1]])
+                const xy = tf.tensor([[-1, -1, 1]]);
                 await mlModel.fit([imageDAta], xy);
                 xy.dispose();
             }
@@ -270,19 +268,18 @@ draws.push(async function shootergame() {
     //console.log("test");
 });
 keyPresseds.push((keyEvent) => {
-    if (keyEvent.code == "Space") {
+    if (keyEvent.code === 'Space') {
         spaceShip.shoot();
     }
-})
-
+});
 
 function getImageData(width, height) {
     /**
      * @type {HTMLCanvasElement} canvas
      */
     // @ts-ignore
-    const canvas = document.getElementById("defaultCanvas0");
-    const context = canvas.getContext("2d");
+    const canvas = document.getElementById('defaultCanvas0');
+    const context = canvas.getContext('2d');
     const imageData = context.getImageData(0, 0, width, height);
     return tf.browser.fromPixels(canvas);
     /*let scaleSize = 4;

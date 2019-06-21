@@ -3,10 +3,10 @@
 
 var S = {
     s: (identifier, element) => {
-        sessionStorage.setItem("tampermonkey_" + identifier, JSON.stringify(element));
+        sessionStorage.setItem('tampermonkey_' + identifier, JSON.stringify(element));
     },
     g: (identifier, standard = new Array(0)) => {
-        let element = JSON.parse(sessionStorage.getItem("tampermonkey_" + identifier));
+        let element = JSON.parse(sessionStorage.getItem('tampermonkey_' + identifier));
         if (element === null) {
             S.s(identifier, standard);
             return standard;
@@ -16,7 +16,7 @@ var S = {
     p: (identifier, object, standard = []) => {
         try {
             let ar = S.g(identifier, standard);
-            if (ar.constructor.name === "Array") {
+            if (ar.constructor.name === 'Array') {
                 ar.push(object);
                 S.s(identifier, ar);
             }

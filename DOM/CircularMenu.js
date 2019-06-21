@@ -1,11 +1,11 @@
 /* global sc,handleError */
 /// <reference path="../DOM/line.js" />
-let scr = document.currentScript;
+
 class MenuElement {
 
     /**
-     * 
-     * @param {MenuElementItem} props 
+     *
+     * @param {MenuElementItem} props
      */
     constructor(props) {
         for (let i in props) {
@@ -16,10 +16,9 @@ class MenuElement {
         }
     }
 
-
     /**
-     * 
-     * @param {} elements 
+     *
+     * @param {MenuElementItem[]} elements
      * @returns {Array<MenuElement>}
      */
     static parse(elements) {
@@ -27,41 +26,48 @@ class MenuElement {
     }
 
 }
-class CircularMenu {
+
+/**
+ *
+ * @typedef {CircularMenu} CircularMenuC
+ *
+ */
+//tslint:disable-next-line variable-name
+var CircularMenu = class CircularMenuC {
 
     /**
-     * 
+
      * @typedef MenuElementItem
      * @property { MenuElementItem[] } [children]
      * @property {String} [name]
      * @property {Function} [onclick]
-     * @property {Function} [mouseOver]
+     * @property {(parent:HTMLElement)=>boolean|void} [mouseOver]
      * @property {(target)=>boolean} [isValid]
      * @property {Function } [creationFunction]
      * @property {String} [enabledColor]
-     * 
-     * */
+
+     */
 
     /**
-     * 
+
      * @typedef {HTMLElement & {
      *      menuOption:MenuElementItem,
      *      center:Center,
      *      menu:CircularMenu,
      *      degree:number,
      *      parentSpace:number
-     * }} CircularMenuHTMLButton 
+     * }} CircularMenuHTMLButton
      */
 
     /**
-     * @param {HTMLElement} parent 
-     * @param {MenuElementItem[]} elements 
-     * @param {{ deactivatorChoice?:string, deactivator?:()=>Promise<Event>, activator?:()=>Promise<Event>, getCenter?:()=>{x:number,y:number,target:HTMLElement}}} options 
+     * @param {HTMLElement} parent
+     * @param {MenuElementItem[]} elements
+     * @param {{ deactivatorChoice?:string, deactivator?:()=>Promise<Event>, activator?:()=>Promise<Event>, getCenter?:()=>{x:number,y:number,target:HTMLElement}}} options
      */
     constructor(parent, elements, options = {}) {
         this.isActive = false;
         this.parent = parent;
-        /**@type {Array<MenuElementItem>} */
+        /**@type {Array<MenuElementItem>}*/
         this.elements = MenuElement.parse(elements);
         this.deactivators = { timedDeactivation: this.timedDeactivation };
         this.deactivatorChoice = options.deactivatorChoice || 'timedDeactivation';
@@ -76,7 +82,8 @@ class CircularMenu {
         if (options.activator) {
             this.activator = options.activator;
         }
-        this.activator().then(ev => this.onActivate.call(this, ev));
+        this.activator()
+            .then(ev => this.onActivate.call(this, ev));
     }
     onActivate(ev) {
         try {
@@ -91,21 +98,20 @@ class CircularMenu {
         await this.backgroundObj.deactivation();
         this.isActive = false;
         this.backgroundObj.remove();
-        this.activator().then(ev => this.onActivate.call(this, ev));
+        this.activator()
+            .then(ev => this.onActivate.call(this, ev));
     }
 
-    activator() {
+    async activator() {
         return new Promise((resolver) => {
             this.parent.addEventListener('mouseenter', (ev) => {
                 resolver(ev);
             });
         });
     }
-    timedDeactivation(button) {
+    async timedDeactivation(button) {
         return new Promise((resolver) => {
-            setTimeout(function () {
-                resolver(button);
-            }, 3000);
+            setTimeout(() => resolver(button), 3000);
         });
     }
 
@@ -120,6 +126,7 @@ class CircularMenu {
         if (sc.circularmenu) {
             sc.circularmenu.remove();
         }
+
         sc.circularmenu = obj;
         return obj;
     }
@@ -127,20 +134,20 @@ class CircularMenu {
     getBackgroundObject(center, radius) {
         let parent = sc.menuContainer;
         let el = document.elementFromPoint(center.x, center.y);
-        if (el && el.tagName.toUpperCase() == "VIDEO") {
+        if (el && el.tagName.toUpperCase() === 'VIDEO') {
             parent = el.parentElement;
         }
-        let backgroundObject = this.set(crIN(parent, "", undefined, undefined, function (btn) {
+        let backgroundObject = this.set(crIN(parent, '', undefined, undefined, btn => {
             //btn.remove();
         }, undefined, {
                 style: {
-                    borderRadius: radius + "px",
-                    width: radius + "px",
-                    height: radius + "px",
-                    left: center.x - (radius / 2) + "px",
-                    top: center.y - (radius / 2) + "px",
-                    visibility: "visible",
-                    backgroundColor: "rgba(206, 53, 53, 0.1)",
+                    borderRadius: `${radius}px`,
+                    width: `${radius}px`,
+                    height: `${radius}px`,
+                    left: `${center.x - (radius / 2)}px`,
+                    top: `${center.y - (radius / 2)}px`,
+                    visibility: 'visible',
+                    backgroundColor: 'rgba(206, 53, 53, 0.4)',
                 }
             }));
         backgroundObject.position = center;
@@ -155,6 +162,21 @@ class CircularMenu {
             return option.isValid(this.center.target);
         }
     }
+
+    /**
+     * @param {string} name
+     */
+    removeByName(name) {
+        this.filter(m => m.name !== name);
+    }
+    /**
+
+     * @param {(menu:MenuElementItem)=>boolean} filterfnc
+     */
+    filter(filterfnc) {
+        this.elements = this.elements.filter(filterfnc);
+    }
+
     /**
      * @param {MenuElementItem} menu
      */
@@ -186,40 +208,47 @@ class CircularMenu {
         }
     }
     /**
-     * 
-     * @param {*} parent 
-     * @param {*} text 
-     * @param {*} onclick 
-     * @param {*} fncmouseEnter 
-     * @param {*} fncMouseLeave 
-     * @param {*} style 
-     * @param {Center} center 
-     * @param {*} menu 
+
+     * @param {*} parent
+     * @param {*} text
+     * @param {*} onclick
+     * @param {*} fncmouseEnter
+     * @param {*} fncMouseLeave
+     * @param {*} style
+     * @param {Center&{target:HTMLElement}} center
+     * @param {*} menu
      */
-    createElement(parent, text = "", onclick, fncmouseEnter, fncMouseLeave, style, center, menu) {
+    createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu) {
         let sradius = 50;
         /** @type {HTMLElement& {center?:Center}} */
         let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
-        element.style.width = sradius + "px";
-        element.style.height = sradius + "px";
+        element.style.width = `${sradius}px`;
+        element.style.height = `${sradius}px`;
 
-        element.style.left = center.x - (sradius / 2) + "px";
-        element.style.top = center.y - (sradius / 2) + "px";
+        element.style.left = `${center.x - (sradius / 2)}px`;
+        element.style.top = `${center.y - (sradius / 2)}px`;
         element.center = center;
         return element;
     }
 
+    /**
 
+     * @param {*} buttonArray
+     * @param {*} startAngle
+     * @param {*} availableAngle
+     * @param {*} distance
+     * @param {Center&{target:HTMLElement}} center
+     * @param {*} parent
+     */
     setButtons(buttonArray, startAngle, availableAngle, distance, center, parent = this.backgroundObj) {
 
         buttonArray = buttonArray.filter(el => this.filterOptions(el));
         let degree = availableAngle / (buttonArray.length);
 
-        if (buttonArray.length == 1) {
+        if (buttonArray.length === 1) {
             availableAngle = 0;
             degree = 0;
         }
-
 
         let innerRadius = distance * 0.4;
         for (let i = 0; i < buttonArray.length; i++) {
@@ -232,31 +261,30 @@ class CircularMenu {
 
             let creationFunction = buttonArray[i].creationFunction || this.createElement;
 
-
             let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };
 
             let line = new Line(parent, center, newCenter, 36);
 
             /** @type  { CircularMenuHTMLButton } */
-            let buttonInstance = creationFunction(parent, buttonArray[i].name || "", (function () {
+            let buttonInstance = creationFunction(parent, buttonArray[i].name || '', (() => {
                 let fnc = buttonArray[i].onclick;
-                return function (btn) {
+                return (btn) => {
                     fnc(btn);
                     btn.parentElement.remove();
                 };
             })(),
                 /** @param { CircularMenuHTMLButton } btn */
-                function (btn) {
-                    btn.style.backgroundColor = btn.menuOption.enabledColor || "green";
+                (btn) => {
+                    btn.style.backgroundColor = btn.menuOption.enabledColor || 'green';
                     if (btn.menuOption.mouseOver) {
-                        if (btn.menuOption.mouseOver() == false) {
+                        if (btn.menuOption.mouseOver(btn.parentElement) === false) {
                             return;
                         }
                     }
                     if (btn.menuOption.children) {
-                        for (let i of buttonArray) {
-                            if (i.children) {
-                                for (let j of i.children) {
+                        for (let button of buttonArray) {
+                            if (button.children) {
+                                for (let j of button.children) {
                                     if (j.element) {
                                         j.element.remove();
                                     }
@@ -269,17 +297,15 @@ class CircularMenu {
                         }
                         buttonInstance.menu.setButtons.call(buttonInstance.menu, btn.menuOption.children, btn.degree, 90, 100 + (35 * btn.menuOption.children.length), btn.center);
                     }
-                }, function (btn) {
-                    btn.style.backgroundColor = "white";
-                }, {
+                }, (btn) => btn.style.backgroundColor = 'white'
+                , {
                     target: center.target,
                     style: {
-                        borderRadius: distance + "px",
-                        visibility: "visible",
-                        backgroundColor: "rgba(0, 0, 53, 0.4)"
+                        borderRadius: `${distance}px`,
+                        visibility: 'visible',
+                        backgroundColor: 'rgba(0, 0, 53, 0.4)'
                     }
                 }, newCenter, angle, this);
-
 
             buttonInstance.center = newCenter;
             buttonInstance.menuOption = buttonArray[i];
@@ -292,14 +318,14 @@ class CircularMenu {
     }
     static async main() {
 
-        await reqS("DOM/line");
+        await reqS('DOM/line');
 
-        await reqS("DOM/button");
+        await reqS('DOM/button');
 
         async function activator() {
             return new Promise((resolver) => {
                 function onKeyDown(event) {
-                    if (event.key == "Control") {
+                    if (event.key === 'Control') {
                         document.removeEventListener('keydown', onKeyDown);
                         resolver(event);
                     }
@@ -311,7 +337,7 @@ class CircularMenu {
         async function deactivator() {
             return new Promise((resolver) => {
                 function onKeyUp(event) {
-                    if (event.key == "Control") {
+                    if (event.key === 'Control') {
                         document.removeEventListener('keyup', onKeyUp);
                         resolver(event);
                     }
@@ -321,17 +347,16 @@ class CircularMenu {
         }
         let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let menu = new CircularMenu(document.body, [{
-            name: "add",
-            isValid: function () {
-                return true;
-            }
-        }], {
+            name: 'add',
+            isValid: () => true
+        }
+        ], {
                 activator: activator,
                 deactivator: deactivator,
                 getCenter: () => ({ ...mouse, target: document.body })
             });
 
-        window.addEventListener("mousemove", (ev) => {
+        window.addEventListener('mousemove', (ev) => {
             mouse = { x: ev.x, y: ev.y };
             if (menu) {
                 //menu.initialize(ev);
@@ -340,4 +365,4 @@ class CircularMenu {
         sc.menu = menu;
         return menu;
     }
-}
+};

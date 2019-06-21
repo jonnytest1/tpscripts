@@ -27,19 +27,19 @@ function overwrites() {
 
 	let originalOpen = open;
 	// @ts-ignore
-	open = (url, target, feature_focus, ...args) => {
+	open = (url, target, featureFocus, ...args) => {
 		if (target === true) {
 			location.href = url;
 			return window;
 		}
-		if (feature_focus === true) {
-			return originalOpen(url, target, feature_focus, ...args);
+		if (featureFocus === true) {
+			return originalOpen(url, target, featureFocus, ...args);
 		} else {
 			// @ts-ignore
 			let win = window.GM_openInTab(url, { active: false, insert: false }); //active ~focused insert: append at end or after the current tab
 			win.name = window.name;
-			if (win == undefined) {
-				alert("didnt open tab :o");
+			if (win === undefined) {
+				alert('didnt open tab :o');
 			}
 			return win;
 		}
@@ -47,9 +47,9 @@ function overwrites() {
 
 	/*let originalAddEventListener = Element.prototype.addEventListener;
 	Element.prototype.addEventListener = (a, b, ...rest) => {
-	
+
 		return originalAddEventListener(a, b, ...rest);
-	
+
 	}*/
 	return {
 		setTimeout: originalSetTimeout,

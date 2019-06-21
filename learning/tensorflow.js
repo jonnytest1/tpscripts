@@ -1,36 +1,37 @@
-/// <reference path="../BASE.js" />
+/// <reference path="../customTypes/index.d.ts" />
 /// <reference path="../customTypes/p5_types.d.ts" />
+/// <reference path="../customTypes/tensorflow.d.ts" />
 /**
- * @type {HTMLOrSVGScriptElement & CustomScript } 
+ * @type {HTMLOrSVGScriptElement & CustomScript }
  */
 const tfScript = document.currentScript;
 tfScript.isAsync = true;
-let tfs = document.createElement("script");
-tfs.src = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest";
+let tfs = document.createElement('script');
+tfs.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest';
 document.head.appendChild(tfs);
 
 class NeuralWrapper {
 
-    /** 
-     * 
-     * @typedef NeuralWrapperOption 
+    /**
+     *
+     * @typedef NeuralWrapperOption
      * @property {number} [mutation]
      * @property {number} [decrease]
      */
 
     /**
      * NeuralWrapper
-     * @param {string} type 
-     * @param {NeuralWrapperOption} options 
+     * @param {string} type
+     * @param {NeuralWrapperOption} options
      */
-    constructor(type = "sequential", options = {}) {
-        if (type == "sequential") {
+    constructor(type = 'sequential', options = {}) {
+        if (type === 'sequential') {
             this.model = tf.sequential();
         }
         this.type = type;
         this.layers = [];
         this.options = options;
-        this.mutation = options.mutation || 0.1
+        this.mutation = options.mutation || 0.1;
         this.decrease = options.decrease || 0.95;
 
     }
@@ -42,7 +43,7 @@ class NeuralWrapper {
     /**@param {TensorObject} tensor */
     predict(tensor) {
         const prediction = tf.tidy(() => {
-            const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape])
+            const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape]);
             return this.model.predict(reshaped);
         });
         return prediction.dataSync();
@@ -59,7 +60,7 @@ class NeuralWrapper {
     mutate(func = this.mutateWeight) {
         return tf.tidy(() => {
             /**@type {any} */
-            const constructor = this.constructor
+            const constructor = this.constructor;
             const model = new constructor(this.type, this.options);
             for (let layer of this.layers) {
                 model.addLayer(layer.type, layer.options);
@@ -68,7 +69,8 @@ class NeuralWrapper {
             const mutatedWeights = [];
             for (let i = 0; i < w.length; i++) {
                 let shape = w[i].shape;
-                let arr = w[i].dataSync().slice();
+                let arr = w[i].dataSync()
+                    .slice();
                 for (let j = 0; j < arr.length; j++) {
                     arr[j] = func.call(this, arr[j]);
                 }
@@ -96,12 +98,12 @@ class NeuralWrapper {
             example = tf.tensor(example);
         }
         const nn = new NeuralWrapper();
-        nn.addLayer("dense", {
+        nn.addLayer('dense', {
             units: hidden,
             inputShape: example.shape,
             activation: 'sigmoid'
         });
-        nn.addLayer("dense", {
+        nn.addLayer('dense', {
             units: outputs,
             activation: 'sigmoid'
         });
@@ -109,13 +111,12 @@ class NeuralWrapper {
     }
 }
 
-
-/** 
+/**
    * @typedef GeneticImplementation
-   * @property {()=>TensorObject} getTensor 
-   * @property {(prediction:Array<number>)=>number} getReward 
-   * 
-   * 
+   * @property {()=>TensorObject} getTensor
+   * @property {(prediction:Array<number>)=>number} getReward
+   *
+   *
    */
 class GeneticNeuralWrapper extends NeuralWrapper {
 
@@ -129,7 +130,7 @@ class GeneticNeuralWrapper extends NeuralWrapper {
     }
 
     /**
-     * @param {GeneticImplementation} object 
+     * @param {GeneticImplementation} object
      */
     predictObject(object) {
         const prediction = super.predict(object.getTensor());
@@ -142,63 +143,61 @@ class GeneticNeuralWrapper extends NeuralWrapper {
             example = tf.tensor(example);
         }
         const nn = new GeneticNeuralWrapper();
-        nn.addLayer("dense", {
+        nn.addLayer('dense', {
             units: hidden,
             inputShape: example.shape,
             activation: 'sigmoid'
         });
-        nn.addLayer("dense", {
+        nn.addLayer('dense', {
             units: outputs,
             activation: 'sigmoid'
         });
         return nn;
     }
 
-
 }
 /**
- * 
+ *
  * @template {GeneticImplementation} T
- * 
+ *
  */
 class NeuralGeneration {
     /**
      * @param {number} amount population size
-     * @param {(index:number) => T } objectContructor 
+     * @param {(index:number) => T } objectContructor
      * @param {number} hiddenLayers
      */
     constructor(amount, objectContructor, hiddenLayers) {
-        this.amount = amount
+        this.amount = amount;
         /**
          * @type {Array<GeneticNeuralWrapper>}
          */
         this.models = [];
 
-
         /**
-         * 
+         *
          * @type {Array<T>}
          */
-        this.objects = []
+        this.objects = [];
         for (let i = 0; i < this.amount; i++) {
             const object = objectContructor(i);
             this.objects.push(object);
-            this.models.push(GeneticNeuralWrapper.denseFromExample(this.objects[i].getTensor(), hiddenLayers, 2))
+            this.models.push(GeneticNeuralWrapper.denseFromExample(this.objects[i].getTensor(), hiddenLayers, 2));
         }
     }
     /**
-     * 
+     *
      * @param {{
      *  shouldPredict?:(object?:T,index?:number)=>boolean
      *  afterEach?:(object?:T,model?:GeneticNeuralWrapper,index?:number)=>void
      *  forBest?:(object?:T,model?:GeneticNeuralWrapper,index?:number)=>void
-     * }} [options] 
+     * }} [options]
      */
     frame(options = {}) {
 
         tf.tidy(() => {
             let shouldPredict = options.shouldPredict || (() => true);
-            let afterEach = options.afterEach || (() => { });
+            let afterEach = options.afterEach;
             for (let i = 0; i < this.amount; i++) {
                 let object = this.objects[i];
                 let model = this.models[i];
@@ -206,7 +205,9 @@ class NeuralGeneration {
                 if (shouldPredict(object, i)) {
                     model.predictObject(object);
                 }
-                afterEach(object, model, i);
+                if (afterEach) {
+                    afterEach(object, model, i);
+                }
             }
 
             if (options.forBest) {
@@ -228,29 +229,27 @@ class NeuralGeneration {
                 options.forBest(obj, model, index);
             }
 
-
-        })
+        });
     }
-
 
     /**
      * @typedef {GeneticNeuralWrapper &{
      *  fitness?:number
      * }} GenerationNeuralWrapper
      *
-     * 
+     *
      * @typedef nextOptions
      * @property {(score:number)=>number} [fitnessFucntion] last value of getReward
      * @property {(bestObject:T,bestModel:GenerationNeuralWrapper)=>void} [forBest]
      * @property {(obj:T,index:number)=>void} [reset]
-     * 
-     * 
+     *
+     *
      * @param {nextOptions} [options]
      */
     nextGeneration(options = {}) {
         let fitnessFucntion = options.fitnessFucntion || (m => Math.pow(m, 2));
-        let forBest = options.forBest || (() => { });
-        let reset = options.reset || (() => { });
+        let forBest = options.forBest;
+        let reset = options.reset;
 
         function addFitness() {
             let fitnessSum = 0;
@@ -276,7 +275,6 @@ class NeuralGeneration {
             let newArray = [];
             //no need to reference model
 
-
             /**
              * @type GenerationNeuralWrapper
              */
@@ -285,7 +283,7 @@ class NeuralGeneration {
             /**
              * @type T
              */
-            let bestObject
+            let bestObject;
             /**
              * @type {Array<GenerationNeuralWrapper>}
              */
@@ -297,9 +295,13 @@ class NeuralGeneration {
                     bestObject = this.objects[i];
 
                 }
-                reset(this.objects[i], i);
+                if (reset) {
+                    reset(this.objects[i], i);
+                }
             }
-            forBest(bestObject, bestModel);
+            if (forBest) {
+                forBest(bestObject, bestModel);
+            }
             for (let model of this.models) {
                 let r = random(1);
                 let index = 0;
@@ -316,12 +318,12 @@ class NeuralGeneration {
             for (let model of this.models) {
                 model.dispose();
             }
-            return newArray
+            return newArray;
         }
 
         tf.tidy(() => {
             addFitness.call(this);
-            console.log(this.models[0].mutation)
+            console.log(this.models[0].mutation);
             this.models = pick.call(this);
         });
     }
@@ -333,4 +335,4 @@ tfs.onload = (e) => {
         return;
     }
     finished(undefined, true, tfScript);
-}
+};

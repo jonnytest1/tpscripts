@@ -1,15 +1,15 @@
-/* global Storage_greaseStorage,notification*/
-
+/// <reference path="../customTypes/index.d.ts" />
+/// <reference path="../notification.js" />
 
 let greaseKey = 'mitAlterEgoLastLink';
 
 setTimeout(function MIT() {
-    let previousLink = Storage_greaseStorage.g(greaseKey, "");
+    let previousLink = sc.G.g(greaseKey, '');
 
-    let firstModule = find("container-item")[0];
-    let moduleLink = find("module-content-guard", firstModule).href;
+    let firstModule = sc.g('container-item')[0];
+    let moduleLink = sc.g('module-content-guard', firstModule).href;
     if (moduleLink !== previousLink) {
-        notification("new mit", find("module-title", firstModule).textContent);
-        Storage_greaseStorage.s(greaseKey, moduleLink);
+        GMnot('new mit', sc.g('module-title', firstModule).textContent);
+        sc.G.s(greaseKey, moduleLink);
     }
 }, 2000);

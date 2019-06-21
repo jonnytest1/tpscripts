@@ -7,7 +7,7 @@ let classifier;
 function startml5() {
   let fe = ml5.featureExtractor('MobileNet');
   classifier = fe.classification();
-  classifier.load(checkpoint, function () {
+  classifier.load(checkpoint, () => {
     console.log('model loaded');
     classifier.classify(video, gotResults);
   });

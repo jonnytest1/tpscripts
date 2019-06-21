@@ -21,8 +21,6 @@ function celebrate(name) {
       status: `${name} has won! #eyeotest`
     };
 
-    httpPost('http://localhost:3001/tweet', 'json', tweet, response => {
-      console.log(response);
-    });
+    httpPost('http://localhost:3001/tweet', 'json', tweet, console.log);
   });
 }

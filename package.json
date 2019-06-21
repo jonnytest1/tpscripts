@@ -6,7 +6,8 @@
   "dependencies": {
     "@tensorflow/tfjs": "^1.1.2",
     "eslint-plugin-jsdoc": "^4.8.3",
-    "eslint-plugin-jsdoc-typecheck": "file:linter"
+    "eslint-plugin-jsdoc-typecheck": "file:linter",
+    "tslint": "^5.18.0"
   },
   "devDependencies": {
     "@types/p5": "^0.7.2"

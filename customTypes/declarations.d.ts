@@ -29,11 +29,11 @@ interface ElementGetter {
     (string: string, iF?: Element, compress?: Boolean): any;
 
     I: (string: string, iF?: Element) => HTMLElement | null;
-    C: <E extends Element = Element>(string: string, iF?: Element, compress?: Boolean) => E;
+    C: <E>(string: string, iF?: Element, compress?: Boolean) => E|Array<E>;
     T: (string: string, iF?: Element, compress?: Boolean) => any;
 
     c0: (iF: Element, count: number) => Element,
-    W: (top?: boolean, wnd?: Element) => Window,
+    W: (top?: boolean, wnd?: any) => Window,
     a: (identification: string, parent?: Element, tag?: string, finder?: Function) => Promise<any>
 }
 
@@ -55,10 +55,10 @@ interface CustomStorage {
 
     remove?: (identfier: string, filterFunction: Function, standard?: any) => void;
 
-    filter?: (identfier: string, filterFunction: Function, standard?: any) => void;
+    filter?: (identfier: string, filterFunction: Function, standard?: any) => Array<any>;
 }
 interface scI {
-    menu?: CircularMenu;
+    menu?: CircularMenuC;
     menuContainer: HTMLElement;
     D: Debug;
     CD?: CustomStorage

@@ -17,9 +17,7 @@ let walls = [];
 let ray;
 
 let speedSlider;
-class Test {
 
-}
 let inside = [];
 let outside = [];
 let checkpoints = [];
@@ -32,18 +30,18 @@ let start, end;
 let neuralGen;
 
 setups.push(async (width, height) => {
-    await reqT("codingTrainNeuroVehicles/Boundary")
-    await reqT("codingTrainNeuroVehicles/Particle")
-    await reqT("codingTrainNeuroVehicles/Ray")
-    await reqT("codingTrainNeuroVehicles/Track")
+    await reqT('codingTrainNeuroVehicles/Boundary');
+    await reqT('codingTrainNeuroVehicles/Particle');
+    await reqT('codingTrainNeuroVehicles/Ray');
+    await reqT('codingTrainNeuroVehicles/Track');
 
-    tf.setBackend('cpu')
+    tf.setBackend('cpu');
     createCanvas(width, height);
 
     buildTrack();
 
     neuralGen = new NeuralGeneration(10, () => new Particle(), 10);
-})
+});
 
 let bestCar;
 
@@ -58,7 +56,7 @@ draws.push(function geneticCarCodingTrain() {
         forBest: object => object.highlight()
 
     });
-    const objects = neuralGen.objects
+    const objects = neuralGen.objects;
     if (objects.every(obj => obj.dead || obj.finished)) {
         buildTrack();
 
@@ -70,7 +68,7 @@ draws.push(function geneticCarCodingTrain() {
                 object.finished = false;
                 object.fitness = 0;
                 object.pos.set(start.x, start.y);
-                object.vel.set(0, 0)
+                object.vel.set(0, 0);
                 object.acc.set(0, 0);
                 object.counter = 0;
                 object.index = 0;
@@ -97,8 +95,8 @@ draws.push(function geneticCarCodingTrain() {
     //fill("blue");
     //p5a.crcl(bestCar, 40);
 
-})
+});
 
 mousePresseds.push((x, y) => {
-
-})
+    return;
+});

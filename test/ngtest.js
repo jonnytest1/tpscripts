@@ -1,6 +1,5 @@
 /// <reference path="../DOM/button.js" />
-
-
+/// <reference path="../DOM/rectMenu.js" />
 (function checkEnv() {
     try {
         // @ts-ignore
@@ -9,13 +8,13 @@
         env.execute = (a, b) => {
             //debugger;
             // @ts-ignore
-            if (b == true) {
+            if (b === true) {
                 exec(a);
             }
 
-        }
+        };
     } catch (e) {
-        if (e.message == "jasmine is not defined") {
+        if (e.message === 'jasmine is not defined') {
             setTimeout(checkEnv, 1);
         } else {
             throw e;
@@ -25,25 +24,25 @@
 })();
 
 /**
- * 
- * @param {*} suite 
+ *
+ * @param {*} suite
  * @param {boolean} [onlyFailed]
- * 
- * @returns {RectMenuElement&{passed:boolean}} 
+ *
+ * @returns {RectMenuElement&{passed:boolean}}
  */
 function parseSuite(suite, onlyFailed = false) {
     let testGroups = [];
     let hasFailed = false;
     for (let suiteElement of suite.children) {
-        if (suiteElement.constructor.name == "Spec") {
-            let passed = suiteElement.result.status == "passed";
+        if (suiteElement.constructor.name === 'Spec') {
+            let passed = suiteElement.result.status === 'passed';
             if (!passed || !onlyFailed) {
                 hasFailed = true;
                 testGroups.push({
                     buttonCustomizer: customAdd,
                     passed: passed,
                     name: suiteElement.description
-                })
+                });
             }
         } else {
             let subSuite = parseSuite(suiteElement, onlyFailed);
@@ -58,11 +57,13 @@ function parseSuite(suite, onlyFailed = false) {
         name: suite.description,
         passed: !hasFailed,
         children: testGroups
-    }
+    };
 }
 
 function getSuite() {
-    return jasmine.getEnv().topSuite();
+    // @ts-ignore
+    return jasmine.getEnv()
+        .topSuite();
 }
 
 async function runSuite(suite, menuFilter) {
@@ -79,7 +80,7 @@ async function runSuite(suite, menuFilter) {
             }
         }
 
-        if (subSuite.constructor.name == "Spec") {
+        if (subSuite.constructor.name === 'Spec') {
 
             console.log(subSuite.execute());
         } else {
@@ -89,11 +90,11 @@ async function runSuite(suite, menuFilter) {
 }
 
 function runTests(menu) {
-    let symbolsContainer = document.getElementsByClassName("symbol-summary")[0];
+    let symbolsContainer = document.getElementsByClassName('symbol-summary')[0];
     for (let i = symbolsContainer.children.length - 1; i >= 0; i--) {
         symbolsContainer.children[i].remove();
     }
-    let resContainer = document.getElementsByClassName("results")[0];
+    let resContainer = document.getElementsByClassName('results')[0];
     for (let i = resContainer.children.length - 1; i >= 0; i--) {
         resContainer.children[i].remove();
     }
@@ -102,71 +103,68 @@ function runTests(menu) {
     debugger;
     runSuite(suite, menu);
 
-
 }
 
-
 function customAdd(btn) {
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.style.cssFloat = "right";
+    let checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.style.cssFloat = 'right';
     btn.appendChild(checkbox);
 }
 
-
 /**
- * 
- * @param {MenuHTMLElement} btn 
+ *
+ * @param {MenuHTMLElement} btn
  */
 function mainMenuCustomizer(btn) {
-    let run = document.createElement("button");
-    run.style.cssFloat = "left";
-    run.textContent = "play";
+    let run = document.createElement('button');
+    run.style.cssFloat = 'left';
+    run.textContent = 'play';
     run.onclick = () => runTests(btn.menu);
     btn.appendChild(run);
 }
 
-
-Menu.init().then(() => {
-    if (window.self !== window.top) {
-        const menu = new Menu({
-            parent: document.body,
-            control: {
-                width: 200,
-                name: "ctrl",
-                children: [{
-                    name: "save",
-                    click: () => {
-                        let suite = getSuite()
-                        menu.addToMenu({
-                            buttonCustomizer: mainMenuCustomizer,
-                            name: "saved",
-                            children: parseSuite(suite).children,
-                        })
-                    }
-                }, {
-                    name: "saveFailed",
-                    click: () => {
-                        let suite = getSuite()
-                        menu.addToMenu({
-                            name: "saved",
-                            buttonCustomizer: mainMenuCustomizer,
-                            children: parseSuite(suite, true).children,
-                        })
-                    }
-                }]
-            }
-        })
-        /*  menu.addToMenu([{
-              name: "test",
-              children: [
-                  { name: "test1" },
-                  { name: "test1" },
-                  { name: "test1" }
-              ]
-          },
-          {
-              name: "test"
-          }]);*/
-    }
-})
+Menu.init()
+    .then(() => {
+        if (window.self !== window.top) {
+            const menu = new Menu({
+                parent: document.body,
+                control: {
+                    width: 200,
+                    name: 'ctrl',
+                    children: [{
+                        name: 'save',
+                        click: () => {
+                            let suite = getSuite();
+                            menu.addToMenu({
+                                buttonCustomizer: mainMenuCustomizer,
+                                name: 'saved',
+                                children: parseSuite(suite).children,
+                            });
+                        }
+                    }, {
+                        name: 'saveFailed',
+                        click: () => {
+                            let suite = getSuite();
+                            menu.addToMenu({
+                                name: 'saved',
+                                buttonCustomizer: mainMenuCustomizer,
+                                children: parseSuite(suite, true).children,
+                            });
+                        }
+                    }]
+                }
+            });
+            /*  menu.addToMenu([{
+                  name: "test",
+                  children: [
+                      { name: "test1" },
+                      { name: "test1" },
+                      { name: "test1" }
+                  ]
+              },
+              {
+                  name: "test"
+              }]);*/
+        }
+    });

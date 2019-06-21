@@ -1,5 +1,4 @@
 
-
 function buildTrack() {
     checkpoints = [];
     inside = [];

@@ -1,7 +1,7 @@
 /* gloabl GMnot */
 
 /**
- * @param {*} [details_icon]
+ * @param {*} [detailsOrIcon]
  * @param {Function} [onclick]
  * @param {string} [openurl]
  * @param {number} [timeout]
@@ -9,9 +9,8 @@
  * @param {Function} [ondone]
  * @global
  */
-
-
-var GMnot = (title = "", text = "   ", details_icon = "", onclick = () => { }, openurl, timeout, host, ondone) => {
+//tslint:disable-next-line variable-name
+var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
     if (!timeout) {
         timeout = 12000;
     }
@@ -19,26 +18,28 @@ var GMnot = (title = "", text = "   ", details_icon = "", onclick = () => { }, o
         host = location.host;
     }
     if (!ondone) {
-        ondone = () => { };
+        ondone = () => { return; };
     }
-    if (details_icon.image) {
-        details_icon.title = title;
-        details_icon.text = details_icon.body;
-        if (!details_icon.timeout) {
-            details_icon.timeout = timeout;
+    if (detailsOrIcon.image) {
+        detailsOrIcon.title = title;
+        detailsOrIcon.text = detailsOrIcon.body;
+        if (!detailsOrIcon.timeout) {
+            detailsOrIcon.timeout = timeout;
         }
-        return window['GM_notification'](details_icon, ondone);
+        return window['GM_notification'](detailsOrIcon, ondone);
     }
-    if (details_icon === "") {
-        details_icon = "http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png";
+    if (detailsOrIcon === '') {
+        detailsOrIcon = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';
     }
     let details = {};
     details.title = title;
     details.text = text;
-    details.image = details_icon;
+    details.image = detailsOrIcon;
     details.timeout = timeout;
-    details.onclick = function () {
-        onclick.call(this);
+    details.onclick = () => {
+        if (onclick) {
+            onclick();
+        }
     };
     console.trace(details);
     return window['GM_notification'](details, ondone);

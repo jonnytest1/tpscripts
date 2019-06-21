@@ -1,66 +1,80 @@
-/* global  IMPORT,  tf */
+(async function humanTest() {
+    console.log('started are you human');
 
+    let sessionStorage = await reqS('Storage/SessionStorage');
+    let http = await reqS('http');
+    let learningTensorFlow = await reqS('learning/tensorflow');
+    let learningTFIO = await reqS('learning/tfIO');
 
-debugger;
-(async () => {
+    /*function getClassifier() {
+        return new Promise(res => {
+            knnio("knnAnime").load().then(res).catch(() => {
+                console.log("new")
+                knnio("knnAnime").new().then(res);
+            })
+        })
+    }*/
 
+    //const knnio = await reqS("learning/knnIO")
 
-    debugger;
-    console.log("started are you human");
-    let Storage_SessionStorage = await reqS("Storage/SessionStorage");
-    let http = await reqS("http");
-    let learning_tensorflow = await reqS("learning/tensorflow");
-    let learning_tfIO = await reqS("learning/tfIO");
+    //const classifier = await getClassifier();
 
-    Storage_SessionStorage.s("image", {});
-    if (location.search == "") {
-        sc.g('a').click();
+    sessionStorage.s('image', {});
+    if (location.search === '') {
+        sc.g('a')
+            .click();
         return;
     }
-    let formContainer = await sc.g.a("formVerify1");
+    let formContainer = await sc.g.a('formVerify1');
 
     if (!formContainer) {
         // eslint-disable-next-line no-console
-        console.log("formverifynot found");
+        console.log('formverifynot found');
         return;
     }
 
     function hash(imageData) {
-        let hash = 0;
+        let imageHash = 0;
         for (let byte of imageData) {
-            hash = ((hash << 5) - hash) + byte;
-            hash = hash & hash;
+            imageHash = ((imageHash << 5) - imageHash) + byte;
+            imageHash = imageHash & imageHash;
         }
-        return hash;
+        return imageHash;
     }
 
     /**@type {model} */
     let kModel;
 
-    tf.loadLayersModel(learning_tfIO('kissanime'))
+    tf.loadLayersModel(learningTFIO('kissanime'))
         .then((model) => {
             kModel = model;
         })
         .catch(console.log);
 
     let tags = formContainer.children[0].children[1].children;
-    console.log("setting interval");
+    console.log('setting interval');
     setInterval(() => {
         try {
-            [...tags].filter(tag => tag.localName === "span").forEach(tag => {
-                tag.tagArray = tag.textContent.split(", ").map(t => t.trim());
-                tag.draggable = true;
-                tag.ondragend = (e) => {
-                    let tag = e.target;
-                    /**@type {Element &{ imageData?:Array<number>,click?:()=>void}} */
-                    const newLocal = document.elementFromPoint(e.x, e.y);
-                    if (newLocal.tagName.toLowerCase() == "img") {
-                        Storage_SessionStorage.setValue("image", hash(newLocal.imageData), { img: newLocal.imageData, tags: tag.tagArray, chosen: true });
-                        // sendData(backendUrl + '/site/kissanime/receiveImageData.php', { image: newLocal.imageData, tags: tag.tagArray }, (e) => { debugger; });
-                        newLocal.click();
-                    }
-                };
-            });
+            [...tags].filter(tag => tag.localName === 'span')
+                .forEach(tag => {
+                    tag.tagArray = tag.textContent.split(', ')
+                        .map(t => t.trim());
+                    tag.draggable = true;
+                    tag.ondragend = (e) => {
+                        let tagElement = e.target;
+                        /**@type {Element &{ imageData?:Array<number>,click?:()=>void}} */
+                        const newLocal = document.elementFromPoint(e.x, e.y);
+                        if (newLocal.tagName.toLowerCase() === 'img') {
+
+                            const number = Number(tagElement.tagArray.filter(t => !isNaN(+t))[0]);
+                            //addExample(number, newLocal);
+                            debugger;
+                            sessionStorage.setValue('image', hash(newLocal.imageData), { img: newLocal.imageData, tags: tagElement.tagArray, chosen: true });
+                            // sendData(backendUrl + '/site/kissanime/receiveImageData.php', { image: newLocal.imageData, tags: tag.tagArray }, (e) => { debugger; });
+                            newLocal.click();
+                        }
+                    };
+                });
         } catch (e) {
             debugger;
         }
@@ -68,16 +82,15 @@ debugger;
 
     function evaluate(image) {
 
-
-
-        if ([...tags].filter(tag => tag.localName === "span").some(t => !t.tagArray) || kModel == undefined) {
+        if ([...tags].filter(tag => tag.localName === 'span')
+            .some(t => !t.tagArray) || kModel === undefined) {
             setTimeout(evaluate, 200, image);
             return;
         }
         [...tags]
-            .filter(tag => tag.localName === "span")
+            .filter(tag => tag.localName === 'span')
             .forEach(tag => {
-                Storage_SessionStorage.setValue("image", hash(image.imageData), { img: image.imageData, tags: tag.tagArray, chosen: false });
+                sessionStorage.setValue('image', hash(image.imageData), { img: image.imageData, tags: tag.tagArray, chosen: false });
 
                 /*sendData(backendUrl + '/site/kissanime/evaluateImage.php', { data: [...image.imageData, ...tag.tagArray.map(c => c.charCodeAt())] }, (r) => {
                     let textNode = document.createElement('text');
@@ -94,8 +107,6 @@ debugger;
                 });*/
                 if (kModel) {
 
-
-
                     let input = [...image.imageData];
 
                     /**
@@ -106,13 +117,14 @@ debugger;
                      **/
                     let textNode = document.createElement('text');
 
-                    let prediction = kModel.predict(tf.tensor2d([input], [1, input.length])).dataSync();
+                    let prediction = kModel.predict(tf.tensor2d([input], [1, input.length]))
+                        .dataSync();
 
                     let probability = prediction[tag.tagArray[2] - 0];
                     textNode.tags = tag.tagArray;
-                    textNode.textContent = probability + " " + textNode.tags[2];
+                    textNode.textContent = `${probability} ${textNode.tags[2]}`;
                     textNode.weight = probability;
-                    image.parentElement.appendChild(document.createElement("br"));
+                    image.parentElement.appendChild(document.createElement('br'));
                     if (!image.tag1) {
                         image.tag1 = textNode;
                     } else {
@@ -120,16 +132,14 @@ debugger;
                     }
                     image.parentElement.appendChild(textNode);
 
-
-
-
                 }
             });
     }
 
     function onImageLoad(event) {
         let image = event.target;
-        let canvas = document.createElement("canvas");
+
+        let canvas = document.createElement('canvas');
         canvas.height = image.height;
         canvas.width = image.width;
         let context = canvas.getContext('2d');
@@ -147,7 +157,7 @@ debugger;
                         let red = imageData.data[index];
                         let green = imageData.data[index + 1];
                         let blue = imageData.data[index + 2];
-                        if (blue != undefined && red != undefined && green != undefined) {
+                        if (blue !== undefined && red !== undefined && green !== undefined) {
                             amount++;
                             sum += (red + green + blue) / 3;
 
@@ -162,14 +172,16 @@ debugger;
         image.imageData = dataArray;
         evaluate(image);
 
+        const imgEl = document.getElementById('img');
+        //classifier.mobilenet.classify(image).then(console.log);
 
         //draw image in greyscale and smaller below site
         let iD = image.imageData;
         let size = Math.sqrt(iD.length);
-        let c = document.createElement("canvas");
+        let c = document.createElement('canvas');
         c.height = size;
         c.width = size;
-        c.style.width = "50px";
+        c.style.width = '50px';
         let ct = c.getContext('2d');
         let imgD = ct.createImageData(size, size);
 
@@ -193,7 +205,7 @@ debugger;
      */
 
     /**@type { HTMLCollectionOf<HTMLElement &{complete:boolean,tag1?:TagTextElement,tag2?:TagTextElement}> } */
-    let images = sc.g("img", formContainer);
+    let images = sc.g('img', formContainer);
 
     [...images].forEach(
         /**@param  i */
@@ -222,12 +234,12 @@ debugger;
             }
         });
         if (text1) {
-            text1.style.color = "green";
+            text1.style.color = 'green';
         }
         if (text2) {
-            text2.style.color = "green";
+            text2.style.color = 'green';
         }
     })();
 
-})().catch(console.log);
-
+})()
+    .catch(e => console.trace(e));

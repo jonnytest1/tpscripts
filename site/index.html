@@ -1,0 +1,176 @@
+<html>
+  <head> </head>
+  <body>
+    TEST SITE
+    <script>
+      console.log("running script");
+      let prepareScript = () => {
+        if (!unsafeWindow.scriptContent) {
+          return "";
+        }
+        let lines = unsafeWindow.scriptContent.split("\n");
+        let scr = "";
+        let number = 1;
+
+        return lines.map(str => number++ + "\t" + str).join("\n");
+      };
+
+      function logKibana(level, message, error) {
+        let jsonMessage = message;
+        if (!jsonMessage && error) {
+          jsonMessage = error.message;
+        }
+        let jsonData = {
+          Severity: level,
+          application: "clientJS",
+          message: jsonMessage
+        };
+        try {
+          jsonData.javascript = prepareScript();
+        } catch (error) {
+          // console.log(error);
+        }
+        if (error) {
+          jsonData.error_message = error.message;
+          jsonData.error_stacktrace = error.message;
+        }
+        if (typeof GM_xmlhttpRequest == "function") {
+          GM_xmlhttpRequest({
+            method: "PUT",
+            url: "http://localhost/logging",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            data: JSON.stringify(jsonData)
+          });
+        } else {
+          fetch("http://localhost/logging", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(jsonData)
+          });
+        }
+      }
+      function handleError(e) {
+        console.trace(e.stack);
+        logKibana("ERROR", e.message, e);
+        debugger;
+        let note = "";
+        let scriptMessage = unsafeWindow.scriptContent;
+        if (scriptMessage.includes("error</b>:")) {
+          scriptMessage = scriptMessage.split("error</b>:")[1];
+          note = scriptMessage
+            .replace(/<br \/>\n/gm, "")
+            .replace(/<b>/gm, "")
+            .replace(/<\/b>/gm, "")
+            .replace("Parse error:", "")
+            .replace("syntax error,", "")
+            .trim();
+        } else {
+          note = e.message;
+        }
+        GM_notification({
+          title: location.href,
+          text: note,
+          image:
+            "https://www.shareicon.net/data/128x128/2017/06/21/887388_energy_512x512.png",
+          onclick: () => {
+            GM_setClipboard(e.stack + prepareScript());
+          }
+        });
+      }
+      window.evaluate = function evaluate(str) {
+        if (
+          str.split("error</b>:").length >= 3 ||
+          str.split("\n").length < 20
+        ) {
+          handleError({ stack: str, message: "backend error" });
+        }
+        try {
+          throw { message: "Refused to evaluate a string" };
+          eval(str);
+        } catch (e) {
+          if (e.message.includes("Refused to evaluate a string")) {
+            try {
+              let sc = document.createElement("script");
+              document.window = window;
+              sc.innerHTML = str;
+              if (!document.body) {
+                setTimeout(evaluate, 500, str);
+              } else {
+                document.body.appendChild(sc);
+              }
+            } catch (err) {
+              console.log(str);
+              handleError(err);
+            }
+          } else {
+            handleError(e);
+          }
+        }
+      };
+
+      function onRequestLoad(event, a, b, c, d) {
+        try {
+          unsafeWindow.scriptContent = event.responseText;
+        } catch (e) {
+          window.scriptContent = event.responseText;
+        }
+        if (event.responseHeaders) {
+          event.responseHeaders.split("\n").forEach(header => {
+            if (header.startsWith("exception")) {
+              evaluate(header.split("exception: ")[1]);
+            }
+            if (header.startsWith("missingsite")) {
+              logKibana("INFO", header);
+            }
+          });
+        }
+        if (event.responseText) {
+          evaluate(event.responseText);
+        } else {
+          event.text().then(evaluate);
+        }
+      }
+      function failed(a) {
+        if (
+          a.status == 0 &&
+          GM_getValue("lastunavailablerror") < Date.now() - 10000
+        ) {
+          GM_setValue("lastunavailablerror", Date.now());
+          alert("tpscript fileserver not up");
+        } else {
+          throw a;
+        }
+      }
+      function aborted(a) {
+        debugger;
+      }
+      function timeout(a) {
+        debugger;
+      }
+      function statechange(e) {
+        // console.log(e);
+      }
+      let requestUrl = "http://localhost:4280?url=" + location.href;
+      logKibana("INFO", "requesting for " + requestUrl);
+      let request = {
+        method: "GET",
+        url: requestUrl,
+        onreadystatechange: statechange,
+        onload: onRequestLoad,
+        onerror: failed,
+        ontimeout: timeout,
+        onabort: aborted
+      };
+
+      if (typeof GM_xmlhttpRequest == "function") {
+        GM_xmlhttpRequest(request);
+      } else {
+        fetch(requestUrl).then(onRequestLoad);
+      }
+    </script>
+  </body>
+</html>

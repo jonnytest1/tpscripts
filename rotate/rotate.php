@@ -1,6 +1,6 @@
 <?PHP
-	require("database.php");
-	include( dirname(__FILE__) . '/request.php');
+	include( dirname(__FILE__) . '/../database.php');
+	include( dirname(__FILE__) . '/requests.php');
 	class Rotate{
 
 		private $db;
@@ -16,33 +16,32 @@
 			"https://kissmanga.com/BookmarkList",
 			"https://www.crunchyroll.com/home/queue",
 			"https://www1.swatchseries.to/tvschedule",
-			"https://novelplanet.com/ReadingList"
+			"https://novelplanet.com/ReadingList",
+			"https://github.com/notifications"
 		);
 
 		function isRotate($url){
 			return in_array($url,$this->rotateSites);
 		}
 
-		function getNext($url){
-			
-			
+		function injectUrls($str,$url){
 			$index=array_search($url,$this->rotateSites)+1;
 			$index=$index%count($this->rotateSites);
 			$nextUrl=$this->rotateSites[$index];
 
 			$rotateFile="\n//next url = ".$nextUrl."\n";
+			$str=str_replace("let NEXTURL = INJECT;","let NEXTURL='".$nextUrl."';",$str);
+			$str=str_replace("let URLS = INJECT;","let URLS =".json_encode($this->rotateSites).";",$str);
+			$str=$str."\nreqS('rotate/'+encodeURIComponent(encodeURIComponent(location.href)))";
+
+			return $str;
+		}
+
+		function getNext($url){
 			
 			$requester=new RotateRequest();
-			$rotateFile=$rotateFile.$requester->callRequests();
-
-			$rotateFile=$rotateFile.preProcessFileName("rotate/rotate");
-
-			$rotateFile=str_replace("let NEXTURL = INJECT;","let NEXTURL='".$nextUrl."';",$rotateFile);
-			$rotateFile=str_replace("let LENGTH = INJECT;","let LENGTH='".sizeof($this->rotateSites)."';",$rotateFile);
-			$rotateFile=str_replace("let URLS = INJECT;","let URLS =".json_encode($this->rotateSites).";",$rotateFile);
-			$rotateFile=$rotateFile.preProcessFileName("rotate/".urlencode($url));
-
-			return $rotateFile;
+			$rotateFile=$requester->callRequests();
+			return $rotateFile."\nreqS('rotate/?url='+location.href)";//?url="+$url+"
 		}
 	}
 ?>

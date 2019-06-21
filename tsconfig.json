@@ -19,5 +19,5 @@
     ],
     "exclude": [
         "tpscripts/compiledjs/**",
-    ],
+    ]
 }

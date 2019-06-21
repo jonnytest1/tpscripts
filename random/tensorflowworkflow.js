@@ -2,9 +2,8 @@
 /*
 softmax mutually exclusive 0-1
 simgoid 0-1 for each
-
-
-
+//activations : ('elu'|'hardSigmoid'|'linear'|'relu'|'relu6'| 'selu'|'sigmoid'|'softmax'|'softplus'|'softsign'|'tanh')
+//compilers meanSquaredError categoricalCrossentropy meanAbsoluteError sparseCategoricalAccuracy
 
 /* global createCanvas,IMPORT,tfs,http,backendUrl,tf,createImage,image,frameRate */
 /*
@@ -48,8 +47,6 @@ function draw() {
     frameRate(3);
 }
 
-
-
 tfs.onload = async () => {
     return;
     let tags = await http('GET', backendUrl + "/site/kissanime/getTags.php");
@@ -91,18 +88,13 @@ for (let i = 1; i < 4; i++) {
 outputs.push(yArray);
         }
     } while (imgs.length == 21);
-// eslint-disable-next-line no-console
-console.log("prepared data");
+
 //let size = xs[0].length;
 
 xs = xs.map(t => tf.tensor2d(t, [1, t.length]));
 ys = outputs.map(t => tf.tensor2d(t, [1, t.length]));
-// eslint-disable-next-line no-console
-console.log("converted to tensors");
+
 const model = tf.sequential();
-
-
-//activations : ('elu'|'hardSigmoid'|'linear'|'relu'|'relu6'| 'selu'|'sigmoid'|'softmax'|'softplus'|'softsign'|'tanh')
 
 model.add(tf.layers.conv2d({
     inputShape: [img_size, img_size, 1],
@@ -137,8 +129,6 @@ const LEARNING_RATE = 0.08;
 
 const optimizer = tf.train.sgd(LEARNING_RATE);
 
-
-// meanSquaredError categoricalCrossentropy meanAbsoluteError sparseCategoricalAccuracy
 model.compile({
     optimizer: optimizer,
     loss: 'categoricalCrossentropy',
@@ -146,7 +136,6 @@ model.compile({
 });
 // eslint-disable-next-line no-console
 console.log("compiled model");
-
 
 async function train() {
     for (let x = 0; x < xs.length; x++) {
@@ -178,7 +167,6 @@ async function train() {
                 return max;
             }
 
-
             max(null, prediction);
 
             let success = true;
@@ -203,14 +191,9 @@ async function train() {
 train();
 window.train = train;
 
-
-
-
-
     /* model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
 
      model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
-
 
      let x = [];
      let y = [];
@@ -240,12 +223,9 @@ window.train = train;
      test.innerText = model.predict(tf.tensor2d([400], [1, 1])).dataSync();
      document.body.appendChild(test);
 
-
-
      //const saveResult = await model.save(
      //    io('test123')
      // );
      //let model2 = await tf.loadLayersModel(io('test123'));
-
 
 };*/

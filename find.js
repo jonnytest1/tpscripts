@@ -125,5 +125,5 @@ t.a = async function get(identification, parent, tag, finder = t) {
     });
 };
 sc.g = t;
-finished(t);
+new EvalScript('', {}).finish(t)
 

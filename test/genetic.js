@@ -1,10 +1,8 @@
 /// <reference path="../customTypes/index.d.ts" />
-
+/// <reference path="../site/localhost.js" />
 const amount = 60;
 
 //let objects = [];
-
-
 
 //let models = [];
 
@@ -13,17 +11,16 @@ var target;
 let startpoint;
 
 /**
- * @type NeuralGeneration
+ * @type NeuralGeneration<Car>
  */
-let neuralGen;
+let neuralGeneration;
 
-
-class car {
+class Car {
 
     constructor(i) {
         this.index = i;
         this.reset(createVector(Math.random() * width, Math.random() * height));
-        this.color = "red";
+        this.color = 'red';
     }
     draw() {
         if (this.line) {
@@ -44,9 +41,12 @@ class car {
         const angle = map(prediction[0], 0, 1, -PI, PI);
         // console.log(angle / (PI / 180));
         const directionVector = p5.Vector.fromAngle(angle);
-        const resultVec = directionVector.normalize().mult(6);
+        const resultVec = directionVector.normalize()
+            .mult(6);
 
-        this.line = p5.Vector.add(this.position, directionVector.copy().normalize().mult(40));
+        this.line = p5.Vector.add(this.position, directionVector.copy()
+            .normalize()
+            .mult(40));
         this.position.add(resultVec);
         // console.log(this.index + " at " + this.position)
 
@@ -55,8 +55,6 @@ class car {
         const toTarget = p5.Vector.sub(target, this.position);
 
         const reward = Math.max(startToFinsih.mag() - toTarget.mag(), 0);
-
-
 
         if (p5.Vector.dist(this.position, target) < 10) {
             this.score += 1000;
@@ -79,13 +77,13 @@ class car {
     }
 }
 setups.push((width, height) => {
-    tf.setBackend('cpu')
+    tf.setBackend('cpu');
     createCanvas(width, height);
     startpoint = createVector(width / 2, height / 2);
 
     target = createVector(width / 2, height);
-    neuralGen = new NeuralGeneration(amount, () => {
-        const carO = new car();
+    neuralGeneration = new NeuralGeneration(amount, () => {
+        const carO = new Car();
         carO.position = startpoint.copy();
         return carO;
     }, 10);
@@ -96,7 +94,7 @@ setups.push((width, height) => {
     }
     //target = createVector((width / 4) + (Math.random() * width / 2), (height / 4) + (Math.random() * height / 2));
 
-})
+});
 
 let animCount = 0;
 
@@ -106,15 +104,15 @@ draws.push(function genetic() {
     fill(50);
     p5a.crcl(target, 20);
 
-    neuralGen.frame({
+    neuralGeneration.frame({
         /**
-         * @param {car} car
+         * @param {Car} car
          */
         shouldPredict: (car) => {
-            return !car.reached && !car.finished
+            return !car.reached && !car.finished;
         },
         /**
-         * @param {car} object
+         * @param {Car} object
          */
         afterEach: (object) => {
             object.draw();
@@ -134,13 +132,13 @@ draws.push(function genetic() {
         car.draw();
     }*/
 
-    animCount++
+    animCount++;
 
     /**
-     * @type { Array<car> }
+     * @type { Array<Car> }
      */
     // @ts-ignore
-    const objects = neuralGen.objects
+    const objects = neuralGeneration.objects;
     if (objects.every(t => t.finished) || animCount > 300) {
 
         animCount = 0;
@@ -148,8 +146,8 @@ draws.push(function genetic() {
         let best;
         let bestP = -1;
         for (let i = 0; i < amount; i++) {
-            if (!best || neuralGen.models[i].score > best.score) {
-                best = neuralGen.models[i];
+            if (!best || neuralGeneration.models[i].score > best.score) {
+                best = neuralGeneration.models[i];
                 bestP = objects[i].position.copy();
             }
             objects[i].reset(startpoint.copy());
@@ -157,7 +155,7 @@ draws.push(function genetic() {
         bests[0] = bestP;
         target = createVector(Math.random() * width, Math.random() * height);
 
-        neuralGen.nextGeneration()
+        neuralGeneration.nextGeneration();
         // models = NeuralWrapper.nextGeneration(models)
         //startpoint = createVector(Math.random() * width, Math.random() * height);
 
@@ -167,11 +165,11 @@ draws.push(function genetic() {
     }
 
     bests.forEach(b => {
-        fill("blue");
+        fill('blue');
         p5a.crcl(b, 40);
-    })
-})
+    });
+});
 
 mousePresseds.push((x, y) => {
-
-})
+    return;
+});

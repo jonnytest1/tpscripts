@@ -4,7 +4,6 @@
 /// <reference path="./p5_types.d.ts" />
 /// <reference path="./p5a.d.ts" />
 
-/// <reference path="./tensorflow.d.ts" />
 /// <reference path="./physics.d.ts" /> 
 /// <reference path="./GM.d.ts" />
 

@@ -2,16 +2,14 @@
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../customTypes/localhost.d.ts" />
 (async function localhost() {
-    await reqS("DOM/dependencyCheck")
+    await reqS('DOM/dependencyCheck');
     //await reqS("learning/tensorflow");
     //await reqS("DOM/customSlider");
     //await reqT("video")
-
+    await reqS('site/kissanime/buildModel');
     //await reqT("multiplemenu")
     // await reqS("DOM/rectMenu")
     // await reqT("ngtest");
-
-
 
     //await reqT("shootergame")
     // await reqT("codingTrainGeneticTemplate");
@@ -21,20 +19,19 @@
 
 })();
 
-
 window.setups = [];
 
 window.draws = [];
 window.keyPresseds = [];
 window.mousePresseds = [];
 
-console.log("loaded");
+console.log('loaded');
 let cycles = 1;
 let afterSetup = false;
 
 /**
 * width in canvas
-* @type {number} 
+* @type {number}
 * @global
 */
 var frameWidth = window.innerWidth - 8;
@@ -48,34 +45,34 @@ window.setup = async () => {
 
     await p5a.await();
 
-    console.log("root setup")
+    console.log('root setup');
 
     for (let setupInstance of setups) {
         await setupInstance(frameWidth, frameHeight);
     }
 
-    const style = document.createElement("style");
-    style.innerHTML = ".p5Canvas{border:black 2px solid;}";
+    const style = document.createElement('style');
+    style.innerHTML = '.p5Canvas{border:black 2px solid;}';
     document.head.appendChild(style);
-    document.body.style.marginLeft = "0px";
+    document.body.style.marginLeft = '0px';
 
-    background("white");
+    background('white');
 
     sc.menu.addToMenu({
-        name: "speed",
+        name: 'speed',
         children: [{
-            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
+            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, st, center, angle) => {
                 let object = new CustomSlider(parent, center, (percent) => {
                     cycles = percent / 10;
                 }, cycles * 10);
-                object.container.style.backgroundColor = "#ffffff6e";
+                object.container.style.backgroundColor = '#ffffff6e';
                 object.setRotation(angle);
                 return object;
             }
         }]
     });
     afterSetup = true;
-}
+};
 window.draw = () => {
     if (!afterSetup) {
         return;
@@ -84,7 +81,7 @@ window.draw = () => {
         clear();
         draws.forEach(d => d());
 
-        if (draws.length == 1) {
+        if (draws.length === 1) {
             textSize(32);
             fill(50);
             text(draws[0].name, 10, 25);
@@ -92,15 +89,15 @@ window.draw = () => {
         }
     }
 
-}
+};
 window.keyPressed = () => {
     keyPresseds.forEach(k => k(event));
-}
+};
 window.mousePressed = () => {
     mousePresseds.forEach(m => m(mouseX, mouseY));
-}
-function reqT(path) {
-    return reqS("test/" + path);
+};
+async function reqT(path) {
+    return reqS('test/' + path);
 }
 
 window.reqT = reqT;

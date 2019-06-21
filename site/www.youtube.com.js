@@ -10,14 +10,14 @@
 *  wentLiveDate:Date
 *  origWentLive:string
 * }} CustomYoutubeVideoElement
-* 
+*
 */
 /**@type {CustomHTMLscript} */
 var youtubeScript = document.currentScript;
 youtubeScript.isModular = true;
 var createdElements = [];
 youtubeScript.reset = () => {
-    sc.menu.elements = sc.menu.elements.filter(el => el.name != "scroll")
+    sc.menu.removeByName('scroll');
     for (let btn of createdElements) {
         try {
             btn.remove();
@@ -25,21 +25,20 @@ youtubeScript.reset = () => {
             console.log(e);
         }
     }
-}
+};
 
 (async () => {
-    let Storage_localStorage = await reqS("Storage/localStorage")
+    let localStorage = await reqS('Storage/localStorage');
 
-    await reqS("DOM/button");
+    await reqS('DOM/button');
     /**
      * @type CustomTime
      */
-    let time = await reqS("time");;
+    let time = await reqS('time');
 
-    const youtubemostrecent = "mostRecentVideo";
+    const youtubemostrecent = 'mostRecentVideo';
 
     if (location.href.includes('https://www.youtube.com/feed/subscriptions')) {
-
 
         scroll(
             //menuElementYoutubeIndex
@@ -49,16 +48,16 @@ youtubeScript.reset = () => {
         let rotationSlider;
         let currentPercent = 0;
         sc.menu.addToMenu({
-            name: "scroll",
+            name: 'scroll',
             mouseOver: scroll,
             creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
                 const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
-                rotationSlider = new CustomSlider(parent, center, () => { }, (1 - currentPercent) * 100, {
+                rotationSlider = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                     scale: 0.5,
-                    color: "red",
+                    color: 'red',
                     arcWidth: 7
                 });
-                rotationSlider.container.style.zIndex = "2199999999";
+                rotationSlider.container.style.zIndex = '2199999999';
                 rotationSlider.setRotation(angle);//  style.transform = "rotate(" + (90 + (angle)) + "deg) translate(-24px,-24px) ";
                 return button;
             },
@@ -77,15 +76,15 @@ youtubeScript.reset = () => {
 
     } else {
         /**@type {HTMLCollectionOf<any>} */
-        let elements = sc.g.T('ytd-grid-video-renderer')
+        let elements = sc.g.T('ytd-grid-video-renderer');
         for (let el of elements) {
-            checkTime(el)
+            checkTime(el);
         }
     }
     function scroll(menuElementYoutubeIndex) {
         async function checklength() {
             console.log('awaiting progress info');
-            let vid = await sc.g.a("ytd-thumbnail-overlay-resume-playback-renderer");
+            let vid = await sc.g.a('ytd-thumbnail-overlay-resume-playback-renderer');
             if (vid) {
                 scrollToLastSeen(menuElementYoutubeIndex);
             }
@@ -94,53 +93,55 @@ youtubeScript.reset = () => {
     }
     function scrollToLastSeen(menuElementYoutubeIndex) {
         console.log('searching for last checked');
-        let list = sc.g("contents").children;
-        let toscroll = Storage_localStorage.g(youtubemostrecent, []);
+        /**@type {Array<CustomYoutubeVideoElement>} */
+        let list = sc.g('contents').children;
+        let toscroll = localStorage.g(youtubemostrecent, []);
         let seen = false;
         if (list.length > 20) {
             for (let i = 0; i < list.length; i++) {
                 try {
                     /**@type { CustomYoutubeVideoElement } */
                     const current = list[i];
-                    let vidobj = sc.g("ytd-thumbnail-overlay-resume-playback-renderer", current);
-                    current.videohref = sc.g("yt-simple-endpoint ytd-thumbnail", current).href;
+                    let vidobj = sc.g('ytd-thumbnail-overlay-resume-playback-renderer', current);
+                    current.videohref = sc.g('yt-simple-endpoint ytd-thumbnail', current).href;
                     current.currentIndex = i;
 
                     if (vidobj || current.videohref === toscroll) {
                         seen = true;
-                        current.autoScrollButton = crIN(current, "seen3", undefined, undefined, undefined, undefined, {
+                        current.autoScrollButton = crIN(current, 'seen3', undefined, undefined, undefined, undefined, {
                             style: {
-                                left: current.offsetLeft - 100 + "px",
-                                top: current.offsetTop + 80 + "px",
-                                backgroundColor: "green",
-                                position: "absolute",
-                                width: "60px",
-                                height: "100px"
+                                left: current.offsetLeft - 100 + 'px',
+                                top: (current.offsetTop + 80) + 'px',
+                                backgroundColor: 'green',
+                                position: 'absolute',
+                                width: '60px',
+                                height: '100px'
                             }
                         });
                         createdElements.push(current.autoScrollButton);
                         console.log('scrolling to last checked');
-                        sc.g.W().scrollTo(0, current.offsetTop - 650);
+                        sc.g.W()
+                            .scrollTo(0, current.offsetTop - 650);
                         break;
                     }
                     if (current.autoScrollButton) {
                         current.autoScrollButton.remove();
                     }
-                    current.autoScrollButton = crIN(current, "mark\nseen", function (btn) {
-                        Storage_localStorage.s(youtubemostrecent, btn.parentElement.videohref);
-                        for (let i = btn.parentElement.currentIndex; i < list.length; i++) {
-                            if (list[i].autoScrollButton) {
-                                list[i].autoScrollButton.remove();
+                    current.autoScrollButton = crIN(current, 'mark\nseen', (btn) => {
+                        localStorage.s(youtubemostrecent, btn.parentElement.videohref);
+                        for (let buttonIndex = btn.parentElement.currentIndex; buttonIndex < list.length; buttonIndex++) {
+                            if (list[buttonIndex].autoScrollButton) {
+                                list[buttonIndex].autoScrollButton.remove();
                             }
                         }
                     }, undefined, undefined, undefined, {
                             style: {
-                                left: current.offsetLeft - 100 + "px",
-                                top: current.offsetTop + 80 + "px",
-                                backgroundColor: "lightgreen",
-                                position: "absolute",
-                                width: "60px",
-                                height: "100px"
+                                left: current.offsetLeft - 100 + 'px',
+                                top: (current.offsetTop + 80) + 'px',
+                                backgroundColor: 'lightgreen',
+                                position: 'absolute',
+                                width: '60px',
+                                height: '100px'
                             }
                         });
                     createdElements.push(current.autoScrollButton);
@@ -156,13 +157,11 @@ youtubeScript.reset = () => {
             setTimeout(scrollToLastSeen, 1000, menuElementYoutubeIndex);
         }
         if (!seen) {
-            setTimeout(function () {
-                for (let i = 0; i < list.length; i++) {
-                    /**@type { CustomYoutubeVideoElement } */
-                    const current = list[i];
+            setTimeout(() => {
+                for (let current of list) {
                     /**@type HTMLElement */
-                    let ts = current.querySelector('#metadata-line > span:nth-child(2)')
-                    ts.style.backgroundColor = "transparent";
+                    let ts = current.querySelector('#metadata-line > span:nth-child(2)');
+                    ts.style.backgroundColor = 'transparent';
                     if (current.autoScrollButton) {
                         current.autoScrollButton.remove();
                     }
@@ -175,20 +174,21 @@ youtubeScript.reset = () => {
     function checkTime(element) {
         if (!element.wentLiveDate) {
             /**@type {string} */
-            const wentListString = element.querySelector('#metadata-line').children[1].textContent.split("vor ")[1];
-            /**@type {Number} */
-            let duration;
+            const wentListString = element.querySelector('#metadata-line').children[1].textContent
+                .split('vor ')[1];
 
             if (!wentListString) {
                 setTimeout(checkTime, 1000, element);
                 return;
             }
-            if (wentListString.includes("Minute")) {
-                duration = (Number(wentListString.split(" Minute")[0]) * (1000 * 60));
+            /**@type {Number} */
+            let durationOffset;
+            if (wentListString.includes('Minute')) {
+                durationOffset = (Number(wentListString.split(' Minute')[0]) * (1000 * 60));
             } else {
-                duration = (Number(wentListString.split(" Stunde")[0]) * (1000 * 60 * 60))
+                durationOffset = (Number(wentListString.split(' Stunde')[0]) * (1000 * 60 * 60));
             }
-            const wentLiveDate = new Date(Date.now() - duration);
+            const wentLiveDate = new Date(Date.now() - durationOffset);
             element.origWentLive = wentListString;
             element.wentLiveDate = wentLiveDate;
         }
@@ -197,13 +197,13 @@ youtubeScript.reset = () => {
         let hours = Math.floor(duration / 60);
         /**@type HTMLElement */
         const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
-        let durationStr = hours + ":" + min;
+        let durationStr = `${hours}:${min}`;
         if (durationStr.includes('NaN')) {
-            durationStr = "∞";
+            durationStr = '∞';
         } else {
-            timeTExt.style.backgroundColor = "#11d1ecb8"
+            timeTExt.style.backgroundColor = '#11d1ecb8';
         }
-        timeTExt.textContent = element.origWentLive + " => " + durationStr
+        timeTExt.textContent = `${element.origWentLive} => ${durationStr}`;
         setTimeout(checkTime, 1000, element);
     }
 })();

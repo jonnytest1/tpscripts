@@ -4,20 +4,42 @@ interface model {
     getWeights: () => Array<TensorObject>
     dispose: () => void
     compile: (...args) => void
-    predict: (t: TensorObject) => TensorObject
+    predict: (t: TensorObject) => TensorObject;
 
+    fit:(x:TensorObject,y:TensorObject,fitOptions:fitOptions)=>Promise<fitHistory>;// returns History
     add: (layer: Layer) => void
 }
+interface fitReport{
+    acc:Array<number>,
+    loss:Array<number>
+}
+interface fitHistory{
+    epoch:Array<number>
+    params:any
+    history:fitReport
+}
+
+interface fitOptions{
+    epochs?:number
+    batchSize?:number
+}
+
 interface TensorObject {
     toFloat: () => TensorObject
     dispose: () => void
     shape: Array<number>
     reshape: (shape: Array<number>) => TensorObject
     dataSync: () => Array<number>
+	clone: () => TensorObject
+    data:()=>Promise<Array<number>>
 }
 interface TensorInterface {
-    (arr: Array<number> | number | Array<Array<number>>, shape?: Array<number>): TensorObject;
-
+    (arr:  number |
+        Array<number> |
+         Array<Array<number>>|
+         Array<Array<Array<number>>>|
+         Array<Array<Array<Array<number>>>>, shape?: Array<number>): TensorObject;
+    
 }
 interface Layer {
     conv2d: (...args) => Layer
@@ -49,6 +71,7 @@ interface tf {
 }
 
 declare let tf: tf;
+
 
 declare interface Window {
     NeuralWrapper: any

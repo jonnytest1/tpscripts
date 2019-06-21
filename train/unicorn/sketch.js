@@ -38,7 +38,7 @@ function draw() {
 }
 
 function keyPressed() {
-  if (key == '1') {
+  if (key === '1') {
     players[0].move();
   }
 }

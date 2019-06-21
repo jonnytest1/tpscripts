@@ -45,7 +45,7 @@
                 if(sizeof($html)==0){
                     $this->additional=" html is empty ";
                     $this->db->sql(
-                        "INSERT INTO rotate_request_content (url,html,timestamp) VALUES (?,?,NOW())",
+                        "INSERT INTO rotate_request_content (url,html) VALUES (?,?)",
                         "ss",
                         array(
                             $url,
@@ -67,7 +67,15 @@
                 }
                 return FALSE;
             }else if(strpos($data,$matcher)==FALSE){
-                $this->additional=$matcher." is not in ".$data;
+                $this->additional=$matcher." is not in the html";
+                $this->db->sql(
+                    "INSERT INTO rotate_request_content (url,html) VALUES (?,?)",
+                    "ss",
+                    array(
+                        $url,
+                        $data
+                    )
+                );
                 return TRUE;
             }
             return FALSE;

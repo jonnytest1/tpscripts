@@ -1,3 +1,5 @@
+/// <reference path="./Ray.js" />
+/// <reference path="../codingTrainGeneticTemplate.js" />
 class Particle {
     constructor() {
         this.fitness = 0;
@@ -34,12 +36,12 @@ class Particle {
             this.acc.set(0, 0);
             this.counter++;
             if (this.counter > LIFESPAN) {
-                console.log("dead lifespan")
+                console.log('dead lifespan');
                 this.dead = true;
             }
 
-            for (let i = 0; i < this.rays.length; i++) {
-                this.rays[i].rotate(this.vel.heading());
+            for (let ray of this.rays) {
+                ray.rotate(this.vel.heading());
             }
         }
     }
@@ -64,7 +66,6 @@ class Particle {
         //   this.fitness = constrain(1 / d, 0, 1);
         // }
     }
-
 
     getReward(prediction) {
         let angle = map(prediction[0], 0, 1, -PI, PI);
@@ -123,7 +124,7 @@ class Particle {
 
     bounds() {
         if (p5a.outOfBounds(this.pos)) {
-            console.log("dead out of bounds")
+            console.log('dead out of bounds');
             this.dead = true;
         }
     }
@@ -151,7 +152,7 @@ class Particle {
         const heading = this.vel.heading();
         rotate(heading);
         stroke(0, 255, 0);
-        fill("green");
+        fill('green');
         rectMode(CENTER);
         rect(0, 0, 20, 10);
         pop();
