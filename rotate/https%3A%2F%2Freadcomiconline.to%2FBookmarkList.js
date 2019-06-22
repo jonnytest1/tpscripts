@@ -3,7 +3,7 @@
 /// <reference path="../notification.js" />
 (async () => {
 
-    await reqS('http');
+    let lib = await reqS('http');
 
     await reqS('notification');
 
@@ -54,5 +54,5 @@
             }
         }
     }
-    http('GET', location.href, bookmarkcheck);
+    lib.http('GET', location.href, bookmarkcheck);
 })();

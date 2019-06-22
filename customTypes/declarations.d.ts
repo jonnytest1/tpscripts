@@ -9,7 +9,7 @@ declare interface Window {
 
     req: Function;
 
-    reqS: Function
+    reqS: import('../libs/require').reqSType
     reqT: Function
 
     handleError: Function

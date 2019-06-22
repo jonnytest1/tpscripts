@@ -32,7 +32,7 @@
 			$rotateFile="\n//next url = ".$nextUrl."\n";
 			$str=str_replace("let NEXTURL = INJECT;","let NEXTURL='".$nextUrl."';",$str);
 			$str=str_replace("let URLS = INJECT;","let URLS =".json_encode($this->rotateSites).";",$str);
-			$str=$str."\nreqS('rotate/'+encodeURIComponent(encodeURIComponent(location.href)))";
+			$str=$str."\nreqS('rotate/'+encodeURIComponent(location.href))";
 
 			return $str;
 		}
@@ -41,7 +41,7 @@
 			
 			$requester=new RotateRequest();
 			$rotateFile=$requester->callRequests();
-			return $rotateFile."\nreqS('rotate/?url='+location.href)";//?url="+$url+"
+			return $rotateFile."\nreqS('rotate/rotate&rotateUrl='+location.href)";//?url="+$url+"
 		}
 	}
 ?>

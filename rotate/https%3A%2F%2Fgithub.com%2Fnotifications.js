@@ -1,11 +1,13 @@
+/// <reference path="../customTypes/index.d.ts"/>
+/// <reference path="../notification.js"/>
 new EvalScript('', {
     run: async (resolv, set) => {
-        set.div = document.createElement('div');
-        set.div.textContent = 'abc ';
-        document.body.appendChild(set.div);
+        const unread = await sc.g.a('mail-status unread');
+        if (unread) {
+            GMnot('new git');
+        }
     }
-    , reset: (set) => {
-        set.div.remove();
-        console.log('reset git22');
+    , reset: set => {
+        return;
     }
 });

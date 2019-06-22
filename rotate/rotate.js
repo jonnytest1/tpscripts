@@ -74,7 +74,7 @@ new EvalScript('', {
 
         function progressOverlayRegression() {
             set.customTime.waitFor({
-                duration: 1000 * 60 * URLS.length,
+                duration: (1000 * 60 * 60) / URLS.length,
                 callback: () => {
                     location.href = NEXTURL;
                 },

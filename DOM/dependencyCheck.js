@@ -1,11 +1,9 @@
 
 /// <reference path="../customTypes/index.d.ts" />
-/// <reference path="../http.js" />
-/// <reference path="../eval-script.js" />
 
 new EvalScript('', {
     run: async (resolver, set) => {
-
+        const http = await reqS('http');
         var scriptContents = {};
         var url = 'http://localhost:4280?url=' + location.href;
 
@@ -14,7 +12,7 @@ new EvalScript('', {
          *
          */
         function getSCriptsArray() {
-            const evalScripts = Object.entries(document.evalScripts);
+            const evalScripts = Object.entries(document.props.evalScripts);
             if (evalScripts.length > 0) {
                 return evalScripts.map(obj => {
                     return obj[1];
@@ -24,19 +22,18 @@ new EvalScript('', {
         }
 
         (async function initAutoRefresh() {
-            await reqS('http');
 
             /** @type {Array<HTMLScriptElement>} */
             let scripts = getSCriptsArray();
             try {
-                scriptContents[url] = await gm_fetch(url);
+                scriptContents[url] = await http.gm_fetch(url);
             } catch (e) {
                 console.log('failed fetching ' + url);
             }
             for (let script of scripts) {
                 if (script.src.includes('localhost')) {
                     try {
-                        scriptContents[script.src] = await gm_fetch(script.src);
+                        scriptContents[script.src] = await http.gm_fetch(script.src);
                     } catch (e) {
                         console.log('failed fetching ' + script.src);
                     }
@@ -63,7 +60,11 @@ new EvalScript('', {
 
             if (script.src.includes('localhost')) {
                 try {
-                    let newScript = await gm_fetch(script.src);
+                    let newScript = await http.gm_fetch(script.src)
+                        .catch(e => {
+                            console.log(`error with script ${script.src} \n${script.stack}`);
+                        });
+
                     if (!scriptContents[script.src]) {
                         scriptContents[script.src] = newScript;
                     }
@@ -79,7 +80,7 @@ new EvalScript('', {
                                 let scriptUrl = script.src;
                                 script.remove();
                                 scriptContents[script.src] = undefined;
-                                delete document.evalScripts[script.src];
+                                delete document.props.evalScripts[script.src];
                                 await req(scriptUrl);
                             }
 

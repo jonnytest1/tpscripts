@@ -5,9 +5,7 @@
 /// <reference path="../http.js" />
 
 (async function kissmanga() {
-    await reqS('http');
-
-    await reqS('notification');
+    let http = await reqS('http');
 
     document.title = document.title.replace('Read manga', '');
 
@@ -46,5 +44,5 @@
             }
         }
     }
-    http('GET', location.href, bookmarkcheck);
+    http.http('GET', location.href, bookmarkcheck);
 })();

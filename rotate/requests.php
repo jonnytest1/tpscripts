@@ -68,17 +68,26 @@
                 return FALSE;
             }else if(strpos($data,$matcher)==FALSE){
                 $this->additional=$matcher." is not in the html";
-                $this->db->sql(
-                    "INSERT INTO rotate_request_content (url,html) VALUES (?,?)",
-                    "ss",
-                    array(
-                        $url,
-                        $data
-                    )
-                );
+                $this->db->sql("UPDATE rotate_request_content SET matcher=? WHERE url=?",
+                "ss",
+                array(
+                    updateMatcher($matcher),
+                    $url
+                ));
                 return TRUE;
             }
             return FALSE;
+        }
+
+
+        function updateMatcher($matcher){
+            preg_match_all('/<span class="Counter">(.*)<\/span>/',$matcher, $treffer,PREG_SET_ORDER);
+            if(count($treffer)>0){
+                $increased=intval($treffer[0][1])+1;
+                return str_replace($treffer[0][1],"".$increased,$treffer[0][0]);
+
+            }
+            return $matcher;
         }
     }
 ?>

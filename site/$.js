@@ -16,6 +16,13 @@ new EvalScript('', {
             });
 
         function addVideo(videoElement) {
+            /**
+             * @param {HTMLElement} parent
+             * @returns {HTMLVideoElement & {
+             *  previousStyle:CSSStyleDeclaration
+             *  parentElement:{webkitRequestFullScreen:Function}
+             * }}
+             */
             function getVideo(parent) {
                 let localVideo = videoElement;
                 let element = document.elementFromPoint(parent.offsetLeft, parent.offsetTop);
@@ -45,19 +52,25 @@ new EvalScript('', {
                         }, {
                             name: 'pause',
                             isValid: () => videoElement.paused === false,
-                            mouseOver: () => {
-                                videoElement.pause();
+                            mouseOver: (parent) => {
+                                const localVideo = getVideo(parent);
+                                localVideo.pause();
                             }
                         }, {
                             name: 'fullscreen',
-                            mouseOver: () => {
+                            mouseOver: (parent) => {
+                                const localVideo = getVideo(parent);
                                 if (!document.fullscreen) {
-                                    videoElement.previousStyle = videoElement.style;
-                                    videoElement.style.width = '100%';
-                                    videoElement.style.height = '100%';
-                                    videoElement.parentElement.webkitRequestFullScreen();
+                                    localVideo.previousStyle = localVideo.style;
+                                    localVideo.style.width = '100%';
+                                    localVideo.style.height = '100%';
+                                    localVideo.parentElement.webkitRequestFullScreen();
                                 } else {
-                                    videoElement.style = videoElement.previousStyle;
+                                    localVideo.style.width = 'unset';
+                                    localVideo.style.height = 'unset';
+                                    for (let st in localVideo.previousStyle) {
+                                        localVideo.style[st] = localVideo.previousStyle[st];
+                                    }
                                     document.exitFullscreen();
                                 }
                             }
@@ -84,6 +97,9 @@ new EvalScript('', {
                                 creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
                                     let localVideo = getVideo(parent);
                                     let object = new CustomSlider(parent, center, (precent) => {
+                                        if (localVideo.muted) {
+                                            localVideo.muted = false;
+                                        }
                                         localVideo.volume = precent / 100;
                                     }, localVideo.volume * 100);
                                     object.container.style.backgroundColor = '#ffffff6e';

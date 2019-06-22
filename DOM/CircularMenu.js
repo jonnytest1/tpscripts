@@ -1,6 +1,6 @@
 /* global sc,handleError */
 /// <reference path="../DOM/line.js" />
-
+/// <reference path="../DOM/button.js" />
 class MenuElement {
 
     /**
@@ -347,8 +347,17 @@ var CircularMenu = class CircularMenuC {
         }
         let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let menu = new CircularMenu(document.body, [{
-            name: 'add',
-            isValid: () => true
+            name: 'test',
+            isValid: () => true,
+            mouseOver: () => {
+                reqS('http')
+                    .then(t => t.http('GET', 'http://localhost:4280/test/test.php'))
+                    .then(data => {
+                        console.log(data);
+                        debugger;
+                        GM_setClipboard(data);
+                    });
+            }
         }
         ], {
                 activator: activator,

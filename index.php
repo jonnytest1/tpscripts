@@ -86,7 +86,11 @@
 			if ($file->isDir()){ 
 				continue;
 			}
+			
 			$filesName = $file->getFilename(); 
+			if (strpos($filesName,".html")>-1){ 
+				continue;
+			}
 			$filesName=str_replace(".". $file->getExtension(),"",  $filesName);
 			$filesName=str_replace("%","\\\\\/",  str_replace("$","(.*)",$filesName));
 			

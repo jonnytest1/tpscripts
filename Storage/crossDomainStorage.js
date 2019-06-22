@@ -1,3 +1,10 @@
+
+/// <reference path="../customTypes/index.d.ts"/>
+/**
+ * @typedef resolv
+ * @property {(str:string)=>any} g
+  */
+
 /**
  * @type {HTMLOrSVGScriptElement & CustomScript }
  */

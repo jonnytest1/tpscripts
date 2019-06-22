@@ -1,4 +1,3 @@
-/*global sc,handleError */
 /// <reference path="../customTypes/index.d.ts" />
 
 new EvalScript('', {
@@ -7,20 +6,11 @@ new EvalScript('', {
         /**
          *  @name dom_b
          */
-
         const constants = await reqS('DOM/DOMConstants');
-        /**
-         *
-         * @param {HTMLElement} element
-         * @param {string} txt
-         * @param {Function} fncclick
-         * @param {Function} fncmouseEnter
-         * @param {Function} fncMouseLeave
-         * @param {Function} fncopen
-         * @param {StyleSheet} style
-         */
+        /** @global */
         //tslint:disable-next-line variable-name
         var Button = class ButtonC {
+
             //tslint:disable-next-line
             static btn(txt, fncclick, fncmouseEnter, fncMouseLeave, fncopen, style) {
                 let btn = document.createElement('tampermonkey-button');
@@ -197,6 +187,15 @@ new EvalScript('', {
                 }
                 return btn;
             }
+            /**
+             * @param {HTMLElement} element
+             * @param {string} txt
+             * @param {Function} fnct
+             * @param {Function} fncmouseEnter
+             * @param {Function} fncMouseLeave
+             * @param {Function} fncopen
+             * @param {StyleSheet} style
+             */
             static crBE(element, txt, fnct, fncmouseEnter, fncMouseLeave, fncopen, style) {
                 let btn = Button.btn(txt, fnct, fncmouseEnter, fncMouseLeave, fncopen, style);
                 element.parentNode.insertBefore(btn, element);

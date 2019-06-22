@@ -77,7 +77,9 @@
         "promise-function-async": true,
         "semicolon": true,
         "switch-default": true,
-        "triple-equals": true,
+        "triple-equals": {
+            "severity": "error"
+        },
         "typeof-compare": true,
         "variable-name": {
             "options": [
