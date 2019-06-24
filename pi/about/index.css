@@ -1,0 +1,21 @@
+.tableContainer{
+    vertical-align: top;
+    padding-top: 1px;
+}
+
+.tdBorder {
+    border-bottom: 1px solid black
+}
+
+.fittingList{
+    margin-top: 0px;
+    padding-left: 20px;
+}
+.detailsContent{
+    display: none;
+}
+
+.centerImg{
+    vertical-align: middle;
+    margin-left: 5px;
+}
