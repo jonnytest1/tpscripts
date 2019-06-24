@@ -171,6 +171,12 @@ async function req(path, urlTest = false) {
             };
             try {
                 document.body.appendChild(injectingScript);
+                setTimeout(() => {
+                    if (!document.querySelector('tampermonkey_base_container')) {
+                        document.props.canInject = false;
+                        injectSCriptByText(injectingScript);
+                    }
+                }, 1000);
             } catch (e) {
                 debugger;
                 if (!urlTest) {
@@ -206,9 +212,6 @@ async function req(path, urlTest = false) {
                 }
 
             };
-            if (path.includes('localhost:4280/req.php?url=http')) {
-                debugger;
-            }
             /**
              * @type {EventTarget & CustomScript}
              */

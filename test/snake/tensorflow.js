@@ -1,6 +1,6 @@
-/// <reference path="../customTypes/index.d.ts" />
-/// <reference path="../customTypes/p5_types.d.ts" />
-/// <reference path="../customTypes/tensorflow.d.ts" />
+/// <reference path="../../customTypes/index.d.ts" />
+/// <reference path="../../customTypes/p5_types.d.ts" />
+/// <reference path="../../customTypes/tensorflow.d.ts" />
 /**
  * @type {HTMLOrSVGScriptElement & CustomScript }
  */
@@ -29,7 +29,6 @@ class NeuralWrapper {
             this.model = tf.sequential();
         }
         this.type = type;
-        /** @type {Array<Layer>} */
         this.layers = [];
         this.options = options;
         this.mutation = options.mutation || 0.1;
@@ -45,29 +44,11 @@ class NeuralWrapper {
     predict(tensor) {
         const prediction = tf.tidy(() => {
             const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape]);
-            return this.model.predict(reshaped)
-                .dataSync();
+            return this.model.predict(reshaped);
         });
-        return prediction;
+        return prediction.dataSync();
     }
 
-    async fit(tensor, tensor2, options = {}, dispose = true) {
-        if (tensor instanceof Array) {
-            tensor = tf.tensor(tensor);
-        }
-        if (tensor2 instanceof Array) {
-            tensor2 = tf.tensor(tensor2);
-        }
-        const reshaped = tensor.reshape([1, ...this.layers[0].options.inputShape]);
-        const reshaped2 = tensor2.reshape([1, this.layers[this.layers.length - 1].options.units]);
-        const fitHistory = await this.model.fit(reshaped, reshaped2, options);
-        if (dispose) {
-            reshaped.dispose();
-            reshaped2.dispose();
-            tensor.dispose();
-            tensor2.dispose();
-        }
-    }
     addLayer(type, options) {
         this.layers.push({ type: type, options: options });
         this.model.add(tf.layers[type](options));
@@ -103,9 +84,6 @@ class NeuralWrapper {
         });
     }
 
-    compile(options) {
-        this.model.compile(options);
-    }
     mutateWeight(x) {
         if (random(1) < this.mutation) {
             let offset = randomGaussian();
@@ -127,51 +105,6 @@ class NeuralWrapper {
         });
         nn.addLayer('dense', {
             units: outputs,
-            activation: 'sigmoid'
-        });
-        return nn;
-    }
-
-    static convFromExample(example, hidden = 10, outputs = 2, convolutions = 2) {
-        if (example instanceof Array) {
-            example = tf.tensor(example);
-        }
-        const nn = new NeuralWrapper();
-        nn.addLayer('conv2d', {
-            units: hidden,
-            inputShape: example.shape,
-            kernelSize: 5,
-            filters: 10,
-            strides: 4,
-            activation: 'relu',
-            kernelInitializer: 'VarianceScaling'
-        });
-        nn.addLayer('maxPooling2d', {
-            poolSize: [2, 2],
-            strides: [2, 2]
-        });
-        for (let i = 0; i < convolutions - 1; i++) {
-            nn.addLayer('conv2d', {
-                kernelSize: 5,
-                filters: 10,
-                strides: 4,
-                activation: 'relu',
-                kernelInitializer: 'VarianceScaling'
-            });
-            nn.addLayer('maxPooling2d', {
-                poolSize: [2, 2],
-                strides: [2, 2]
-            });
-        }
-        nn.addLayer('flatten');
-        nn.addLayer('dense', {
-            units: hidden,
-            kernelInitializer: 'VarianceScaling',
-            activation: 'sigmoid'
-        });
-        nn.addLayer('dense', {
-            units: outputs,
-            kernelInitializer: 'VarianceScaling',
             activation: 'sigmoid'
         });
         return nn;

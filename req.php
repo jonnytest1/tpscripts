@@ -5,9 +5,17 @@
     $url=$qParams["url"];
    
     $url="/".$url.".js";
-
+    $url=dirname(__FILE__) .$url;
     try{
-        $str=file_get_contents( dirname(__FILE__) .$url);
+
+        if(file_exists($url)){
+            $str=file_get_contents($url );
+        }else{
+            $url=str_replace("%25","%",$url);
+            $str=file_get_contents($url);
+        }
+
+        
 
         if(strpos($url,"rotate/rotate")>-1){
             include( dirname(__FILE__) . '/rotate/rotate.php');

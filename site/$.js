@@ -125,7 +125,7 @@ new EvalScript('', {
                                 const current = duration * (percent / 100);
                                 localVideo.currentTime = current;
                             }, localVideo.currentTime * 100 / duration, { scale: scale, skipInit: true });
-                            let rotationStyle = `rotate(${90 + (angle)}deg`;
+                            let rotationStyle = `rotate(${90 + (angle)}deg)`;
 
                             let globlaTranslate = ` translate(${(object.container.dim.width / 2) - (19 * scale)}px,${22 * scale}px)`;
                             object.container.style.transform = `translate(-230px, 6px) ${rotationStyle} translate(-30px, 30px)`;

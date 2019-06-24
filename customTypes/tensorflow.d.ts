@@ -6,8 +6,8 @@ interface model {
     compile: (...args) => void
     predict: (t: TensorObject) => TensorObject;
 
-    fit:(x:TensorObject,y:TensorObject,fitOptions:fitOptions)=>Promise<fitHistory>;// returns History
-    add: (layer: Layer) => void
+    fit:(x:TensorObject,y:TensorObject,fitOptions?:fitOptions)=>Promise<fitHistory>;// returns History
+    add: (layer: Layers) => void
 }
 interface fitReport{
     acc:Array<number>,
@@ -41,14 +41,23 @@ interface TensorInterface {
          Array<Array<Array<Array<number>>>>, shape?: Array<number>): TensorObject;
     
 }
-interface Layer {
-    conv2d: (...args) => Layer
 
-    maxPooling2d: (...args) => Layer
+interface LayerOptions{
+    inputShape:any
+    units:number
+}
+interface Layer{
+    type:String
+    options:LayerOptions
+}
+interface Layers {
+    conv2d: (...args) => Layers
 
-    dense: (...args) => Layer
+    maxPooling2d: (...args) => Layers
 
-    flatten: (...args) => Layer
+    dense: (...args) => Layers
+
+    flatten: (...args) => Layers
 }
 
 interface Train {
@@ -58,7 +67,7 @@ interface Browser {
     fromPixels: (canvas: HTMLCanvasElement) => TensorObject
 }
 interface tf {
-    layers: Layer
+    layers: Layers
     browser: Browser
     setBackend: (be: "cpu") => void
     train: Train,

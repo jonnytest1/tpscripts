@@ -7,7 +7,7 @@ export interface RequireMap {
     'libs/eval-script':void
 
     'logging':void
-
+    'learning/tensorflow':void
     'notification':void
     'find':ElementGetter
 
