@@ -95,7 +95,6 @@ function handleError(e) {
       image:
         'https://www.shareicon.net/data/128x128/2017/06/21/887388_energy_512x512.png',
       onclick: () => {
-        debugger;
         try {
           let logContent = `${location.href}\n${e.stack}`;
           GM_setClipboard(logContent);
@@ -147,4 +146,4 @@ window.sc.D.l = (message, error) => {
   logKibana('INFO', message, error);
 };
 
-new EvalScript('', {});
+new EvalScript('', {}).finish(undefined);

@@ -2,7 +2,7 @@
 /**
  * @type { ElementGetter }
  */
-let t = (string, iF, compress) => {
+var t = (string, iF, compress) => {
     if (!compress) {
         compress = true;
     }

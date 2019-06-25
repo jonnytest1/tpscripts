@@ -44,3 +44,10 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
     console.trace(details);
     return window['GM_notification'](details, ondone);
 };
+let notResponse = {
+    gmNot: GMnot
+};
+/**
+ * @typedef {typeof notResponse} notificationI
+ */
+new EvalScript('').finish(notResponse);

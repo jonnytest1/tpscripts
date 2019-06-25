@@ -1,5 +1,5 @@
 <?PHP
-    require("./request.php");
+    include( dirname(__FILE__) . '/request.php');
 
     $qParams=getQueryParams();
     $url=$qParams["url"];

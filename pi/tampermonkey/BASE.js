@@ -76,8 +76,6 @@ new Promise(async (resolver) => {
     //tslint:disable-next-line variable-name
     let Storage_greaseStorage = IMPORT;
 
-    await CircularMenu.main();
-
     window.backendUrl = 'http://localhost:4280';
     resolver({});
 

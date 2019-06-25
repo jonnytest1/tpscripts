@@ -3,9 +3,9 @@
 /**
  *
  * @param {string} path
- * @param {*} urlTest
+ * @param {boolean} [cache]
  */
-async function req(path, urlTest = false) {
+async function req(path, cache = true) {
     let stack = '';
     try {
         path['stack']();
@@ -22,14 +22,18 @@ async function req(path, urlTest = false) {
     return new Promise(async (resolve) => {
         let onScriptLoad = ((resolver) => {
             return (e) => {
+                //console.log('resolver ' + (e.target.source || e.target.src));
                 if (!e.target.isAsync || e.isAsync) {
-                    if (!e.target.loaded) {
+                    if (!e.target.loaded || !e.target.args) {
                         e.target.loaded = true;
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
+                        if ((e.target.source || e.target.src) === 'http://localhost:4280/req.php?url=DOM/CircularMenu') {
+                            //debugger;
+                        }
                         resolver(e.args);
                     } else {
-                        console.log('target already loaded ' + (e.target.source || e.target.src));
+                        //console.log('target already loaded ' + (e.target.source || e.target.src));
                         resolver(e.target.args);
                     }
                 } else {
@@ -37,40 +41,38 @@ async function req(path, urlTest = false) {
                 }
             };
         });
+        if (cache) {
+            /**@type {Array<CustomHTMLscript>} */
+            // @ts-ignore
+            let rootElements = document.querySelectorAll('script');
 
-        /**@type {Array<CustomHTMLscript>} */
-        // @ts-ignore
-        let rootElements = document.querySelectorAll('script');
-
-        for (let injectedScript of [...rootElements]) {
-            if (injectedScript.source === path || injectedScript.src === path) {
-                if (injectedScript.loaded) {
-                    console.log('resolving loaded for ' + (injectedScript.source || injectedScript.src));
-                    resolve(injectedScript.args);
-                } else {
-                    injectedScript.addEventListener('load', onScriptLoad(resolve));
+            for (let injectedScript of [...rootElements]) {
+                if (injectedScript.source === path || injectedScript.src === path) {
+                    if (injectedScript.loaded) {
+                        console.log('resolving from cache ' + (injectedScript.source || injectedScript.src));
+                        resolve(injectedScript.args);
+                    } else {
+                        injectedScript.addEventListener('load', onScriptLoad(resolve));
+                    }
+                    return;
                 }
-                return;
+            }
+            for (let scr of Object.entries(document.props.evalScripts || {})
+                .map(o => o[1])) {
+                /**@type {CustomEvalScript} */
+                let cScript = scr;
+                if (cScript.src === path) {
+                    if (cScript.loaded) {
+                        console.log('resolving from cache ' + (cScript.source || cScript.src));
+                        resolve(cScript.args);
+                    } else {
+                        cScript.addEventListener('load', onScriptLoad(resolve));
+                    }
+                    return;
+                }
             }
         }
-        for (let scr of Object.entries(document.props.evalScripts || {})
-            .map(o => o[1])) {
-            /**@type {CustomEvalScript} */
-            let cScript = scr;
-            if (cScript.src === path) {
-                if (cScript.loaded) {
-                    console.log('resolving loaded for ' + (cScript.source || cScript.src));
-                    resolve(cScript.args);
-                } else {
-                    cScript.addEventListener('load', onScriptLoad(resolve));
-                }
-                return;
-            }
-        }
-
-        // console.log("injecting " + path);
-
-        if (urlTest || document.props.canInject === true) {
+        if (document.props.canInject === true) {
             injectScriptNyUrl(path);
         } else if (document.props.canInjectText) {
             // @ts-ignore
@@ -147,7 +149,9 @@ async function req(path, urlTest = false) {
              */
             let injectingScript = document.createElement('script');
             injectingScript.src = scriptPath;
+
             injectingScript.onload = onScriptLoad(resolve);
+
             injectingScript.stack = stack;
             injectingScript.resolve = resolve;
             window.onerror = (/**@type Event */e) => {
@@ -160,14 +164,9 @@ async function req(path, urlTest = false) {
             * @param {any} e
             */
             injectingScript.onerror = (e) => {
-                if (urlTest && e === 'done') {
-                    resolve(true);
-                    return;
-                }
                 if (e.eventPhase === 2) {
-                    if (!urlTest) {
-                        injectSCriptByText(e.target);
-                    }
+                    injectSCriptByText(e.target);
+
                 } else {
                     handleError(e);
                 }
@@ -181,10 +180,7 @@ async function req(path, urlTest = false) {
                     }
                 }, 1000);
             } catch (e) {
-                debugger;
-                if (!urlTest) {
-                    injectSCriptByText(injectingScript);
-                }
+                injectSCriptByText(injectingScript);
             }
 
         }
@@ -263,7 +259,7 @@ window.req = req;
  */
 var reqS = async function reqSImpl(path) {
     path = 'http://localhost:4280/req.php?url=' + path;
-    return req(path, false);
+    return req(path);
 };
 window.reqS = reqS;
 /**

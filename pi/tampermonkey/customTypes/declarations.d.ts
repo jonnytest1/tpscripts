@@ -58,7 +58,7 @@ interface CustomStorage {
     filter?: (identfier: string, filterFunction: Function, standard?: any) => Array<any>;
 }
 interface scI {
-    menu?: CircularMenuC;
+    menu?: CircularMenuInstnace;
     menuContainer: HTMLElement;
     D: Debug;
     CD?: CustomStorage

@@ -1,8 +1,9 @@
 
-
+///<reference path="../DOM/CircularMenu.js"/>
 ///<reference path="../DOM/DOMConstants.js"/>
 ///<reference path="../http.js"/>
 /// <reference path="../time.js" />
+/// <reference path="../notification.js" />
 export interface RequireMap {
 
     'http':httpResolv
@@ -13,12 +14,12 @@ export interface RequireMap {
     'learning/tensorflow':void
     'learning/knnIO':any
     'learning/tfIO':any
-    'notification':void
+    'notification':notificationI
     'find':ElementGetter
     'graphics/p5addon':void
 
     'graphics/canvas':void
-    'DOM/CircularMenu':void
+    'DOM/CircularMenu':CircularMenuResolv;
     'DOM/customSlider':void
     'DOM/DOMConstants':DConstants;
     'DOM/dependencyCheck':void

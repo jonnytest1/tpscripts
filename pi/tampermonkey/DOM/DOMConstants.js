@@ -1,6 +1,6 @@
 /// <reference path="../customTypes/index.d.ts" />
 
-let c = { zIndex: 2099999999 };
+var c = { zIndex: 2099999999 };
 /**
  * @typedef {typeof c} DConstants
  */

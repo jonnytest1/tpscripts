@@ -18,27 +18,40 @@
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 $data = curl_exec($ch);
-                curl_close($ch);
+                if(!curl_errno($ch) ){
+                    curl_close($ch);
 
-                if($this->checkRequest($data,$url,$matcher)){
-                    $js=$js."/*".$this->additional."*/";
-                    $js=$js."alert('".$url." changed');open('".$url."')\n";
+                    if($this->checkRequest($data,$url,$matcher)){
+                        $js=$js."/*".$this->additional."*/";
+                        $js=$js."alert('".$url." changed');open('".$url."')\n";
+                    }else{
+                        $js=$js."// ".$url." is up top date\n";
+                    }
+    
+                    
+                    $this->db->sql(
+                        "UPDATE rotate_request_content SET timestamp=NOW() WHERE url=?",
+                        "s",
+                        array($url)
+                    );
                 }else{
-                    $js=$js."// ".$url." is up top date\n";
+                    $js=$js."alert('".$url." failed');\n";
                 }
-
                 
-                $this->db->sql(
-                    "UPDATE rotate_request_content SET timestamp=NOW() WHERE url=?",
-                    "s",
-                    array($url)
-                );
             }
             return $js;
 
 
         }
+        function updateMatcher($matcher){
+            preg_match_all('/<span class="Counter">(.*)<\/span>/',$matcher, $treffer,PREG_SET_ORDER);
+            if(count($treffer)>0){
+                $increased=intval($treffer[0][1])+1;
+                return str_replace($treffer[0][1],"".$increased,$treffer[0][0]);
 
+            }
+            return $matcher;
+        }
         function checkRequest($data,$url,$matcher){
             if($matcher == NULL){
                 $html=$this->db->sql("SELECT html FROM rotate_request_content WHERE url = ?","s",array($url));
@@ -71,7 +84,7 @@
                 $this->db->sql("UPDATE rotate_request_content SET matcher=? WHERE url=?",
                 "ss",
                 array(
-                    updateMatcher($matcher),
+                    $this->updateMatcher($matcher),
                     $url
                 ));
                 return TRUE;
@@ -80,14 +93,6 @@
         }
 
 
-        function updateMatcher($matcher){
-            preg_match_all('/<span class="Counter">(.*)<\/span>/',$matcher, $treffer,PREG_SET_ORDER);
-            if(count($treffer)>0){
-                $increased=intval($treffer[0][1])+1;
-                return str_replace($treffer[0][1],"".$increased,$treffer[0][0]);
-
-            }
-            return $matcher;
-        }
+        
     }
 ?>

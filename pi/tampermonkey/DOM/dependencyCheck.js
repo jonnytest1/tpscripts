@@ -31,6 +31,7 @@ new EvalScript('', {
                 console.log('failed fetching ' + url);
             }
             for (let script of scripts) {
+                await new Promise(r => setTimeout(r, 500));
                 if (script.src.includes('localhost')) {
                     try {
                         scriptContents[script.src] = await http.gm_fetch(script.src);
@@ -77,11 +78,12 @@ new EvalScript('', {
                                 }
                             }
                             if (refresh) {
+                                console.log(`REFRESHING ${script.src}`);
                                 let scriptUrl = script.src;
                                 script.remove();
                                 scriptContents[script.src] = undefined;
                                 delete document.props.evalScripts[script.src];
-                                await req(scriptUrl);
+                                await req(scriptUrl, false);
                             }
 
                         } else {
