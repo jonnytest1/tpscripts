@@ -16,7 +16,19 @@
                 $js=$js."//requesting for ".$url."\n";
                 $ch = curl_init($url); // such as http://example.com/example.xml
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                $User_Agent = 'jonnytest1';
+
+        $request_headers = array(
+            "cookie: logged_in=no",
+            "Cache-Control: no-cache",
+            "Host: api.github.com",
+            "Accept: */*",
+            "Connection: keep-alive"
+        );
+        $request_headers[] = 'User-Agent: '. $User_Agent;
                 curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
                 $data = curl_exec($ch);
                 if(!curl_errno($ch) ){
                     curl_close($ch);
@@ -40,11 +52,13 @@
                 
             }
             return $js;
-
-
         }
         function updateMatcher($matcher){
-            preg_match_all('/<span class="Counter">(.*)<\/span>/',$matcher, $treffer,PREG_SET_ORDER);
+            preg_match_all('/count\(\$data\)==(.*)/',$matcher, $treffer,PREG_SET_ORDER);
+            if(function_exists(__NAMESPACE__ ."testLog")){
+                testLog(json_encode($treffer));
+                testLog(json_encode($matcher));
+            }
             if(count($treffer)>0){
                 $increased=intval($treffer[0][1])+1;
                 return str_replace($treffer[0][1],"".$increased,$treffer[0][0]);
@@ -79,7 +93,29 @@
                     return TRUE;
                 }
                 return FALSE;
-            }else if(strpos($data,$matcher)==FALSE){
+            }
+            try{
+                $json=json_decode($data);
+                if($json!=null){
+                    $success= eval($matcher);
+    
+                    if($success==FALSE && function_exists(__NAMESPACE__ ."testLog")){
+                        testLog($matcher." \nwas not found in:\n");
+                        //testLog(json_encode($data));
+                    }
+                    return $success;
+                }
+              
+            }catch(Eception $e){
+
+            }
+            
+            if(strpos($data,$matcher)==FALSE){
+
+
+                if(function_exists(__NAMESPACE__ ."testLog")){
+                    testLog($matcher." \nwas not found in:\n".$data);
+                }
                 $this->additional=$matcher." is not in the html";
                 $this->db->sql("UPDATE rotate_request_content SET matcher=? WHERE url=?",
                 "ss",

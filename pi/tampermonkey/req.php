@@ -1,5 +1,9 @@
 <?PHP
-    include( dirname(__FILE__) . '/request.php');
+try{
+    include( __DIR__. "/request.php");
+    }catch(Warning $e){
+        return;
+    }
 
     $qParams=getQueryParams();
     $url=$qParams["url"];

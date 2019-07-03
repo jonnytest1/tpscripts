@@ -3,16 +3,42 @@
 /// <reference path="../DOM/button.js" />
 
 /**
+*
+* @typedef {HTMLElement & {
+*      menuOption?:MenuElementItem,
+*      center?:Center,
+*      menu?:CircularMenuInstnace,
+*      degree?:number,
+*      parentSpace?:number
+* }} CircularMenuHTMLButton
+*/
+/**
 * @typedef MenuElementItem
 * @property { MenuElementItem[] } [children]
 * @property {String} [name]
 * @property {Function} [onclick]
-* @property {(parent:HTMLElement)=>boolean|void} [mouseOver]
+* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseOver]
 * @property {(target)=>boolean} [isValid]
-* @property {Function } [creationFunction]
+* @property {CreationFunction} [creationFunction]
 * @property {String} [enabledColor]
-
+* @property {string} [normalColor]
+* @property {CircularMenuHTMLButton} [element]
+* @property {Line} [line]
 */
+/**
+ * @callback CreationFunction
+* @param {HTMLElement} parent
+* @param {string} text
+* @param {Function} onclick
+* @param {Function} fncmouseEnter
+* @param {Function} fncMouseLeave
+* @param {any} style
+* @param {Center&{target:HTMLElement}} center
+* @param {number} angle
+* @param {*} menu
+* @returns {CircularMenuHTMLButton}
+ */
+
 /**
  * @callback addToMEnuCB
  * @param {MenuElementItem} menu
@@ -21,384 +47,369 @@
 /**
  * @typedef CircularMenuInstnace
  * @property {addToMEnuCB} addToMenu
+ * @property {Function} [setButtons]
  * @property {()=>void} remove
+ * @property {(rootMenuName:String)=>void} removeByName
  */
 /**
- * @typedef CircularMenuResolv
- * @property {()=>CircularMenuInstnace} main
+ * @typedef  {CircularConstructor &
+ *  {main:()=>CircularMenuInstnace
+ * }} CircularMenuResolv
  */
+
+/**
+ *@callback CircularConstructor
+* @param {HTMLElement} parent
+* @param {MenuElementItem[]} elements
+* @param {{ deactivatorChoice?:string, deactivator?:()=>Promise<Event>, activator?:()=>Promise<Event>, getCenter?:()=>{x:number,y:number,target:HTMLElement}}} [options]
+* @returns {void}
+*/
 new EvalScript('', {
     run: async (resolver, response) => {
-        await reqS('DOM/line');
+        (async () => {
+            await reqS('DOM/line');
 
-        await reqS('DOM/button');
-        /**
-         *
-         * @param {MenuElementItem} props
-         */
-        function parseMElement(props) {
-            if (props.children) {
-                props.children = props.children.map(parseMElement);
-            }
-            return props;
-
-        }
-        /**
-         *
-         * @typedef {CircularMenu} CircularMenuC
-         *
-         */
-        //tslint:disable-next-line variable-name
-        var CircularMenu = class CircularMenuC {
-
+            await reqS('DOM/button');
             /**
-
-             * @typedef {HTMLElement & {
-             *      menuOption:MenuElementItem,
-             *      center:Center,
-             *      menu:CircularMenu,
-             *      degree:number,
-             *      parentSpace:number
-             * }} CircularMenuHTMLButton
+             *
+             * @param {MenuElementItem} props
              */
+            function parseMElement(props) {
+                if(props.children) {
+                    props.children = props.children.map(parseMElement);
+                }
+                return props;
 
+            }
             /**
-             * @param {HTMLElement} parent
-             * @param {MenuElementItem[]} elements
-             * @param {{ deactivatorChoice?:string, deactivator?:()=>Promise<Event>, activator?:()=>Promise<Event>, getCenter?:()=>{x:number,y:number,target:HTMLElement}}} options
+             *
+             * @call {CircularMenu} CircularMenuC
+             *
              */
-            constructor(parent, elements, options = {}) {
-                this.isActive = false;
-                this.parent = parent;
-                /**@type {Array<MenuElementItem>}*/
-                this.elements = parseMElement({ children: elements }).children;
-                this.deactivators = { timedDeactivation: this.timedDeactivation };
-                this.deactivatorChoice = options.deactivatorChoice || 'timedDeactivation';
+            //tslint:disable-next-line variable-name
+            var CircularMenu = class CircularMenuC {
 
-                if (options.deactivator) {
-                    this.deactivators.customDeactivator = options.deactivator;
-                    this.deactivatorChoice = 'customDeactivator';
-                }
-                if (options.getCenter) {
-                    this.getCenter = options.getCenter;
-                }
-                if (options.activator) {
-                    this.activator = options.activator;
-                }
-                this.activator()
-                    .then(ev => this.onActivate.call(this, ev));
-            }
-            onActivate(ev) {
-                try {
-                    this.isActive = true;
-                    this.initialize.call(this, ev);
-                    this.deactivationFunction();
-                } catch (e) {
-                    handleError(e);
-                }
-            }
-            async deactivationFunction() {
-                await this.backgroundObj.deactivation();
-                this.isActive = false;
-                this.backgroundObj.remove();
-                this.activator()
-                    .then(ev => this.onActivate.call(this, ev));
-            }
+                /**@type {CircularConstructor} */
+                constructor(parent, elements, options = {}) {
+                    this.isActive = false;
+                    this.destroyed = false;
+                    this.parent = parent;
+                    /**@type {Array<MenuElementItem>}*/
+                    this.elements = parseMElement({ children: elements }).children;
+                    this.deactivators = { timedDeactivation: this.timedDeactivation };
+                    this.deactivatorChoice = options.deactivatorChoice || 'timedDeactivation';
 
-            async activator() {
-                return new Promise(resolv => {
-                    this.parent.addEventListener('mouseenter', (ev) => {
-                        resolv(ev);
+                    if(options.deactivator) {
+                        this.deactivators.customDeactivator = options.deactivator;
+                        this.deactivatorChoice = 'customDeactivator';
+                    }
+                    if(options.getCenter) {
+                        this.getCenter = options.getCenter;
+                    }
+                    if(options.activator) {
+                        this.activator = options.activator;
+                    }
+                    this.activator()
+                        .then(ev => this.onActivate.call(this, ev));
+                }
+                onActivate(ev) {
+                    if(this.destroyed) {
+                        return;
+                    }
+                    try {
+                        this.isActive = true;
+                        this.initialize.call(this, ev);
+                        this.deactivationFunction();
+                    } catch(e) {
+                        handleError(e);
+                    }
+                }
+                async deactivationFunction() {
+
+                    await this.backgroundObj.deactivation();
+
+                    this.isActive = false;
+                    this.backgroundObj.remove();
+                    this.activator()
+                        .then(ev => this.onActivate.call(this, ev));
+                }
+
+                async activator() {
+                    return new Promise(resolv => {
+                        this.parent.addEventListener('mouseenter', (ev) => {
+                            resolv(ev);
+                        });
                     });
-                });
-            }
-            async timedDeactivation(button) {
-                return new Promise(resolv => {
-                    setTimeout(() => resolv(button), 3000);
-                });
-            }
-
-            getCenter(center) {
-                return {
-                    x: center.x,
-                    y: center.y,
-                    target: center.target
-                };
-            }
-            set(obj) {
-                if (sc.circularmenu) {
-                    sc.circularmenu.remove();
+                }
+                async timedDeactivation(button) {
+                    return new Promise(resolv => {
+                        setTimeout(() => resolv(button), 3000);
+                    });
                 }
 
-                sc.circularmenu = obj;
-                return obj;
-            }
-
-            getBackgroundObject(center, radius) {
-                let parent = sc.menuContainer;
-                let el = document.elementFromPoint(center.x, center.y);
-                if (el && el.tagName.toUpperCase() === 'VIDEO') {
-                    parent = el.parentElement;
+                getCenter(center) {
+                    return {
+                        x: center.x,
+                        y: center.y,
+                        target: center.target
+                    };
                 }
-                let backgroundObject = this.set(crIN(parent, '', undefined, undefined, btn => {
-                    //btn.remove();
-                }, undefined, {
+                set(obj) {
+                    if(sc.circularmenu) {
+                        sc.circularmenu.remove();
+                    }
+
+                    sc.circularmenu = obj;
+                    return obj;
+                }
+
+                getBackgroundObject(center, radius) {
+                    let parent = sc.menuContainer;
+                    let el = document.elementFromPoint(center.x, center.y);
+                    if(el && el.tagName.toUpperCase() === 'VIDEO') {
+                        parent = el.parentElement;
+                    }
+                    let alphaFilter = this.set(crIN(parent, '', undefined, undefined, undefined, undefined, {
                         style: {
-                            borderRadius: `${radius}px`,
-                            width: `${radius}px`,
-                            height: `${radius}px`,
-                            left: `${center.x - (radius / 2)}px`,
-                            top: `${center.y - (radius / 2)}px`,
+                            borderRadius: `${radius * 6}px`,
+                            width: `${radius * 6}px`,
+                            height: `${radius * 6}px`,
+                            left: `${center.x - (radius * 6 / 2)}px`,
+                            top: `${center.y - (radius * 6 / 2)}px`,
                             visibility: 'visible',
-                            backgroundColor: 'rgba(206, 53, 53, 0.4)',
+                            backgroundColor: 'rgba(255, 240, 240, 0.8)',
                         }
                     }));
-                backgroundObject.position = center;
-                backgroundObject.deactivation = this.deactivators[this.deactivatorChoice];
-                return backgroundObject;
-            }
-
-            filterOptions(option) {
-                if (!option.isValid) {
-                    return true;
-                } else {
-                    return option.isValid(this.center.target);
+                    alphaFilter.position = center;
+                    alphaFilter.deactivation = this.deactivators[this.deactivatorChoice];
+                    return alphaFilter;
                 }
-            }
 
-            async remove() {
-                if (this.backgroundObj) {
-                    await this.backgroundObj.deactivation();
-                }
-                this.isActive = false;
-                if (this.backgroundObj) {
-                    this.backgroundObj.remove();
-                }
-            }
-            /**
-             * @param {string} name
-             */
-            removeByName(name) {
-                this.filter(m => m.name !== name);
-            }
-            /**
-
-             * @param {(menu:MenuElementItem)=>boolean} filterfnc
-             */
-            filter(filterfnc) {
-                this.elements = this.elements.filter(filterfnc);
-            }
-            /**@type {addToMEnuCB} */
-            addToMenu(menu, selector = ((el) => el)) {
-                let node = selector(this.elements);
-                if (!(node instanceof Array)) {
-                    if (!node.children) {
-                        node.children = [];
+                filterOptions(option) {
+                    if(!option.isValid) {
+                        return true;
+                    } else {
+                        return option.isValid(this.center.target);
                     }
-                    node = node.children;
                 }
-                node.push(parseMElement(menu));
-                this.initialize();
 
-            }
-            initialize(ev) {
-                if (this.elements.length > 0 && this.isActive) {
-
-                    this.center = this.getCenter(ev);
-
-                    let filteredOptions = this.elements.filter(el => this.filterOptions(el));
-                    let radius = 100;
-
-                    if (filteredOptions.length > 4) {
-                        radius = 200;
+                async remove() {
+                    if(this.backgroundObj) {
+                        await this.backgroundObj.deactivation();
                     }
-                    this.backgroundObj = this.getBackgroundObject(this.center, radius);
-                    this.setButtons(filteredOptions, 0, 360, radius, this.center);
+                    this.destroyed = true;
+                    this.isActive = false;
+                    if(this.backgroundObj) {
+                        this.backgroundObj.remove();
+                    }
                 }
-            }
-            /**
+                /**
+                 * @param {string} name
+                 */
+                removeByName(name) {
+                    this.filter(m => m.name !== name);
+                }
+                /**
 
-             * @param {*} parent
-             * @param {*} text
-             * @param {*} onclick
-             * @param {*} fncmouseEnter
-             * @param {*} fncMouseLeave
-             * @param {*} style
-             * @param {Center&{target:HTMLElement}} center
-             * @param {*} menu
-             */
-            createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu) {
-                let sradius = 50;
-                /** @type {HTMLElement& {center?:Center}} */
-                let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
-                element.style.width = `${sradius}px`;
-                element.style.height = `${sradius}px`;
+                 * @param {(menu:MenuElementItem)=>boolean} filterfnc
+                 */
+                filter(filterfnc) {
+                    this.elements = this.elements.filter(filterfnc);
+                }
+                /**@type {addToMEnuCB} */
+                addToMenu(menu, selector = ((el) => el)) {
+                    let node = selector(this.elements);
+                    if(!(node instanceof Array)) {
+                        if(!node.children) {
+                            node.children = [];
+                        }
+                        node = node.children;
+                    }
+                    node.push(parseMElement(menu));
+                    this.initialize();
 
-                element.style.left = `${center.x - (sradius / 2)}px`;
-                element.style.top = `${center.y - (sradius / 2)}px`;
-                element.center = center;
-                return element;
-            }
+                }
+                initialize(ev) {
+                    if(this.elements.length > 0 && this.isActive) {
 
-            /**
+                        this.center = this.getCenter(ev);
 
-             * @param {*} buttonArray
-             * @param {*} startAngle
-             * @param {*} availableAngle
-             * @param {*} distance
-             * @param {Center&{target:HTMLElement}} center
-             * @param {*} parent
-             */
-            setButtons(buttonArray, startAngle, availableAngle, distance, center, parent = this.backgroundObj) {
+                        let filteredOptions = this.elements.filter(el => this.filterOptions(el));
+                        let radius = 100;
 
-                buttonArray = buttonArray.filter(el => this.filterOptions(el));
-                let degree = availableAngle / (buttonArray.length);
-
-                if (buttonArray.length === 1) {
-                    availableAngle = 0;
-                    degree = 0;
+                        if(filteredOptions.length > 4) {
+                            radius = 200;
+                        }
+                        this.backgroundObj = this.getBackgroundObject(this.center, radius);
+                        this.setButtons(filteredOptions, 0, 360, radius, this.center);
+                    }
                 }
 
-                let innerRadius = distance * 0.4;
-                for (let i = 0; i < buttonArray.length; i++) {
-                    let angle = ((startAngle - availableAngle / 2) + (degree * i));
-                    let posX = (Math.cos(angle * (Math.PI / 180)) * innerRadius);
-                    let posY = (Math.sin(angle * (Math.PI / 180)) * innerRadius);
+                /**@type {CreationFunction} */
+                createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu) {
+                    let sradius = 50;
+                    /** @type {CircularMenuHTMLButton} */
+                    let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
+                    element.style.width = `${sradius}px`;
+                    element.style.height = `${sradius}px`;
 
-                    let newElementCenterX = center.x + posX;
-                    let newElementCenterY = center.y + posY;
+                    element.style.left = `${center.x - (sradius / 2)}px`;
+                    element.style.top = `${center.y - (sradius / 2)}px`;
+                    element.center = center;
+                    return element;
+                }
 
-                    let creationFunction = buttonArray[i].creationFunction || this.createElement;
+                /**
 
-                    let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };
+                 * @param {Array<MenuElementItem>} buttonArray
+                 * @param {*} startAngle
+                 * @param {*} availableAngle
+                 * @param {*} distance
+                 * @param {Center&{target:HTMLElement}} center
+                 * @param {*} parent
+                 */
+                setButtons(buttonArray, startAngle, availableAngle, distance, center, parent = this.backgroundObj) {
 
-                    let line = new Line(parent, center, newCenter, 36);
+                    buttonArray = buttonArray.filter(el => this.filterOptions(el));
+                    let degree = availableAngle / (buttonArray.length);
 
-                    /** @type  { CircularMenuHTMLButton } */
-                    let buttonInstance = creationFunction(parent, buttonArray[i].name || '', (() => {
-                        let fnc = buttonArray[i].onclick;
-                        return (btn) => {
-                            fnc(btn);
-                            btn.parentElement.remove();
-                        };
-                    })(),
-                        /** @param { CircularMenuHTMLButton } btn */
-                        (btn) => {
-                            btn.style.backgroundColor = btn.menuOption.enabledColor || 'green';
-                            if (btn.menuOption.mouseOver) {
-                                if (btn.menuOption.mouseOver(btn.parentElement) === false) {
-                                    return;
+                    if(buttonArray.length === 1) {
+                        availableAngle = 0;
+                        degree = 0;
+                    }
+
+                    let innerRadius = distance * 0.4;
+                    for(let i = 0; i < buttonArray.length; i++) {
+                        let angle = ((startAngle - availableAngle / 2) + (degree * i));
+                        let posX = (Math.cos(angle * (Math.PI / 180)) * innerRadius);
+                        let posY = (Math.sin(angle * (Math.PI / 180)) * innerRadius);
+
+                        let newElementCenterX = center.x + posX;
+                        let newElementCenterY = center.y + posY;
+
+                        /**@type {CreationFunction} */
+                        let creationFunction = buttonArray[i].creationFunction || this.createElement;
+
+                        let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };
+
+                        let line = new Line(parent, center, newCenter, 36);
+
+                        let buttonInstance = creationFunction(
+                            parent, buttonArray[i].name || '',
+                            (() => {
+                                let fnc = buttonArray[i].onclick;
+                                return (btn) => {
+                                    fnc(btn);
+                                    btn.parentElement.remove();
+                                };
+                            })(),
+                            /** @param { CircularMenuHTMLButton } btn */
+                            (btn) => {
+                                btn.style.backgroundColor = btn.menuOption.enabledColor || 'green';
+                                if(btn.menuOption.mouseOver) {
+                                    if(btn.menuOption.mouseOver(btn.parentElement, btn) === false) {
+                                        return;
+                                    }
                                 }
-                            }
-                            if (btn.menuOption.children) {
-                                for (let button of buttonArray) {
-                                    if (button.children) {
-                                        for (let j of button.children) {
-                                            if (j.element) {
-                                                j.element.remove();
-                                            }
-                                            if (j.line) {
-                                                j.line.remove();
+                                if(btn.menuOption.children) {
+                                    for(let button of buttonArray) {
+                                        if(button.children) {
+                                            for(let j of button.children) {
+                                                if(j.element) {
+                                                    j.element.remove();
+                                                }
+                                                if(j.line) {
+                                                    j.line.remove();
+                                                }
                                             }
                                         }
+
                                     }
-
+                                    buttonInstance.menu.setButtons.call(buttonInstance.menu, btn.menuOption.children, btn.degree, 90, 100 + (35 * btn.menuOption.children.length), btn.center);
                                 }
-                                buttonInstance.menu.setButtons.call(buttonInstance.menu, btn.menuOption.children, btn.degree, 90, 100 + (35 * btn.menuOption.children.length), btn.center);
-                            }
-                        }, (btn) => btn.style.backgroundColor = 'white'
-                        , {
-                            target: center.target,
-                            style: {
-                                borderRadius: `${distance}px`,
-                                visibility: 'visible',
-                                backgroundColor: 'rgba(0, 0, 53, 0.4)'
-                            }
-                        }, newCenter, angle, this);
-
-                    buttonInstance.center = newCenter;
-                    buttonInstance.menuOption = buttonArray[i];
-                    buttonInstance.degree = angle;
-                    buttonInstance.parentSpace = degree;
-                    buttonInstance.menu = this;
-                    buttonArray[i].element = buttonInstance;
-                    buttonArray[i].line = line;
-                }
-            }
-            static async main() {
-
-                async function activator() {
-                    return new Promise(resolv => {
-                        function onKeyDown(event) {
-                            if (event.key === 'Control') {
-                                document.removeEventListener('keydown', onKeyDown);
-                                resolv(event);
-                            }
-                        }
-                        document.addEventListener('keydown', onKeyDown);
-                    });
-
-                }
-                async function deactivator() {
-                    return new Promise(resolv => {
-                        function onKeyUp(event) {
-                            if (event.key === 'Control') {
-                                document.removeEventListener('keyup', onKeyUp);
-                                resolv(event);
-                            }
-                        }
-                        document.addEventListener('keyup', onKeyUp);
-                    });
-                }
-                let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-                let menu = new CircularMenu(document.body, [{
-                    name: 'test',
-                    isValid: () => true,
-                    onclick: () => {
-                        /**
-                         * @typedef PHPTest
-                         * @property {string} success;
-                         * @property {string} [message]
-                         * @property {string} [stack]
-                         */
-                        reqS('http')
-                            .then(t => t.http('GET', 'http://localhost:4280/test/php/index.php'))
-                            .then(/**@param {Array<PHPTest>} tests */async tests => {
-                                let errorString = '';
-                                for (let test of tests) {
-                                    if (test.success !== 'success') {
-                                        errorString += `failed1 TEST:${test.message}\n${test.stack}\n\n`;
-                                        await reqS('notification')
-                                            .then(n => n.gmNot(test.message, test.stack, undefined, () => {
-                                                console.log(errorString);
-                                                GM_setClipboard(errorString);
-                                            }));
-                                    }
+                            },
+                            /** @param { CircularMenuHTMLButton } btn */
+                            (btn) => btn.style.backgroundColor = (btn.menuOption.normalColor || 'white')
+                            ,
+                            {
+                                target: center.target,
+                                style: {
+                                    borderRadius: `${distance}px`,
+                                    visibility: 'visible',
+                                    backgroundColor: 'rgba(255,255,255, 0.4)',
+                                    whiteSpace: 'noWrap'
                                 }
-                            });
+                            },
+                            newCenter,
+                            angle,
+                            this
+                        );
+
+                        buttonInstance.center = newCenter;
+                        buttonInstance.menuOption = buttonArray[i];
+                        buttonInstance.degree = angle;
+                        buttonInstance.parentSpace = degree;
+                        buttonInstance.menu = this;
+                        if(buttonArray[i].normalColor) {
+                            buttonInstance.style.backgroundColor = buttonArray[i].normalColor;
+                        }
+                        buttonArray[i].element = buttonInstance;
+                        buttonArray[i].line = line;
                     }
                 }
-                ], {
+                static async main() {
+
+                    async function activator() {
+                        return new Promise(resolv => {
+                            function onKeyDown(event) {
+                                if(event.key === 'Control') {
+                                    document.removeEventListener('keydown', onKeyDown);
+                                    resolv(event);
+                                }
+                            }
+                            document.addEventListener('keydown', onKeyDown);
+                        });
+
+                    }
+                    async function deactivator() {
+                        return new Promise(resolv => {
+                            function onKeyUp(event) {
+                                if(event.key === 'Control') {
+                                    document.removeEventListener('keyup', onKeyUp);
+                                    resolv(event);
+                                }
+                            }
+                            document.addEventListener('keyup', onKeyUp);
+                        });
+                    }
+                    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+                    let menu = new CircularMenu(document.body, [], {
                         activator: activator,
                         deactivator: deactivator,
                         getCenter: () => ({ ...mouse, target: document.body })
                     });
 
-                window.addEventListener('mousemove', (ev) => {
-                    mouse = { x: ev.x, y: ev.y };
-                    if (menu) {
-                        //menu.initialize(ev);
-                    }
-                });
-                sc.menu = menu;
-                return menu;
-            }
-        };
-        CircularMenu.main();
-        resolver(CircularMenu);
+                    window.addEventListener('mousemove', (ev) => {
+                        mouse = { x: ev.x, y: ev.y };
+                        if(menu) {
+                            //menu.initialize(ev);
+                        }
+                    });
+                    sc.menu = menu;
+                    return menu;
+                }
+            };
+
+            await CircularMenu.main();
+
+            resolver(CircularMenu);
+        })();
         return true;
     },
     reset: () => {
         sc.menu.remove();
+    },
+    afterReset: async () => {
+        await req('http://localhost:4280/req.php?url=test/php/testing', false);
     }
 });

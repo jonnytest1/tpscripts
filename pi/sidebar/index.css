@@ -1,0 +1,139 @@
+.sidebar{
+    position: fixed;
+    top: 0px;
+    background-color: rgba(255, 255, 255, 0.95);
+    left:0px;
+}
+.center{
+    margin-top: 70px;
+    margin: auto;
+    width:50%;
+}
+
+
+@media (min-width: 100px) {
+
+    .sidebar.enabled{
+        top: 0px;
+        left:0px;
+        width: 200px;
+        border-right: 1px black solid;
+        
+        animation-name: fade;
+        animation-duration: 2s;
+        bottom: 0px;
+    }
+    #menuButton{
+        cursor: pointer;
+        margin-top: 10px;
+        margin-left: 10px;
+    }
+    #menuWrapper{
+        margin-top: 20px;
+        display: none;
+        bottom: 15px;
+        position: absolute;
+        top: 35px;
+        left: 10px;
+        right: 10px;
+        animation-name: moveLeft;
+        animation-duration: 0.5s;
+    }
+    .sideBarCell{
+        top:0px;
+        display: table-cell;
+        vertical-align: middle;
+        padding-right: 10px;
+    }
+}
+@media (max-width:1000px) {
+    #menuButton{
+        width:100px;
+        height:100px;
+    }
+    .sidebar.enabled{
+        top: 0px;
+        left:0px;
+        width: 500px;
+        border-right: 1px black solid;
+        
+        animation-name: fade;
+        animation-duration: 2s;
+        bottom: 0px;
+    }
+    .centerImg{
+        height:100px;
+        width: 100px;
+    }
+    #menuWrapper{
+        margin-top: 100px;
+        display: none;
+        bottom: 15px;
+        position: absolute;
+        top: 35px;
+        left: 10px;
+        right: 10px;
+        animation-name: moveLeft;
+        animation-duration: 0.5s;
+    }
+    .sideBarCell{
+        top:0px;
+        display: table-cell;
+        vertical-align: middle;
+        font-size:50px;
+        padding-right: 10px;
+    }
+}
+
+
+#menuWrapper.enabled{
+    display: initial;
+    animation-name: moveRight;
+    animation-duration: 0.5s;
+}
+
+@keyframes fade{
+    from {
+        opacity: 0.15;
+    }
+}
+@keyframes moveRight{
+    from {
+        margin-left: -50px;
+    }
+}
+.sidebarTable{
+    width:100%;
+}
+.sideBarRow{
+    width:100%;
+    display: block;
+    height:fit-content;
+    -webkit-box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.16); 
+    -moz-box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.16);
+    box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.16);
+    margin-bottom: 6px;
+}
+
+.noPadding{
+    padding-right: 0px;
+}
+
+
+.table { display:table; }
+.table-row { 
+
+    display:table-row; 
+}
+.table-cell { 
+    vertical-align: middle;
+    padding-right:10px;
+    display:table-cell; 
+}
+
+.bottom{
+    left:0;
+    right:0;
+    bottom:0;
+    position: absolute;
+}

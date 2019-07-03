@@ -1,5 +1,5 @@
 /// <reference path="./require.d.ts" />
-
+console.log('LOADING REQUIRE');
 /**
  *
  * @param {string} path
@@ -9,10 +9,10 @@ async function req(path, cache = true) {
     let stack = '';
     try {
         path['stack']();
-    } catch (e) {
+    } catch(e) {
         stack = e.stack;
     }
-    if (!document.props) {
+    if(!document.props) {
         document.props = {
             canInject: true,
             canInjectText: true,
@@ -23,12 +23,12 @@ async function req(path, cache = true) {
         let onScriptLoad = ((resolver) => {
             return (e) => {
                 //console.log('resolver ' + (e.target.source || e.target.src));
-                if (!e.target.isAsync || e.isAsync) {
-                    if (!e.target.loaded || !e.target.args) {
+                if(!e.target.isAsync || e.isAsync) {
+                    if(!e.target.loaded || !e.target.args) {
                         e.target.loaded = true;
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
-                        if ((e.target.source || e.target.src) === 'http://localhost:4280/req.php?url=DOM/CircularMenu') {
+                        if((e.target.source || e.target.src) === 'http://localhost:4280/req.php?url=DOM/CircularMenu') {
                             //debugger;
                         }
                         resolver(e.args);
@@ -41,14 +41,14 @@ async function req(path, cache = true) {
                 }
             };
         });
-        if (cache) {
+        if(cache) {
             /**@type {Array<CustomHTMLscript>} */
             // @ts-ignore
             let rootElements = document.querySelectorAll('script');
 
-            for (let injectedScript of [...rootElements]) {
-                if (injectedScript.source === path || injectedScript.src === path) {
-                    if (injectedScript.loaded) {
+            for(let injectedScript of [...rootElements]) {
+                if(injectedScript.source === path || injectedScript.src === path) {
+                    if(injectedScript.loaded) {
                         console.log('resolving from cache ' + (injectedScript.source || injectedScript.src));
                         resolve(injectedScript.args);
                     } else {
@@ -57,12 +57,12 @@ async function req(path, cache = true) {
                     return;
                 }
             }
-            for (let scr of Object.entries(document.props.evalScripts || {})
+            for(let scr of Object.entries(document.props.evalScripts || {})
                 .map(o => o[1])) {
                 /**@type {CustomEvalScript} */
                 let cScript = scr;
-                if (cScript.src === path) {
-                    if (cScript.loaded) {
+                if(cScript.src === path) {
+                    if(cScript.loaded) {
                         console.log('resolving from cache ' + (cScript.source || cScript.src));
                         resolve(cScript.args);
                     } else {
@@ -72,9 +72,9 @@ async function req(path, cache = true) {
                 }
             }
         }
-        if (document.props.canInject === true) {
+        if(document.props.canInject === true) {
             injectScriptNyUrl(path);
-        } else if (document.props.canInjectText) {
+        } else if(document.props.canInjectText) {
             // @ts-ignore
             injectSCriptByText({ src: path, resolve: resolve });
         } else {
@@ -87,7 +87,7 @@ async function req(path, cache = true) {
         function injectByEval(scr) {
             scr.src = scr.src || scr.source;
             function evalText(text, url) {
-                if (url.includes('http://localhost:4280?url=')) {
+                if(url.includes('http://localhost:4280?url=')) {
                     window['scriptContent'] = text;
                 }
                 /**@type {CustomEvalScript } */
@@ -96,7 +96,7 @@ async function req(path, cache = true) {
                     resolvers: [onScriptLoad(scr.resolve)],
                     /**@param {CustomEvalScript } scrO*/
                     dispatchEvent: (e, scrO) => {
-                        if (!scrO.loaded) {
+                        if(!scrO.loaded) {
                             scrO.loaded = true;
                             scrO.args = e.args;
                         }
@@ -113,17 +113,17 @@ async function req(path, cache = true) {
                 };
                 document.props.evalScripts[url] = customEvalScript;
                 const evalScr = eval.call(window, text.replace('new EvalScript(\'\'', `new EvalScript('${url}'`));
-                if (!evalScr || (evalScr.name && evalScr.name === 'EvalScript')) {
+                if(!evalScr || (evalScr.name && evalScr.name === 'EvalScript')) {
                     document.props.evalScripts[url].loaded = true;
                     scr.resolve();
                     return;
                 }
-                if (!evalScr.constructor || !(evalScr.constructor.name === 'EvalScript')) {
+                if(!evalScr.constructor || !(evalScr.constructor.name === 'EvalScript')) {
                     document.props.evalScripts[url].args = evalScr;
                     scr.resolve(evalScr);
                 }
             }
-            if (scr.textContent) {
+            if(scr.textContent) {
                 evalText(scr.textContent, scr.src);
                 return;
             }
@@ -155,7 +155,7 @@ async function req(path, cache = true) {
             injectingScript.stack = stack;
             injectingScript.resolve = resolve;
             window.onerror = (/**@type Event */e) => {
-                if (e.target === injectingScript) {
+                if(e.target === injectingScript) {
                     console.log(`urlInjectFailed for ${injectingScript.src} >>>>> TEXT-INJECT`);
                     document.props.canInject = false;
                 }
@@ -164,7 +164,7 @@ async function req(path, cache = true) {
             * @param {any} e
             */
             injectingScript.onerror = (e) => {
-                if (e.eventPhase === 2) {
+                if(e.eventPhase === 2) {
                     injectSCriptByText(e.target);
 
                 } else {
@@ -174,12 +174,14 @@ async function req(path, cache = true) {
             try {
                 document.body.appendChild(injectingScript);
                 setTimeout(() => {
-                    if (!document.querySelector('tampermonkey_base_container')) {
-                        document.props.canInject = false;
-                        injectSCriptByText(injectingScript);
+                    if(!injectingScript.loaded) {
+                        if(!document.querySelector('tampermonkey_base_container')) {
+                            document.props.canInject = false;
+                            injectSCriptByText(injectingScript);
+                        }
                     }
-                }, 1000);
-            } catch (e) {
+                }, 2000);
+            } catch(e) {
                 injectSCriptByText(injectingScript);
             }
 
@@ -202,7 +204,7 @@ async function req(path, cache = true) {
                 /**@type {EventTarget & {errorCallback?:Function}} */
                 const target = e.target;
 
-                if (target.errorCallback) {
+                if(target.errorCallback) {
                     console.error('textInjectFailed');
                     document.props.canInjectText = false;
                     target.errorCallback(e.target);
@@ -221,7 +223,7 @@ async function req(path, cache = true) {
                 method: 'GET',
                 onload: (e) => {
                     errorFixScript.textContent = e.responseText;
-                    if (path.includes('http://localhost:4280?url=')) {
+                    if(path.includes('http://localhost:4280?url=')) {
                         window['scriptContent'] = errorFixScript.textContent;
                     }
                     errorFixScript.onerror = /**@param {any} errorEvent */errorEvent => {

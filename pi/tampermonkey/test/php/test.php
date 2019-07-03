@@ -1,18 +1,21 @@
 <?PHP
-
+    include(__DIR__."../../../request.php");
     class SuccessfulTest extends Exception{
 
     }
 
     class FailedTest extends Exception {
+
+        public $testMessage;
         function __construct($message){
-            $this->message=$message;
+            $this->testMessage=$message;
         }
     }
     class Tests{
 
         protected static $_instance = null;
 
+        protected $testLog=array();
         function __construct() {
             $this->cases=array();
         }
@@ -51,7 +54,10 @@
             if($this->var==$var){
                 throw new SuccessfulTest(); 
             }else{
-                throw new FailedTest("expected "-$this->var." got ".$var);
+                throw new FailedTest(array(
+                    "expected"=>$this->var,
+                    "actual"=>$var
+                ));
             }
             return;
         }
@@ -59,33 +65,64 @@
         function toString(){
             return json_encode($this->cases);
         }
+        function testLog($message){
+            
+            $this->testLog[]=$message;
+        }
+
+        function addWithLog($case){
+            if($case["success"]!="success"){
+                $case["log"]=$this->testLog;
+            }
+            $this->testLog=array();
+            $this->cases[]=$case;
+        }
     }
     
     function expect($variable){
         return Tests::getInstance()->expect($variable);
     }
+    function xtest($name,$test){
+        $queryPAramas=getQueryParams();
+		if(array_key_exists("test",$queryPAramas)){
+			if($queryPAramas["test"]!=$name){
+               return;
+            }
+        }
+        Tests::getInstance()->cases[]=array(
+            "name"=>$name,
+            "success"=>"skipped"
+        );
+    }
+
+    function testLog($message){
+        Tests::getInstance()->testLog($message);
+    }
 
     function test($name,$test){
-        try{
-            $test();
-        }catch(SuccessfulTest $e){
-            Tests::getInstance()->cases[]=array(
-                "name"=>$name,
-                "success"=>"success"
-            );
-        }catch(FailedTest $e){
-            Tests::getInstance()->cases[]=array(
-                "name"=>$name,
-                "success"=>"failed",
-                "message"=>$e->message
-            );
-        }catch(Error $e){
-            Tests::getInstance()->cases[]=array(
-                "name"=>$name,
-                "success"=>"exception",
-                "message"=>$e->getMessage()
-            );
+        $case=array(
+            "name"=>$name,
+            "success"=>"success"
+        );
+        $queryPAramas=getQueryParams();
+		if(array_key_exists("test",$queryPAramas)){
+			if($queryPAramas["test"]!=$name){
+               return;
+            }
         }
+        
+        try{
+           $test();
+        }catch(SuccessfulTest $e){
+           //nada
+        }catch(FailedTest $e){
+            $case["success"]="failed";
+            $case["message"]=$e->testMessage;
+        }catch(Error $e){
+            $case["success"]="exception";
+            $case["message"]=$e->getMessage();
+        }
+        Tests::getInstance()->addWithLog($case);
     }
 
     register_shutdown_function( "fatal_handler" );
@@ -109,18 +146,6 @@
                     "message"=> $errstr,
                     "stack"=>"file: ".$errfile." line: ".$errline
                 );
-                
-
-
             }
 }
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
-
-
-
-
-   
 ?>

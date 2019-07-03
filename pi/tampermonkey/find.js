@@ -2,24 +2,24 @@
 /**
  * @type { ElementGetter }
  */
-var t = (string, iF, compress) => {
-    if (!compress) {
+var elementGEtter = (string, iF, compress) => {
+    if(!compress) {
         compress = true;
     }
     /**@type {any} */
-    let obj = t.I(string);
-    if (!obj) {
-        obj = t.C(string, iF, compress);
+    let obj = elementGEtter.I(string);
+    if(!obj) {
+        obj = elementGEtter.C(string, iF, compress);
     }
-    if (!obj) {
-        obj = t.T(string, iF, compress);
+    if(!obj) {
+        obj = elementGEtter.T(string, iF, compress);
     }
     return obj;
 };
-t.T = function tag(string, iF, compress = true) {
+elementGEtter.T = function tag(string, iF, compress = true) {
     let list;
-    if (iF !== undefined) {
-        if (iF.localName === 'iframe') {
+    if(iF !== undefined) {
+        if(iF.localName === 'iframe') {
             list = iF['contentDocument'].getElementsByTagName(string);
         }
         else {
@@ -29,27 +29,27 @@ t.T = function tag(string, iF, compress = true) {
     else {
         list = window.document.getElementsByTagName(string);
     }
-    if (list.length === 1 && compress === true) {
+    if(list.length === 1 && compress === true) {
         return list[0];
     }
-    else if (list.length === 0 && compress === true) {
+    else if(list.length === 0 && compress === true) {
         return undefined;
     }
     return list;
 };
-t.I = function getById(string, iF) {
-    if (iF !== undefined) {
-        if (iF.localName === 'iframe') {
+elementGEtter.I = function getById(string, iF) {
+    if(iF !== undefined) {
+        if(iF.localName === 'iframe') {
             return iF['contentDocument'].getElementById(string);
         }
         return undefined;
     }
     return document.getElementById(string);
 };
-t.C = function className(string, iF, compress = true) {
+elementGEtter.C = function className(string, iF, compress = true) {
     let list;
-    if (iF !== undefined) {
-        if (iF.localName === 'iframe') {
+    if(iF !== undefined) {
+        if(iF.localName === 'iframe') {
             list = iF['contentDocument'].getElementsByClassName(string);
         }
         else {
@@ -59,43 +59,43 @@ t.C = function className(string, iF, compress = true) {
     else {
         list = document.getElementsByClassName(string);
     }
-    if (list.length === 1 && compress === true) {
+    if(list.length === 1 && compress === true) {
         return list[0];
     }
-    else if (list.length === 0 && compress === true) {
+    else if(list.length === 0 && compress === true) {
         return undefined;
     }
     return list;
 };
-t.c0 = function child(element, count = 0) {
-    if (count === 0) {
+elementGEtter.c0 = function child(element, count = 0) {
+    if(count === 0) {
         return element;
     }
     return child(element.children[0], count - 1);
 };
-t.W = (top = false, wnd) => {
+elementGEtter.W = (top = false, wnd) => {
     //sc.D.l(location.host+" scripts.getwindow()",3);
-    if (top) {
-        if (wnd === undefined) {
-            wnd = t.W();
+    if(top) {
+        if(wnd === undefined) {
+            wnd = elementGEtter.W();
         }
-        if (wnd.parentElement !== undefined) {
-            return t.W(true, wnd.parentElement);
+        if(wnd.parentElement !== undefined) {
+            return elementGEtter.W(true, wnd.parentElement);
         }
-        else if (wnd.parentElement !== undefined) {
-            return t.W(true, wnd.parentElement);
+        else if(wnd.parentElement !== undefined) {
+            return elementGEtter.W(true, wnd.parentElement);
         }
         else {
             return wnd.parentElement;
         }
     }
-    if (window['unsafeWindow'] !== undefined) {
+    if(window['unsafeWindow'] !== undefined) {
         return window['unsafeWindow'];
     }
     return window;
 };
-t.a = async function get(identification, parent, tag, finder = t) {
-    if (parent) {
+elementGEtter.a = async function get(identification, parent, tag, finder = elementGEtter) {
+    if(parent) {
         //console.log("waiting for " + identification + "with parent defined");
     }
     else {
@@ -104,14 +104,14 @@ t.a = async function get(identification, parent, tag, finder = t) {
     return new Promise((resolve) => {
         function waitTillDefined(id) {
             let obj = finder(id, parent);
-            if (obj instanceof NodeList && tag) {
-                for (let o of obj) {
-                    if (o.tagName === tag) {
+            if(obj instanceof NodeList && tag) {
+                for(let o of obj) {
+                    if(o.tagName === tag) {
                         obj = o;
                     }
                 }
             }
-            if (obj) {
+            if(obj) {
                 console.log('found for ' + id);
                 resolve(obj);
                 return;
@@ -124,5 +124,5 @@ t.a = async function get(identification, parent, tag, finder = t) {
         setTimeout(waitTillDefined, 10, identification);
     });
 };
-sc.g = t;
-new EvalScript('', {}).finish(t);
+sc.g = elementGEtter;
+new EvalScript('', {}).finish(elementGEtter);

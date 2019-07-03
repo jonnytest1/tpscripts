@@ -1,6 +1,6 @@
 <?PHP 
-
-    include( dirname(__FILE__) . '/exceptions/sqlExceptions.php');
+    
+    include_once( dirname(__FILE__) . '/exceptions/sqlExceptions.php');
     Class DataBase{
 
       public $link;

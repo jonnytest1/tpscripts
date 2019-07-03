@@ -14,23 +14,23 @@ var CustomTime = class CustomTimeC {
     * onStep?:(percent:number)=>void}} obj
     */
     waitFor(obj) {
-        if (!obj.startTime) {
+        if(!obj.startTime) {
             obj.startTime = new Date().valueOf();
         }
-        if (!obj.timeout) {
+        if(!obj.timeout) {
             obj.timeout = 200;
         }
-        if (this.abort === true) {
+        if(this.abort === true) {
             return;
         }
         let percent = (new Date().valueOf() - obj.startTime) / obj.duration;
-        if (percent > 1) {
-            if (obj.callback) {
+        if(percent > 1) {
+            if(obj.callback) {
                 obj.callback();
             }
             return;
         } else {
-            if (obj.onStep) {
+            if(obj.onStep) {
                 obj.onStep(percent);
             }
         }

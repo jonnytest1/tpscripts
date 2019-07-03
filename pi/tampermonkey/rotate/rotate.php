@@ -1,24 +1,39 @@
 <?PHP
-	include( dirname(__FILE__) . '/../database.php');
-	include( dirname(__FILE__) . '/requests.php');
+	include_once( dirname(__FILE__) . '/../database.php');
+	include_once( dirname(__FILE__) . '/requests.php');
 	class Rotate{
 
 		private $db;
+		private $rotateSites;
 
 		function __construct() {
 			$this->db = new DataBase();
+			$this->rotateSites=$this->getRotateArray();
 		}
-
-		private $rotateSites=array(
-			"https://www.media.mit.edu/projects/alterego/updates/",
-			"https://readcomiconline.to/BookmarkList",
-			"https://kissanime.ru/BookmarkList",
-			"https://kissmanga.com/BookmarkList",
-			"https://www.crunchyroll.com/home/queue",
-			"https://www1.swatchseries.to/tvschedule",
-			"https://novelplanet.com/ReadingList",
-			"https://github.com/notifications"
+		private $notRotateSites=array(
+			"rotate.js",
 		);
+
+		function getRotateArray(){
+			$sites=array();
+			$iterator=new RecursiveIteratorIterator(new RecursiveDirectoryIterator(dirname(__FILE__))); 
+			foreach ($iterator as $file) {
+				if ($file->isDir()){ 
+					continue;
+				}
+				if($file->getExtension()=="php"){
+					continue;
+				}
+				$name=$file->getFilename();
+
+				if(in_array($name,$this->notRotateSites)){
+					continue;
+				}
+				$sites[] = urldecode(str_replace(".js","",$name)); 
+			}
+			return $sites;
+
+		}
 
 		function isRotate($url){
 			return in_array($url,$this->rotateSites);

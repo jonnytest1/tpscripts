@@ -30,8 +30,12 @@ export interface RequireMap {
     'Storage/SessionStorage':any
     'Storage/crossDomainStorage':any
     'Storage/localStorage':any
+
+    'test/php/testing':void
     'time': CustomTimeClass
-    'Videos/next'
+    'Videos/next',
+
+    
 }
 
 export interface reqSType {

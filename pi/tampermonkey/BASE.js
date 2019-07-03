@@ -3,8 +3,8 @@
 console.log('entrypoint');
 /**@type {Document&{window?}} */
 const d = document;
-for (let att in d.window) {
-    if (att.startsWith('GM_') || att === 'reqS' || att === 'req' || att === 'finished') {
+for(let att in d.window) {
+    if(att.startsWith('GM_') || att === 'reqS' || att === 'req' || att === 'finished') {
         // @ts-ignore
         window[att] = document.window[att];
     }
@@ -41,6 +41,8 @@ window.sc = sc;
  *  reset?:()=>void|boolean,
  *  errorCallback?:Function
  *  stack?:string
+ *  remove:Function
+ *  afterReset?:Function
  * }} CustomScript
  *
  * @typedef {CustomScript&{
@@ -73,6 +75,7 @@ new Promise(async (resolver) => {
 
     await reqS('DOM/CircularMenu');
 
+    await reqS('test/php/testing');
     //tslint:disable-next-line variable-name
     let Storage_greaseStorage = IMPORT;
 

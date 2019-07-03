@@ -18,10 +18,10 @@ youtubeScript.isModular = true;
 var createdElements = [];
 youtubeScript.reset = () => {
     sc.menu.removeByName('scroll');
-    for (let btn of createdElements) {
+    for(let btn of createdElements) {
         try {
             btn.remove();
-        } catch (e) {
+        } catch(e) {
             console.log(e);
         }
     }
@@ -36,7 +36,7 @@ youtubeScript.reset = () => {
 
     const youtubemostrecent = 'mostRecentVideo';
 
-    if (location.href.includes('https://www.youtube.com/feed/subscriptions')) {
+    if(location.href.includes('https://www.youtube.com/feed/subscriptions')) {
 
         scroll(
             //menuElementYoutubeIndex
@@ -65,7 +65,7 @@ youtubeScript.reset = () => {
             timeout: 500,
             callback: () => location.reload(),
             onStep: (percent) => {
-                if (rotationSlider) {
+                if(rotationSlider) {
                     rotationSlider.setPercent(1 - percent);
                     rotationSlider.blink();
                 }
@@ -73,9 +73,9 @@ youtubeScript.reset = () => {
         });
 
     } else {
-        /**@type {HTMLCollectionOf<any>} */
-        let elements = sc.g.T('ytd-grid-video-renderer');
-        for (let el of elements) {
+        /**@type {NodeListOf<CustomYoutubeVideoElement>} */
+        let elements = document.querySelectorAll('ytd-grid-video-renderer');
+        for(let el of elements) {
             checkTime(el);
         }
     }
@@ -83,7 +83,7 @@ youtubeScript.reset = () => {
         async function checklength() {
             console.log('awaiting progress info');
             let vid = await sc.g.a('ytd-thumbnail-overlay-resume-playback-renderer');
-            if (vid) {
+            if(vid) {
                 scrollToLastSeen(menuElementYoutubeIndex);
             }
         }
@@ -95,8 +95,8 @@ youtubeScript.reset = () => {
         let list = sc.g('contents').children;
         let toscroll = localStorage.g(youtubemostrecent, []);
         let seen = false;
-        if (list.length > 20) {
-            for (let i = 0; i < list.length; i++) {
+        if(list.length > 20) {
+            for(let i = 0; i < list.length; i++) {
                 try {
                     /**@type { CustomYoutubeVideoElement } */
                     const current = list[i];
@@ -104,7 +104,7 @@ youtubeScript.reset = () => {
                     current.videohref = sc.g('yt-simple-endpoint ytd-thumbnail', current).href;
                     current.currentIndex = i;
 
-                    if (vidobj || current.videohref === toscroll) {
+                    if(vidobj || current.videohref === toscroll) {
                         seen = true;
                         current.autoScrollButton = crIN(current, 'seen3', undefined, undefined, undefined, undefined, {
                             style: {
@@ -122,13 +122,13 @@ youtubeScript.reset = () => {
                             .scrollTo(0, current.offsetTop - 650);
                         break;
                     }
-                    if (current.autoScrollButton) {
+                    if(current.autoScrollButton) {
                         current.autoScrollButton.remove();
                     }
                     current.autoScrollButton = crIN(current, 'mark\nseen', (btn) => {
                         localStorage.s(youtubemostrecent, btn.parentElement.videohref);
-                        for (let buttonIndex = btn.parentElement.currentIndex; buttonIndex < list.length; buttonIndex++) {
-                            if (list[buttonIndex].autoScrollButton) {
+                        for(let buttonIndex = btn.parentElement.currentIndex; buttonIndex < list.length; buttonIndex++) {
+                            if(list[buttonIndex].autoScrollButton) {
                                 list[buttonIndex].autoScrollButton.remove();
                             }
                         }
@@ -144,7 +144,7 @@ youtubeScript.reset = () => {
                         });
                     createdElements.push(current.autoScrollButton);
                     checkTime(current);
-                } catch (e) {
+                } catch(e) {
                     debugger;
                     handleError(e);
                     throw e;
@@ -154,13 +154,13 @@ youtubeScript.reset = () => {
         else {
             setTimeout(scrollToLastSeen, 1000, menuElementYoutubeIndex);
         }
-        if (!seen) {
+        if(!seen) {
             setTimeout(() => {
-                for (let current of list) {
+                for(let current of list) {
                     /**@type HTMLElement */
                     let ts = current.querySelector('#metadata-line > span:nth-child(2)');
                     ts.style.backgroundColor = 'transparent';
-                    if (current.autoScrollButton) {
+                    if(current.autoScrollButton) {
                         current.autoScrollButton.remove();
                     }
                 }
@@ -170,18 +170,18 @@ youtubeScript.reset = () => {
     }
     /**@param {CustomYoutubeVideoElement} element */
     function checkTime(element) {
-        if (!element.wentLiveDate) {
+        if(!element.wentLiveDate) {
             /**@type {string} */
             const wentListString = element.querySelector('#metadata-line').children[1].textContent
                 .split('vor ')[1];
 
-            if (!wentListString) {
+            if(!wentListString) {
                 setTimeout(checkTime, 1000, element);
                 return;
             }
             /**@type {Number} */
             let durationOffset;
-            if (wentListString.includes('Minute')) {
+            if(wentListString.includes('Minute')) {
                 durationOffset = (Number(wentListString.split(' Minute')[0]) * (1000 * 60));
             } else {
                 durationOffset = (Number(wentListString.split(' Stunde')[0]) * (1000 * 60 * 60));
@@ -196,7 +196,7 @@ youtubeScript.reset = () => {
         /**@type HTMLElement */
         const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
         let durationStr = `${hours}:${min}`;
-        if (durationStr.includes('NaN')) {
+        if(durationStr.includes('NaN')) {
             durationStr = '∞';
         } else {
             timeTExt.style.backgroundColor = '#11d1ecb8';

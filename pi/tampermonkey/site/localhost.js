@@ -2,11 +2,11 @@
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../customTypes/localhost.d.ts" />
 (async function localhost() {
-    await reqS('DOM/dependencyCheck');
+    // await reqS('DOM/dependencyCheck');
     //await reqS("learning/tensorflow");
     //await reqS("DOM/customSlider");
     //await reqT("video")
-    await reqS('site/kissanime/buildModel');
+    //await reqS('site/kissanime/buildModel');
     //await reqT("multiplemenu")
     // await reqS("DOM/rectMenu")
     // await reqT("ngtest");
@@ -47,7 +47,7 @@ window.setup = async () => {
 
     console.log('root setup');
 
-    for (let setupInstance of setups) {
+    for(let setupInstance of setups) {
         await setupInstance(frameWidth, frameHeight);
     }
 
@@ -67,21 +67,21 @@ window.setup = async () => {
                 }, cycles * 10);
                 object.container.style.backgroundColor = '#ffffff6e';
                 object.setRotation(angle);
-                return object;
+                return object.container;
             }
         }]
     });
     afterSetup = true;
 };
 window.draw = () => {
-    if (!afterSetup) {
+    if(!afterSetup) {
         return;
     }
-    for (let n = 0; n < cycles; n++) {
+    for(let n = 0; n < cycles; n++) {
         clear();
         draws.forEach(d => d());
 
-        if (draws.length === 1) {
+        if(draws.length === 1) {
             textSize(32);
             fill(50);
             text(draws[0].name, 10, 25);

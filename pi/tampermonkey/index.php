@@ -58,7 +58,9 @@
 			logKibana($data);
 		}
 		
-
+		function endsWith($haystack, $needle) {
+			return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+		}
 		if(!($exceptionHeader==" ")){
 				header("exception: ".$exceptionHeader);
 		}
@@ -88,9 +90,10 @@
 			}
 			
 			$filesName = $file->getFilename(); 
-			if (strpos($filesName,".html")>-1){ 
+			if (endsWith($filesName,".html")){ 
 				continue;
 			}
+			//echo $filesName."\n";
 			$filesName=str_replace(".". $file->getExtension(),"",  $filesName);
 			$filesName=str_replace("%","\\\\\/",  str_replace("$","(.*)",$filesName));
 			
@@ -106,7 +109,7 @@
 					require($requireName);
 				}else{
 					$requirePath=str_replace(".".$file->getExtension(),"",$file->getPathname());
-					$json=$json."await reqS('".str_replace("%","%25",$requirePath)."')";
+					$json=$json."await reqS('".str_replace("%","%25",$requirePath)."');\n";
 					//$json=$json.$fileLoader->preProcessFileName($file->getPathname());
 				}
 				$json=$json."//_________________________end of site________".$file->getPathname()."___________________\n";

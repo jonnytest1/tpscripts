@@ -1,0 +1,53 @@
+#matcher{
+    right : 10px;
+    position : absolute;
+    top: 30px;
+    width: 400px;
+}
+
+#textInput{
+    width:90%;
+    margin-left:50px;
+}
+
+#amount{
+    margin-left: 10px;
+}
+
+#container{
+    right:10px;
+    left:10px;
+    bottom: 10px;
+    position: absolute;
+    height:calc(100% - 60px);
+    width:calc(100% - 20px);
+}
+
+#printButtons{
+    height:40px;
+}
+#encodingSelectors{
+    height:80%;
+}
+.default{
+    display:none;
+}
+td{
+    height: inherit;
+}
+.textDisplay{
+    width:100%;
+    background-color: lightgray;
+}
+.converter{
+    text-align: center
+}
+.converterList{
+    border:2px solid black;
+    height: 100%;
+    overflow-y: auto;
+    display:grid;
+}
+.printAll{
+    width:100%;
+}

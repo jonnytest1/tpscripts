@@ -3,8 +3,8 @@
 new EvalScript('', {
     run: async (resolv, set) => {
         const unread = await sc.g.a('mail-status unread');
-        if (unread) {
-            GMnot('new git');
+        if(unread) {
+            GMnot('new git Notifications');
         }
     }
     , reset: set => {

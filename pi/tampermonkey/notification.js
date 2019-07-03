@@ -11,24 +11,24 @@
  */
 //tslint:disable-next-line variable-name
 var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
-    if (!timeout) {
+    if(!timeout) {
         timeout = 12000;
     }
-    if (!host) {
+    if(!host) {
         host = location.host;
     }
-    if (!ondone) {
+    if(!ondone) {
         ondone = () => { return; };
     }
-    if (detailsOrIcon.image) {
+    if(detailsOrIcon.image) {
         detailsOrIcon.title = title;
         detailsOrIcon.text = detailsOrIcon.body;
-        if (!detailsOrIcon.timeout) {
+        if(!detailsOrIcon.timeout) {
             detailsOrIcon.timeout = timeout;
         }
         return window['GM_notification'](detailsOrIcon, ondone);
     }
-    if (detailsOrIcon === '') {
+    if(detailsOrIcon === '') {
         detailsOrIcon = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';
     }
     let details = {};
@@ -37,14 +37,14 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
     details.image = detailsOrIcon;
     details.timeout = timeout;
     details.onclick = () => {
-        if (onclick) {
+        if(onclick) {
             onclick();
         }
     };
     console.trace(details);
     return window['GM_notification'](details, ondone);
 };
-let notResponse = {
+var notResponse = {
     gmNot: GMnot
 };
 /**

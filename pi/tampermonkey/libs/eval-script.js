@@ -4,8 +4,8 @@ class EvalScript {
      * @template { Array<keyof import('./require').RequireMap> } LIB
      * @typedef EvalScriptOptions
      * @property {(obj:any)=>boolean|void} [reset]
-
      * @property {(resolver:<T>(obj:T)=>any,set:any)=>Promise<boolean|void>} [run] if true waits for manual call to finish
+     * @property {()=>void} [afterReset]
      *
      * @param {EvalScriptOptions<?>} options
      * @param {string} [url]
@@ -14,11 +14,12 @@ class EvalScript {
         this.url = url;
         /**@type {CustomHTMLscript}*/
         this.script = document.currentScript || document.props.evalScripts[this.url];
-        if (this.script) {
+        if(this.script) {
             this.script.reset = () => this.reset.call(this);
         }
         this.callback = options.run;
         this.resetFunction = options.reset;
+        this.afterReset = options.afterReset;
         this.options = {};
         this.onload = null;
         this.loaded = false;
@@ -26,6 +27,17 @@ class EvalScript {
         //this.libraries = options.libraries || [];
         this.context = { test: 123 };
         this.run();
+        for(let propName in this) {
+            if(propName === 'onload') {
+                continue;
+            }
+            if(document.currentScript) {
+                // @ts-ignore
+                document.currentScript[propName] = this[propName];
+            } else if(document.props.evalScripts[this.url]) {
+                document.props.evalScripts[this.url][propName] = this[propName];
+            }
+        }
     }
 
     set() {
@@ -33,7 +45,7 @@ class EvalScript {
     }
 
     reset() {
-        if (!this.resetFunction) {
+        if(!this.resetFunction) {
             return;
         }
         return this.resetFunction(this.options);
@@ -55,18 +67,20 @@ class EvalScript {
                         }
                     }
                 }*/
-                if (this.callback) {
-                    if (!await this.callback.call(window, resolver, this.options)) {
+                if(this.callback) {
+                    if(!await this.callback.call(window, resolver, this.options)) {
                         setTimeout(() => {
                             this.finish(undefined);
                             resolver({ notAsync: true });
                         }, 0);
+                    } else {
+                        this.script.isAsync = true;
                     }
                 } else {
                     resolver();
                 }
             }).catch(e => { debugger; });
-        if (!result || !result.notAsync) {
+        if(!result || !result.notAsync) {
             this.finish(result, true);
 
         }
@@ -77,11 +91,11 @@ class EvalScript {
      * @param {*} async
      */
     finish(arg, async = false) {
-        if (this.loaded) {
+        if(this.loaded) {
             return;
         }
         this.loaded = true;
-        if (arg) {
+        if(arg) {
             arg.context = this;
         } else {
             arg = { context: this };
