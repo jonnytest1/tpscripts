@@ -1,4 +1,9 @@
 /* global IMPORT,backendUrl */
+///<reference path="../customTypes/tensorflow-loader.d.ts"/>
+/**
+ * @typedef {TensorflowLoaderSelector} KNNLoader
+ */
+
 /**@type {CustomHTMLscript}*/
 let knnIOScript = document.currentScript;
 knnIOScript.isAsync = true;
@@ -56,7 +61,7 @@ function setClassifier(classifier, net) {
                 // @ts-ignore
                 const classifier = knnClassifier.create();
                 http.sendData(backendUrl + '/learning/getModel.php', { name: name }, (e) => {
-                    if (e === 404) {
+                    if(e === 404) {
                         error(404);
                         return;
                     }

@@ -2,7 +2,7 @@
 
 var logHistory = {};
 let prepareScript = () => {
-  if (!scriptContent) {
+  if(!scriptContent) {
     return '';
   }
   let lines = scriptContent.split('\n');
@@ -11,13 +11,17 @@ let prepareScript = () => {
   return lines.map(str => `${number++}\t${str}`)
     .join('\n');
 };
+
+function logInfo(message, error) {
+  logKibana('INFO', message, error);
+}
 /** @global */
 function logKibana(level, message, error) {
   let jsonMessage = message;
-  if (!jsonMessage && error) {
+  if(!jsonMessage && error) {
     jsonMessage = error.message;
   }
-  if (jsonMessage instanceof Object) {
+  if(jsonMessage instanceof Object) {
     jsonMessage = JSON.stringify(jsonMessage);
   }
   let jsonData = {
@@ -26,17 +30,23 @@ function logKibana(level, message, error) {
     application: 'clientJS',
     message: jsonMessage
   };
-  if (error) {
+  if(error) {
     jsonData.error_message = error.message;
     jsonData.error_stacktrace = error.stack;
   }
+  const rocketJson = {
+    channel: 'msg',
+    text: JSON.stringify(jsonData)
+  };
   GM_xmlhttpRequest({
-    method: 'PUT',
-    url: 'http://192.168.178.38/webserver/log/rewrite',
+    method: 'POST',
+    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/rocket/api/v1/chat.postMessage',
     headers: {
-      'Content-Type': 'text/plain'
+      'Content-Type': 'application/json',
+      'X-User-Id': '9YoEBFAWBxmPBgGo8',
+      'X-Auth-Token': 'R0GIB3AA28r6D8CESJpJF-jXqUkbdXMtO6a-2aWGxML'
     },
-    data: JSON.stringify(jsonData),
+    data: JSON.stringify(rocketJson),
     onerror: console.log,
     onabort: e => {
       debugger;
@@ -46,7 +56,7 @@ function logKibana(level, message, error) {
 }
 
 function evalError(e) {
-  if (!e.stack.includes('extension') && !e.stack.includes('<br />')) {
+  if(!e.stack.includes('extension') && !e.stack.includes('<br />')) {
     return;
   }
   handleError(e);
@@ -59,10 +69,10 @@ function evalError(e) {
 function handleError(e) {
   logKibana('ERROR', undefined, e);
   let note = '';
-  if (scriptContent) {
+  if(scriptContent) {
     let scriptMessage = scriptContent;
     const splitScriptContent = scriptMessage.split('error</b>:');
-    if (splitScriptContent.length > 2) {
+    if(splitScriptContent.length > 2) {
       scriptMessage = splitScriptContent[1];
       note = scriptMessage
         .replace(/<br \/>\n/gm, '')
@@ -73,10 +83,10 @@ function handleError(e) {
         .trim();
     }
   }
-  if (note === '') {
+  if(note === '') {
     note = e.message;
   }
-  if (
+  if(
     !logHistory[e.stack] ||
     logHistory[e.stack] < new Date().valueOf() - 1000 * 60
   ) {
@@ -98,7 +108,7 @@ function handleError(e) {
         try {
           let logContent = `${location.href}\n${e.stack}`;
           GM_setClipboard(logContent);
-        } catch (error) {
+        } catch(error) {
           GM_setClipboard(`${location.href}\n${error.stack}`);
         }
       }
@@ -120,19 +130,19 @@ function calculateFile(stack, scriptText) {
 
   let stacking = 0;
   let lineInFile = 0;
-  for (let line = lineNumber - 1; line >= 0; line--) {
+  for(let line = lineNumber - 1; line >= 0; line--) {
     let currebtLine = scriptText.split('\n')[line];
-    if (currebtLine.includes('//___file')) {
-      if (stacking === 0) {
+    if(currebtLine.includes('//___file')) {
+      if(stacking === 0) {
         return { file: currebtLine.split('/___file=')[1], line: lineInFile };
       }
       stacking--;
       lineInFile--;
-    } else if (currebtLine.includes('//===file-end=')) {
+    } else if(currebtLine.includes('//===file-end=')) {
       stacking++;
       lineInFile--;
     }
-    if (stacking === 0) {
+    if(stacking === 0) {
       lineInFile++;
     }
   }

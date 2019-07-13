@@ -84,7 +84,7 @@ buildModelScript.isAsync = true;
         }
     });
     sc.menu.addToMenu({
-        name: 'test',
+        name: 'evaluate',
         mouseOver: () => {
             test(classifier, cWrapper, data)
                 .then(() => {
@@ -104,7 +104,7 @@ buildModelScript.isAsync = true;
 async function test(classifier, cWrapper, data) {
     return new Promise(async (resolver) => {
         (async function testing(index = 0) {
-            if (index >= data.data.length) {
+            if(index >= data.data.length) {
                 resolver();
                 return;
             }
@@ -133,11 +133,11 @@ async function train(classifier, cWrapper, data, index = 0) {
     return new Promise(async (resolver) => {
         (function training(batchIndex = 0) {
 
-            if (batchIndex % 10 === 0) {
+            if(batchIndex % 10 === 0) {
                 const percentage = batchIndex * 100 / data.data.length;
                 console.log(percentage);
             }
-            if (batchIndex >= data.data.length) {
+            if(batchIndex >= data.data.length) {
                 resolver();
                 return;
             }
@@ -146,7 +146,7 @@ async function train(classifier, cWrapper, data, index = 0) {
 
             const iD = cWrapper.draw(imageElement.imageData, batchIndex % 20 === 0);
 
-            for (let t of imageElement.tags) {
+            for(let t of imageElement.tags) {
                 classifier.addExampleClass(t.id, iD);
             }
 
@@ -192,7 +192,7 @@ async function train(classifier, cWrapper, data, index = 0) {
 /**@returns {Promise<Array<tag>>} */
 async function getTags() {
 
-    let tags = await http('GET', backendUrl + '/site/kissanime/getTags.php');
+    let tags = await (await reqS('http')).http('GET', backendUrl + '/site/kissanime/getTags.php');
     /**@type {Array<tag>} */
     let parsedTags = tags.map(a => ({ tag: a[1], id: a[0] }));
     parsedTags = parsedTags.filter(t => !isNaN(+t.tag));
@@ -211,10 +211,10 @@ async function getPreviousTrainingData() {
     let highest = -1;
     let imgs = [];
     do {
-        imgs = await http('GET', `${backendUrl}/site/kissanime/getImages.php?minID=${highest}`);
-        for (let image of imgs) {
+        imgs = await (await reqS('http')).http('GET', `${backendUrl}/site/kissanime/getImages.php?minID=${highest}`);
+        for(let image of imgs) {
             let id = image[0] - 1;
-            if (id > highest) {
+            if(id > highest) {
                 highest = id;
             }
 
@@ -252,16 +252,16 @@ async function getPreviousTrainingData() {
             /**@type {Array<Number>} */
             let yArray = new Array(tags.length).fill(0);
             let tagNames = [];
-            for (let i = 1; i < 4; i++) {
+            for(let i = 1; i < 4; i++) {
                 tagNames.push(image[i]);
                 let index = tags.findIndex(el => el.tag === image[i]);
-                if (index !== -1) {
+                if(index !== -1) {
                     yArray[index] = 1;
                 }
             }
             outputs.push({ imageData: result, tags: tags, tagNames });
         }
-    } while (imgs.length === 21);
+    } while(imgs.length === 21);
 
     return { tagList: tags, data: outputs };
 

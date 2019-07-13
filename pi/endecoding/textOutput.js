@@ -47,7 +47,6 @@ class TextOutput {
             return 'ERROR';
         }
     }
-
     recalculate() {
         let value = this.convert(this.previousText);
         try {

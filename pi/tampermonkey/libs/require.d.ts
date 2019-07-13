@@ -4,6 +4,9 @@
 ///<reference path="../http.js"/>
 /// <reference path="../time.js" />
 /// <reference path="../notification.js" />
+/// <reference path="../learning/knnIO.js" />
+/// <reference path="../Storage/localStorage.js" />
+
 export interface RequireMap {
 
     'http':httpResolv
@@ -12,7 +15,10 @@ export interface RequireMap {
 
     'logging':void
     'learning/tensorflow':void
-    'learning/knnIO':any
+
+    'learning/knnIO':KNNLoader;
+
+
     'learning/tfIO':any
     'notification':notificationI
     'find':ElementGetter
@@ -29,7 +35,7 @@ export interface RequireMap {
     'site/kissanime/buildModel':void
     'Storage/SessionStorage':any
     'Storage/crossDomainStorage':any
-    'Storage/localStorage':any
+    'Storage/localStorage':LocalStorage
 
     'test/php/testing':void
     'time': CustomTimeClass

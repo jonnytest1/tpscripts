@@ -98,7 +98,7 @@ new EvalScript('', {
                     if(!scriptContents[script.src]) {
                         scriptContents[script.src] = newScript;
                     }
-                    if(newScript instanceof String && scriptContents[script.src] !== newScript) {
+                    if(typeof newScript === 'string' && scriptContents[script.src] !== newScript) {
                         await resetScript(script);
                     }
                 } catch(e) {
