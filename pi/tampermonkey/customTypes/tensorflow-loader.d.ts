@@ -1,7 +1,7 @@
 
 
 interface TensorflowLoaderSelector{
-    (name:string):TensorflowLoader
+    (name:string,db?:boolean):TensorflowLoader
 }
 
 interface TensorflowLoader{

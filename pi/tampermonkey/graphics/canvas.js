@@ -1,18 +1,36 @@
 class CanvasWrapper {
 
     constructor(canvas) {
-        if (!canvas) {
+        if(!canvas) {
             canvas = document.createElement('canvas');
         }
+        /**@type {HTMLCanvasElement} */
         this.canvas = canvas;
     }
-
+    randomize() {
+        this.map(obj => ({
+            red: Math.floor(Math.random() * 255),
+            blue: Math.floor(Math.random() * 255),
+            green: Math.floor(Math.random() * 255),
+            alpha: 255,
+        }));
+    }
+    /**
+     * @typedef rgba;
+     * @property {number} red
+     * @property {number} blue
+     * @property {number} green
+     * @property {number} alpha
+     *
+     *
+     * @param {(rgbaO:rgba,height:number,width:number)=>rgba} fnc
+     */
     map(fnc) {
         let context = this.canvas.getContext('2d');
-        let imageData = context.createImageData(100, 100);
+        let imageData = context.createImageData(this.canvas.width, this.canvas.height);
 
-        for (let j = 0; j < imageData.height; j++) {
-            for (let i = 0; i < imageData.width; i++) {
+        for(let j = 0; j < imageData.height; j++) {
+            for(let i = 0; i < imageData.width; i++) {
                 var index = ((i * 4) * imageData.width) + (j * 4);
 
                 let rgba = fnc({
@@ -21,7 +39,7 @@ class CanvasWrapper {
                     blue: imageData.data[index + 2],
                     alpha: imageData.data[index + 3]
                 }, imageData.height, imageData.width);
-                if (rgba) {
+                if(rgba) {
                     imageData.data[index] = rgba.red;
                     imageData.data[index + 1] = rgba.green;
                     imageData.data[index + 2] = rgba.blue;
@@ -44,7 +62,7 @@ class CanvasWrapper {
         let width = imageArray.length;
 
         let height;
-        if (imageArray[0].length) {
+        if(imageArray[0].length) {
             height = imageArray[0].length;
         } else {
             width = height = Math.sqrt(imageArray.length);
@@ -55,32 +73,32 @@ class CanvasWrapper {
 
         function max(arr) {
             let highest = 0;
-            for (let e of arr) {
+            for(let e of arr) {
                 /**@type {Number} */
                 let value = 0;
-                if (typeof e === 'number') {
+                if(typeof e === 'number') {
                     value = e;
-                } else if (e instanceof Array) {
+                } else if(e instanceof Array) {
                     value = max(e);
                 }
-                if (value > highest) {
+                if(value > highest) {
                     highest = value;
                 }
             }
             return highest;
         }
         let multiplier = 1;
-        if (max(imageArray) <= 1) {
+        if(max(imageArray) <= 1) {
             multiplier = 255;
         }
         let imageIndex = 0;
-        for (let j = 0; j < imageData.height; j++) {
-            for (let i = 0; i < imageData.width; i++) {
+        for(let j = 0; j < imageData.height; j++) {
+            for(let i = 0; i < imageData.width; i++) {
 
                 var index = ((i * 4) * imageData.width) + (j * 4);
-                if (imageArray[j].length) {
-                    if (imageArray[j][i].length) {
-                        if (imageArray[j][i].length === 3) {
+                if(imageArray[j].length) {
+                    if(imageArray[j][i].length) {
+                        if(imageArray[j][i].length === 3) {
                             imageData.data[index] = imageArray[j][i][0] * multiplier;
                             imageData.data[index + 1] = imageArray[j][i][1] * multiplier;
                             imageData.data[index + 2] = imageArray[j][i][2] * multiplier;
@@ -103,7 +121,7 @@ class CanvasWrapper {
                 }
             }
         }
-        if (toCanvas) {
+        if(toCanvas) {
             context.putImageData(imageData, 0, 0);
         }
         return imageData;

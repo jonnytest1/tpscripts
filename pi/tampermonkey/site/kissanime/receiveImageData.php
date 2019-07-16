@@ -3,7 +3,7 @@
     require("../../database.php");
 
 
-    $db=new DataBase();
+    $db=new DataBase("kissanimeImageColor");
     
     $tagList= $_POST["tags"];
     $tags=explode(",",$tagList);
@@ -49,7 +49,3 @@
         $insertstm->execute();
         $insertstm->close();
     }
-    
-
-    
-?>

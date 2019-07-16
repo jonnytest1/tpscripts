@@ -168,7 +168,7 @@ new EvalScript('', {
      */
     function sendData(url, data, callback) {
       let encodedData = formUrlEncode(data);
-      http('POST', url, callback, encodedData, {
+      return http('POST', url, callback, encodedData, {
         'Content-Type': 'application/x-www-form-urlencoded'
       });
     }

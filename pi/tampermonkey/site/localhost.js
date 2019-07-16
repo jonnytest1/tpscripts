@@ -2,11 +2,11 @@
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../customTypes/localhost.d.ts" />
 (async function localhost() {
-    // await reqS('DOM/dependencyCheck');
+
     //await reqS("learning/tensorflow");
     //await reqS("DOM/customSlider");
     //await reqT("video")
-    //await reqS('site/kissanime/buildModel');
+    await reqS('site/kissanime/buildModel');
     //await reqT("multiplemenu")
     // await reqS("DOM/rectMenu")
     // await reqT("ngtest");
