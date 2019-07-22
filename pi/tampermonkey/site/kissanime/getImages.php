@@ -8,7 +8,7 @@
         $minID=$param["minID"];
     }
 
-    $db=new DataBase();
+    $db=new DataBase("kissanimeImageColor");
     $resultArray=array();
     $imagesArray= $db->sql("SELECT kissanime_images.image_id,kissanime_images.imagedata,kissanime_tags.tag_name
         FROM kissanime_tags,kissanime_images_tag,kissanime_images
@@ -33,5 +33,3 @@
         }
     }   
     echo json_encode($resultArray);
-    
-?>

@@ -1,5 +1,11 @@
 /// <reference path="./require.d.ts" />
 console.log('LOADING REQUIRE');
+
+let prevWarn = console.warn;
+console.warn = (warning, ...agrs) => {
+    debugger;
+    prevWarn(warning, ...agrs);
+};
 /**
  *
  * @param {string} path

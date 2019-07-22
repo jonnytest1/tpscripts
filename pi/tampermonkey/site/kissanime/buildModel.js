@@ -10,7 +10,7 @@
  * @property {number} id
  *
  *
- * @typedef {Array<any>} ImageTensorArray
+ * @typedef {Array<number>} ImageTensorArray
   * @typedef ImageElement
   * @property {ImageTensorArray} imageData
   * @property {Array<tag>} tags classified (0 or 1 depending onwether its confirmed)
@@ -32,6 +32,20 @@ buildModelScript.isAsync = true;
     txt.textContent = 'loading require';
     document.body.appendChild(txt);
 
+    const dataReady = document.createElement('div');
+    dataReady.textContent = 'loading data';
+    dataReady.style.left = '0px';
+    dataReady.style.top = '0px';
+    dataReady.style.position = 'fixed';
+    document.body.appendChild(dataReady);
+
+    const classifierReady = document.createElement('div');
+    classifierReady.textContent = 'loading classifier';
+    classifierReady.style.left = '0px';
+    classifierReady.style.top = '20px';
+    classifierReady.style.position = 'fixed';
+    document.body.appendChild(classifierReady);
+
     await reqS('learning/tensorflow');
     await reqS('time');
     await reqS('graphics/canvas');
@@ -47,29 +61,48 @@ buildModelScript.isAsync = true;
                             .then(res); */
 
     async function getClassifier() {
-        return new Promise(res => {
+        return new Promise((res, err) => {
             knnIO('knnAnime')
                 .new()
-                .then(res);
+                .then(res)
+                .catch(err);
         });
     }
     // @ts-ignore
     new FontFace('Tahoma', 'url(http://localhost:4280/site/kissanime/Tahoma.ttf)').load();
     txt.textContent = 'loading classifier';
-    const classifier = await getClassifier();
 
-    txt.textContent = 'loading data';
+    let classifier;
+
+    Promise.all([
+        getClassifier()
+            .then(c => {
+                classifier = c;
+                classifierReady.textContent = 'clasifier laoded';
+            })
+            .catch(e => {
+                classifierReady.textContent = 'failed loading';
+            }),
+        new CustomTime().evaluateDuration(getPreviousTrainingData, t => console.log(`fetching data took ${t} ms`))
+            .then(d => {
+                data = d;
+                dataReady.textContent = 'loaded data';
+            })
+    ])
+        .then((promises) => {
+            txt.textContent = `got ${data.data.length} datapoints`;
+        });
 
     /**
-     * @typedef TagConfirmation
-     * @property {boolean} chosen
-     * @property {Array<number>} img
-     * @property { Array<String>} tags
+    * @typedef TagConfirmation
+    * @property {boolean} chosen
+    * @property {Array<number>} img
+    * @property { Array<String>} tags
+    */
+    /**
+     * @type {TrainingData}
      */
-    let data = await new CustomTime().evaluateDuration(getPreviousTrainingData, t => console.log(`fetching data took ${t} ms`));
-    const example = data.data[0];
-    //const eTensor = tf.tensor(example.imageData);
-    txt.textContent = `got ${data.data.length} datapoints`;
+    let data;
 
     const canvas = document.createElement('canvas');
     canvas.style.backgroundColor = '#439ae65e';
@@ -79,6 +112,7 @@ buildModelScript.isAsync = true;
 
     sc.menu.addToMenu({
         name: 'train',
+        isValid: () => classifier && !!data,
         mouseOver: () => {
             txt.textContent = 'traingin';
             setTimeout(() => train(classifier, cWrapper, data)
@@ -88,7 +122,32 @@ buildModelScript.isAsync = true;
         }
     });
     sc.menu.addToMenu({
+        name: 'draw',
+        isValid: () => !!data,
+        mouseOver: () => {
+            setTimeout(() => {
+                try {
+                    const imageData = data.data[0].imageData;
+
+                    const size = Math.sqrt(imageData.length / 4);
+                    cWrapper.canvas.width = size;
+                    cWrapper.canvas.height = size;
+                    const context = cWrapper.canvas.getContext('2d');
+                    let iD = context.createImageData(size, size);
+                    for(let i = 0; i < imageData.length; i++) {
+                        iD.data[i] = imageData[i];
+                    }
+                    context.putImageData(iD, 0, 0);
+                } catch(e) {
+                    handleError(e);
+                }
+
+            }, 50);
+        }
+    });
+    sc.menu.addToMenu({
         name: 'trainN',
+        isValid: () => classifier,
         mouseOver: () => {
             txt.textContent = 'traingin';
             setTimeout(() => trainNumbers(classifier, cWrapper, data)
@@ -99,6 +158,7 @@ buildModelScript.isAsync = true;
     });
     sc.menu.addToMenu({
         name: 'save',
+        isValid: () => classifier,
         mouseOver: () => {
             knnIO('knnAnime')
                 .save(classifier)
@@ -110,6 +170,7 @@ buildModelScript.isAsync = true;
 
     sc.menu.addToMenu({
         name: 'evaluate',
+        isValid: () => classifier && !!data,
         mouseOver: () => {
             test(classifier, cWrapper, data)
                 .then((acc) => {
@@ -119,6 +180,7 @@ buildModelScript.isAsync = true;
     });
     sc.menu.addToMenu({
         name: 'evalN',
+        isValid: () => classifier,
         mouseOver: () => {
             testNumbers(classifier, cWrapper, data)
                 .then((acc) => {
@@ -344,37 +406,6 @@ async function train(classifier, cWrapper, data) {
             setTimeout(() => training(batchIndex + 1), 5);
 
         })();
-
-        /*
-                const batchSize = 50;
-                const percentage = index * 100 / data.data.length;
-
-                const batch = data.data.slice(index, index + batchSize);
-
-                if (batch.length == 0) {
-                    resolver();
-                    return;
-                }
-                const imageDataPoints = tf.tensor(batch.map(b => b.imageData));
-                const tagDataPoints = tf.tensor(batch.map(b => b.tags));
-                const history = await model.fit(imageDataPoints, tagDataPoints, {
-                    epochs: 20
-                });
-                imageDataPoints.dispose()
-                tagDataPoints.dispose();
-                let accuracy = 0;
-                for (let acc of history.history.acc) {
-                    accuracy += acc;
-                }
-                let meanAccuraccy = accuracy / history.history.acc.length
-                let loss = 0;
-                for (let acc of history.history.loss) {
-                    loss += acc;
-                }
-                let meanLoss = loss / history.history.loss.length
-                console.log(Math.floor(percentage) + " % done with accuracy " + meanAccuraccy);
-
-                setTimeout(() => train(model, data, index + batchSize), 50);*/
 
     });
 

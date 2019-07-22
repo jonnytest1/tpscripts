@@ -7,6 +7,8 @@
     "@tensorflow/tfjs": "^1.1.2",
     "eslint-plugin-jsdoc": "^15.5.2",
     "eslint-plugin-jsdoc-typecheck": "file:linter",
+    "firacode": "^1.206.0",
+    "node": "^12.6.0",
     "tslint": "^5.18.0"
   },
   "devDependencies": {

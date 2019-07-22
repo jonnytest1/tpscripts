@@ -26,8 +26,8 @@ function setClassifier(classifier, net) {
 
 (async function sd() {
     let http = await reqS('http');
-    await req('https://unpkg.com/@tensorflow-models/mobilenet');
-    await req('https://unpkg.com/@tensorflow-models/knn-classifier');
+    await req('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet');
+    await req('https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier');
     let io = (name, allowDB = true) => ({
         save: async classifier => {
             let dataset = classifier.getClassifierDataset();
@@ -69,13 +69,22 @@ function setClassifier(classifier, net) {
 
         },
         new: async () => {
+            debugger;
             console.log('new model');
-            // @ts-ignore
-            const net = await mobilenet.load();
+
             // @ts-ignore
             const classifier = knnClassifier.create();
+            debugger;
+            // @ts-ignore
+            const net = await mobilenet.load()
+                .catch(handleError);
+            if(!net) {
+                throw 'sfesd';
+            }
+
             setClassifier(classifier, net);
             return classifier;
+
         },
 
         load: async () => {
@@ -129,22 +138,22 @@ function setClassifier(classifier, net) {
 
                         });
                         var saveDB = indexedDB.open('imageClassifier', 1);
-                        saveDB.onsuccess = (e) => {
+                        saveDB.onsuccess = (err) => {
                             /**
                                      * @type {IDBDatabase}
                                      */
                             // @ts-ignore
-                            const database = e.target.result;
+                            const database = err.target.result;
                             const transaction = database.transaction([name], 'readwrite');
                             const store = transaction.objectStore(name);
                             store.put(JSON.stringify(classifierData), 'data');
                         };
-                        saveDB.onupgradeneeded = (e) => {
+                        saveDB.onupgradeneeded = (eror) => {
                             /**
                              * @type {IDBDatabase}
                              */
                             // @ts-ignore
-                            const database = e.target.result;
+                            const database = eror.target.result;
                             const store = database.createObjectStore(name);
                             store.createIndex('key', 'key', { unique: true });
                             store.createIndex('value', 'value', { unique: false });

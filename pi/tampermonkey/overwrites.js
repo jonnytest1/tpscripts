@@ -2,13 +2,15 @@
 
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
+
+	return;
 	let originalSetTimeout = setTimeout;
 	// @ts-ignore
 	setTimeout = (fnc, ...args) => {
 		return originalSetTimeout((...args2) => {
 			try {
 				fnc(...args2);
-			} catch (e) {
+			} catch(e) {
 				evalError(e);
 			}
 		}, ...args);
@@ -19,7 +21,7 @@ function overwrites() {
 		return originalsetInterval((...args2) => {
 			try {
 				fnc(...args2);
-			} catch (e) {
+			} catch(e) {
 				evalError(e);
 			}
 		}, time, ...args);
@@ -28,17 +30,17 @@ function overwrites() {
 	let originalOpen = open;
 	// @ts-ignore
 	open = (url, target, featureFocus, ...args) => {
-		if (target === true) {
+		if(target === true) {
 			location.href = url;
 			return window;
 		}
-		if (featureFocus === true) {
+		if(featureFocus === true) {
 			return originalOpen(url, target, featureFocus, ...args);
 		} else {
 			// @ts-ignore
 			let win = window.GM_openInTab(url, { active: false, insert: false }); //active ~focused insert: append at end or after the current tab
 			win.name = window.name;
-			if (win === undefined) {
+			if(win === undefined) {
 				alert('didnt open tab :o');
 			}
 			return win;

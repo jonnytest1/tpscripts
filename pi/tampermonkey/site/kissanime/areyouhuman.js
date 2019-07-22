@@ -1,3 +1,6 @@
+/// <reference path="../../customTypes/index.d.ts"/>
+/// <reference path="../../graphics/canvas.js"/>
+/// <reference path="../../learning/knnIO.js"/>
 (async function humanTest() {
     if(location.search === '') {
         sc.g('a')
@@ -94,77 +97,15 @@
         })
         .catch(console.log);*/
 
-    const tagMapping = await getTags();
-    /**
-     * @param {HTMLImageElement &{imageData:Array<number>}} image
-     */
-    async function evaluate(image) {
+    function onImageLoad(event) {
+
         let tagArrays = [...tags].filter(tag => tag.localName === 'span');
-        if(tagArrays.some(t => !t.tagArray) || classifier === undefined) {
-            setTimeout(evaluate, 200, image);
+        if(tagArrays.some(t => !t.tagArray)) {
+            setTimeout(onImageLoad, 200, event);
             return;
         }
 
-        const iD = cWrapper.draw(image.imageData, false);
-        const activation = classifier.mobilenet.infer(iD, 'conv_preds');
-        const result = await classifier.predictClass(activation);
 
-        let results = [];
-        for(let i in result.confidences) {
-            results.push({ i: i, percent: result.confidences[i] });
-        }
-        results.sort((a, b) => b.percent - a.percent);
-        let bestones = '';
-        debugger;
-        let matches1 = 0;
-        let matches2 = 0;
-        for(let i = 0; i < 5; i++) {
-            const tag = tagMapping.find(el => el.id === +results[i].i);
-            bestones += tag.tag + `prob: ${results[i].percent}<br>`;
-            if(tagArrays[0].tagArray.includes(tag.tag)) {
-                matches1++;
-            }
-            if(tagArrays[1].tagArray.includes(tag.tag)) {
-                matches2++;
-            }
-        }
-        if(matches1 > 2 || matches2 > 2) {
-            image.style.border = '4px solid green';
-            // image.click();
-        }
-
-        /**
-        * @type {HTMLElement & {
-            *  tags?:Array<string>
-            *  weight?:number
-            * }}
-        **/
-        let textNode = document.createElement('div');
-
-        textNode.innerHTML = bestones;
-        if(matches1 > 1 || matches2 > 1) {
-            textNode.style.border = '1px solid lightgreen';
-        }
-        image.parentElement.appendChild(document.createElement('br'));
-        image.parentElement.appendChild(textNode);
-
-        [...tags]
-            .filter(tag => tag.localName === 'span')
-            .forEach(tag => {
-                sessionStorage.setValue('image', hash(image.imageData), { img: image.imageData, tags: tag.tagArray, chosen: false });
-            });
-    }
-
-    /**@returns {Promise<Array<tag>>} */
-    async function getTags() {
-
-        let dbtags = await (await reqS('http')).http('GET', backendUrl + '/site/kissanime/getTags.php');
-        /**@type {Array<tag>} */
-        let parsedTags = dbtags.map(a => ({ tag: a[1], id: a[0] }));
-        return parsedTags;
-    }
-
-    function onImageLoad(event) {
         let image = event.target;
 
         let canvas = document.createElement('canvas');
@@ -178,11 +119,62 @@
         for(let j = 0; j < imageData.data.length; j++) {
             dataArray.push(imageData.data[j]);
         }
+
+        //debugger;
         image.imageData = dataArray;
+        fetch('http://localhost:8080/eval', {
+            method: 'POST',
+            body: JSON.stringify(dataArray),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(async res => {
+
+                /**@type {import('../../node/classifier').evalResponse} */
+                const pred = await res.json();
+
+                let matches1 = 0;
+                let matches2 = 0;
+
+                let bestones = '<table style="margin-left:50px;">';
+                for(let p of pred) {
+                    bestones += `<tr><td>${p.tag}</td><td>prob: ${Math.round(p.prob * 100) / 100}</td></tr>`;
+                    if(tagArrays[0].tagArray.includes(p.tag)) {
+                        matches1++;
+                    }
+                    if(tagArrays[1].tagArray.includes(p.tag)) {
+                        matches2++;
+                    }
+                }
+
+                if(matches1 > 2 || matches2 > 2) {
+                    image.style.border = '4px solid green';
+                    // image.click();
+                }
+
+                /**
+                * @type {HTMLElement & {
+                    *  tags?:Array<string>
+                    *  weight?:number
+                    * }}
+                **/
+                let textNode = document.createElement('div');
+
+                textNode.innerHTML = bestones + '</table>';
+                if(matches1 > 1 || matches2 > 1) {
+                    textNode.style.border = '1px solid orange';
+                }
+                image.parentElement.appendChild(document.createElement('br'));
+                image.parentElement.appendChild(textNode);
+
+
+            });
+
         // evaluate(image)
         //    .catch(console.error);
 
-        const imgEl = document.getElementById('img');
+        //const imgEl = document.getElementById('img');
         //classifier.mobilenet.classify(image).then(console.log);
 
         //draw image in greyscale and smaller below site

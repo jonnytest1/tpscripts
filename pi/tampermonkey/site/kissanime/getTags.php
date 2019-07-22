@@ -1,8 +1,7 @@
 <?PHP
-    include( dirname(__FILE__) . '/../../database.php');
+include(dirname(__FILE__) . '/../../database.php');
 
 
 
-    $db=new DataBase();
-    echo json_encode( $db->sql("SELECT * FROM kissanime_tags ORDER BY tag_id "));    
-?>
+$db = new DataBase("kissanimeImageColor");
+echo json_encode($db->sql("SELECT * FROM kissanime_tags ORDER BY tag_id "));

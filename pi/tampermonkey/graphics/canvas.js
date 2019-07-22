@@ -92,7 +92,9 @@ class CanvasWrapper {
             multiplier = 255;
         }
         let imageIndex = 0;
+
         for(let j = 0; j < imageData.height; j++) {
+
             for(let i = 0; i < imageData.width; i++) {
 
                 var index = ((i * 4) * imageData.width) + (j * 4);
