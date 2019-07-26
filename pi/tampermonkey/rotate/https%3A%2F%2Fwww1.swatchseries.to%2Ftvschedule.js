@@ -20,7 +20,7 @@
     await sc.g.a('slick-track');
     let days = await sc.g.a('slick-slide');
     let today = [...days].find(d => sc.g('tabs', d).innerText === 'Today');
-    if (today) {
+    if(today) {
         /**
          * followed series
          * @type {Array<CheckedShow>}
@@ -39,18 +39,18 @@
          */
         let recentNew = sc.G.filter('recentNewSeries',/**@type {(el:CheckedShow)=>boolean} */ e => e.ts > Date.now() - 1000 * 60 * 60 * 24 * 14);
         //!!!going minus
-        for (let m = yesterday; m >= 0; m--) {
+        for(let m = yesterday; m >= 0; m--) {
             let day = days[m];
             let showsCount = {};
             /**@type {Array} */
             let shows = sc.g('listings', day).children;
-            for (let show of shows) {
+            for(let show of shows) {
                 /**@type string */
                 let link = show.children[1].href;
                 let seriesName = show.children[1].children[0].textContent;
-                if (showsCount[seriesName]) {
+                if(showsCount[seriesName]) {
                     showsCount[seriesName]++;
-                    if (showsCount[seriesName] === 5 && !recentNew.some(r => r.name === seriesName)) {
+                    if(showsCount[seriesName] === 5 && !recentNew.some(r => r.name === seriesName)) {
                         GMnot(`${location.host}' new series ${seriesName}`);
                         recentNew.push({ name: seriesName, ts: Date.now() });
                     }
@@ -58,16 +58,17 @@
                 else {
                     showsCount[seriesName] = 1;
                 }
-                if (link.indexOf('serie/') > -1) {
+                if(link.indexOf('serie/') > -1) {
                     //new episode isnt added yet
                     let text = link.split('serie/')[1]
                         .split('-')[0];
                     let episodeStrings = show.children[1].textContent.split('\n')[1]
                         .split(' Episode ');
                     let episode = `S${episodeStrings[0].replace('Season ', '')}E${episodeStrings[1]}`;
-                    if (followed.find(followedElement => followedElement.name === text)) {
+                    debugger;
+                    if(followed.find(followedElement => followedElement.name === text)) {
                         let url = sc.g('b', show).parentElement.href;
-                        if (!opnd.find(opend => opend.url === url)) {
+                        if(!opnd.find(opend => opend.url === url)) {
                             open(`${url}#open=1&ep=${episode}`);
                             sc.G.p(ewatchopenedvideos, {
                                 url: url,
@@ -78,10 +79,14 @@
                 }
                 else {
                     //new episode is added
-                    let text = link.split('episode/')[1];
-                    if (followed.find(followedElement => text.includes(followedElement.name))) {
+                    let linkParts = link.split('episode/')[1]
+                        .split('_');
+                    linkParts.pop();
+                    linkParts.pop();
+                    const text = linkParts.join('_');
+                    if(followed.find(followedElement => text.includes(followedElement.name))) {
                         let url = sc.g('b', show).parentElement.href;
-                        if (!opnd.find(opend => opend.url === url)) {
+                        if(!opnd.find(opend => opend.url === url)) {
                             sc.G.p(ewatchopenedvideos, {
                                 url: url,
                                 time: new Date().valueOf()
@@ -101,7 +106,7 @@
     try {
         sc.g('modal-backdrop')
             .remove();
-    } catch (e) {
+    } catch(e) {
         //
     }
 })();

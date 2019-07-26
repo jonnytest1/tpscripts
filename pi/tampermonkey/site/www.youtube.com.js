@@ -157,7 +157,7 @@ youtubeScript.reset = () => {
         if(!seen) {
             setTimeout(() => {
                 for(let current of list) {
-                    /**@type HTMLElement */
+                    /**@type {HTMLElement} */
                     let ts = current.querySelector('#metadata-line > span:nth-child(2)');
                     ts.style.backgroundColor = 'transparent';
                     if(current.autoScrollButton) {
@@ -182,9 +182,9 @@ youtubeScript.reset = () => {
             /**@type {Number} */
             let durationOffset;
             if(wentListString.includes('Minute')) {
-                durationOffset = (Number(wentListString.split(' Minute')[0]) * (1000 * 60));
+                durationOffset = (Number(wentListString.split(/ Minuten*/)[0]) * (1000 * 60));
             } else {
-                durationOffset = (Number(wentListString.split(' Stunde')[0]) * (1000 * 60 * 60));
+                durationOffset = (Number(wentListString.split(/ Stunden*/)[0]) * (1000 * 60 * 60));
             }
             const wentLiveDate = new Date(Date.now() - durationOffset);
             element.origWentLive = wentListString;
@@ -193,7 +193,7 @@ youtubeScript.reset = () => {
         let duration = Math.floor((Date.now() - element.wentLiveDate.valueOf()) / 1000);
         let min = duration % 60;
         let hours = Math.floor(duration / 60);
-        /**@type HTMLElement */
+        /**@type {HTMLElement} */
         const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
         let durationStr = `${hours}:${min}`;
         if(durationStr.includes('NaN')) {

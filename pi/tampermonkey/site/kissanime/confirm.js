@@ -28,6 +28,6 @@
         });
     }
     sc.S.s('image', {});
-    location.href = "https://kissanime.ru/Special/AreYouHuman2?reUrl=%2fAnime%2fKatsute-Kami-Datta-Kemono-tachi-e%2fEpisode-004%3fid%3d160517%26s%3dnova";
+    // location.href = "https://kissanime.ru/Special/AreYouHuman2?reUrl=%2fAnime%2fKatsute-Kami-Datta-Kemono-tachi-e%2fEpisode-004%3fid%3d160517%26s%3dnova";
 })()
     .catch(console.log);

@@ -58,11 +58,28 @@
  */
 
 /**
- *@callback CircularConstructor
+*@callback CircularConstructor
 * @param {HTMLElement} parent
 * @param {MenuElementItem[]} elements
-* @param {{ deactivatorChoice?:string, deactivator?:()=>Promise<Event>, activator?:()=>Promise<Event>, getCenter?:()=>{x:number,y:number,target:HTMLElement}}} [options]
+* @param {{
+*   deactivatorChoice?:string,
+*  deactivator?:()=>Promise<Event>,
+* activator?:()=>Promise<Event>,
+*  getCenter?:()=>{x:number,y:number,target:HTMLElement},
+*  scale?:number
+* }} [options]
 * @returns {void}
+*/
+
+/**
+*
+*
+*@typedef CircularConstructorOptions
+*@property {string} [deactivatorChoice]
+*@property {()=>Promise<Event>} [deactivator]
+*@property {()=>Promise<Event>} [activator]
+*@property {()=>{x:number,y:number,target:HTMLElement}} [getCenter]
+*@property {number} [scale]
 */
 new EvalScript('', {
     run: async (resolver, response) => {
@@ -89,7 +106,12 @@ new EvalScript('', {
             //tslint:disable-next-line variable-name
             var CircularMenu = class CircularMenuC {
 
-                /**@type {CircularConstructor} */
+                /**
+                 * @type {CircularConstructor}
+                 * @param {CircularConstructorOptions} [options]
+                 * @param {MenuElementItem[]} elements
+                 * @param {HTMLElement} parent
+                */
                 constructor(parent, elements, options = {}) {
                     this.isActive = false;
                     this.destroyed = false;
@@ -109,6 +131,7 @@ new EvalScript('', {
                     if(options.activator) {
                         this.activator = options.activator;
                     }
+                    this.scale = options.scale | 1;
                     this.activator()
                         .then(ev => this.onActivate.call(this, ev));
                 }
@@ -169,17 +192,23 @@ new EvalScript('', {
                     if(el && el.tagName.toUpperCase() === 'VIDEO') {
                         parent = el.parentElement;
                     }
-                    let alphaFilter = this.set(crIN(parent, '', undefined, undefined, undefined, undefined, {
-                        style: {
-                            borderRadius: `${radius * 6}px`,
-                            width: `${radius * 6}px`,
-                            height: `${radius * 6}px`,
-                            left: `${center.x - (radius * 6 / 2)}px`,
-                            top: `${center.y - (radius * 6 / 2)}px`,
-                            visibility: 'visible',
-                            backgroundColor: 'rgba(255, 240, 240, 0.8)',
-                        }
-                    }));
+                    let alphaFilter = this.set(crIN(parent, '', undefined, undefined, (btn) => {
+
+                        this.isActive = false;
+                        btn.remove();
+                        this.activator()
+                            .then(ev => this.onActivate.call(this, ev));
+                    }, undefined, {
+                            style: {
+                                borderRadius: `${radius * this.scale}px`,
+                                width: `${radius * this.scale}px`,
+                                height: `${radius * this.scale}px`,
+                                left: `${center.x - (radius * this.scale / 2)}px`,
+                                top: `${center.y - (radius * this.scale / 2)}px`,
+                                visibility: 'visible',
+                                backgroundColor: 'rgba(255, 240, 240, 0.8)',
+                            }
+                        }));
                     alphaFilter.position = center;
                     alphaFilter.deactivation = this.deactivators[this.deactivatorChoice];
                     return alphaFilter;
@@ -386,6 +415,7 @@ new EvalScript('', {
                     let menu = new CircularMenu(document.body, [], {
                         activator: activator,
                         deactivator: deactivator,
+                        scale: 6,
                         getCenter: () => ({ ...mouse, target: document.body })
                     });
 
