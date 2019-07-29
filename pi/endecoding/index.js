@@ -5,6 +5,7 @@
  * @typedef Encoding
  * @property {string} name
  * @property {(str:string,output?:HTMLConvElement)=>string} fnc;
+ * @property {(queryValue:any)=>string} [onchoose]
  *
  **/
 
@@ -22,8 +23,8 @@ function recreate(text, amount) {
     /**@type {HTMLElement} */
 
     [...document.querySelectorAll('tr')]
-        .flatMap(tr => [...tr.childNodes])
         // @ts-ignore
+        .flatMap(tr => [...tr.childNodes])
         .filter(td => td.className !== 'default')
         .forEach(node => node.remove());
 

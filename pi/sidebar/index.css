@@ -17,7 +17,7 @@
         top: 0px;
         left:0px;
         width: 200px;
-        border-right: 1px black solid;
+        border-right: 1px #3c3c3c33 solid;
         
         animation-name: fade;
         animation-duration: 2s;
@@ -44,6 +44,9 @@
         display: table-cell;
         vertical-align: middle;
         padding-right: 10px;
+    }
+    .smallCellText{
+        margin: 15px
     }
 }
 @media (max-width:1000px) {

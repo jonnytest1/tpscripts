@@ -1,28 +1,40 @@
 const mariadb = require('mariadb');
 
 /**
- * @param {string} [db]
- * @returns {Promise<import('mariadb').PoolConnection>}
- */
-async function getConnection(db = 'knnAnimeTest') {
-    let dHost = 'times_maria_1:3306';
-    dHost = 'localhost';
-    const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
-    return pool.getConnection();
-
-}
-/**
  * @template T
  * @param {(con:import('mariadb').PoolConnection)=>T} callback
  * @returns {Promise<T>}
  */
 async function query(callback) {
-    const connection = await getConnection();
+
+    const db = 'knnAnimeTest';
+    let dHost = 'times_maria_1:3306';
+    dHost = 'localhost';
+    const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
+    const connection = await pool.getConnection();
     const result = await callback(connection);
     await connection.end();
+    await pool.end();
     return result;
 }
 
+/**
+ * @template T
+ * @param {String} queryString
+ * @param {Array<any>} [params]
+ * @param {String} [db]
+ * @returns {Promise<any>}
+ */
+async function sqlquery(queryString, params = [], db = 'knnAnimeTest') {
+    let dHost = 'times_maria_1:3306';
+    dHost = 'localhost';
+    const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
+    const connection = await pool.getConnection();
+    const result = await connection.query(queryString, params);
+    await connection.end();
+    await pool.end();
+    return result;
+}
 /**
  * @typedef {Array & {
  *      meta:any
@@ -45,10 +57,8 @@ async function select(sql, params = []) {
  * @returns {Promise<Array<{modelkey:string,modelvalue:string}>>}
  */
 async function getWeights(name) {
-    const connection = await getConnection();
     /**@type {Array} */
-    const rows = await connection.query(`SELECT * FROM ${name}`);
-    await connection.end();
+    const rows = await sqlquery(`SELECT * FROM ${name}`);
     return rows.filter(row => row.modelkey !== 'name' && row.modelkey !== 'timestamp');
 }
 
@@ -62,16 +72,13 @@ async function getWeights(name) {
  * @param {import('./classifier').CustomClassifier} classifier
  */
 async function addExample(example, classifier) {
-    const connection = await getConnection(classifier.name);
-    const imageResponse = await connection.query('INSERT INTO kissanime_images (imagedata) VALUES (?)', [JSON.stringify(example.image)]);
+    const imageResponse = await sqlquery('INSERT INTO kissanime_images (imagedata) VALUES (?)', [JSON.stringify(example.image)], classifier.name);
     const imageId = imageResponse.insertId;
 
     for(let tag of example.tags) {
-        let tagId = await addTag(connection, tag, classifier);
-        const tagImageResponse = await connection.query('INSERT INTO kissanime_images_tag (image,tag,correct) VALUES (?,?,?)', [imageId, tagId, example.chosen]);
+        let tagId = await addTag(tag, classifier);
+        const tagImageResponse = await sqlquery('INSERT INTO kissanime_images_tag (image,tag,correct) VALUES (?,?,?)', [imageId, tagId, example.chosen], classifier.name);
     }
-
-    await connection.end();
 
 }
 /**
@@ -79,9 +86,9 @@ async function addExample(example, classifier) {
  * @param {string} tag
  * @param {import('./classifier').CustomClassifier} classifier
  */
-async function addTag(connection, tag, classifier) {
+async function addTag(tag, classifier) {
     return new Promise(async res => {
-        connection.query('INSERT INTO kissanime_tags (tag_name) VALUES (?)', [tag])
+        sqlquery('INSERT INTO kissanime_tags (tag_name) VALUES (?)', [tag], classifier.name)
             .then(tagResponse => {
                 classifier.tags.push({
                     tag_id: tagResponse.insertId,
@@ -91,7 +98,7 @@ async function addTag(connection, tag, classifier) {
             })
             .catch(async e => {
                 if(e.errno === 1062) {
-                    const selectResponse = await connection.query('SELECT tag_id FROM kissanime_tags WHERE tag_name = ?', [tag]);
+                    const selectResponse = await sqlquery('SELECT tag_id FROM kissanime_tags WHERE tag_name = ?', [tag], classifier.name);
                     res(selectResponse[0].tag_id);
                 } else {
                     throw e;
@@ -106,9 +113,8 @@ async function addTag(connection, tag, classifier) {
  */
 async function save(classifier) {
 
-    const connection = await getConnection();
-    await connection.query('LOCK TABLE ' + 'knnAnime' + ' WRITE');
-    await connection.query('DELETE FROM ' + 'knnAnime');
+    await sqlquery('LOCK TABLE ' + 'knnAnime' + ' WRITE');
+    await sqlquery('DELETE FROM ' + 'knnAnime');
 
     let dataset = classifier.getClassifierDataset();
     let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ( ? , ? ) , ( ? , ? ) , ';
@@ -125,9 +131,8 @@ async function save(classifier) {
                 params.push(JSON.stringify(Array.from(data)));
             }
         });
-    await connection.query(sql.substring(0, sql.length - 2), params);
-    await connection.query('UNLOCK TABLES');
-    await connection.end();
+    await sqlquery(sql.substring(0, sql.length - 2), params);
+    await sqlquery('UNLOCK TABLES');
 }
 
 async function getTags(dbName) {

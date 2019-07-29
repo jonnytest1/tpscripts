@@ -97,11 +97,37 @@ function getEncodings() {
             fnc: str => JSON.parse(str)
         }, {
             name: 'custom',
+            onchoose: (queryValue) => {
+                return prompt('write a function that returns a string', queryValue || 'str=>');
+            },
             fnc: (str, out) => {
                 let evl = out.val;
                 out.textContent = 'custom :' + evl;
                 let newStr = eval(evl)(str);
                 return newStr;
+            }
+        }, {
+            name: 'regex',
+            onchoose: (queryValue) => {
+                return prompt('write a matcher string', queryValue || '')
+                    .replace(/\\n/gm, '\n');
+            },
+            fnc: (str, out) => {
+                let stringMatch = out.val;
+                out.textContent = 'regex :' + stringMatch;
+
+                const regexp = new RegExp(str, 'gm');
+                let match;
+                const matches = [];
+                while((match = regexp.exec(stringMatch)) !== null) {
+                    matches.push({
+                        index: match.index,
+                        matches: [...match],
+                        groups: match.groups
+                    });
+                }
+
+                return JSON.stringify(matches);
             }
         }
     ];

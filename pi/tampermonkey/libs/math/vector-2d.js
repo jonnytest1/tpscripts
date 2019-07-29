@@ -4,9 +4,6 @@
  * @property {{x:number,y:number}} pos
  */
 class Vector2d {
-    x;
-    y;
-
     constructor(x, y) {
         this.x = x;
         this.y = y;

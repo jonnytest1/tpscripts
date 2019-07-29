@@ -94,10 +94,10 @@ class TextOutput {
                 this.converter = element.converter;
                 this.conversionElement = element;
 
-                if(element.converter.name === 'custom') {
-                    let custom = prompt('write a function that returns a string', queryPicked[this.index].value || 'str=>');
-                    newConvElement.val = custom;
-                    Parameter.setIndex(this.index, element.index, custom);
+                if(element.converter.onchoose) {
+                    const cutomValue = element.converter.onchoose(queryPicked[this.index].value);
+                    newConvElement.val = cutomValue;
+                    Parameter.setIndex(this.index, element.index, cutomValue);
                 }
                 Parameter.setIndex(this.index, element.index);
                 this.recalculate();
