@@ -131,8 +131,10 @@ function getEncodings() {
             }
         }
     ];
-
     for(let i = 2; i < 37; i++) {
+        if(i === 10) {
+            continue;
+        }
         encodings.push({
             name: i + ' to dec',
             fnc: (str) => {
@@ -142,9 +144,11 @@ function getEncodings() {
         encodings.push({
             name: 'dec to ' + i,
             fnc: (str) => {
+                debugger;
                 // @ts-ignore
-                return str.toString(i)
-                    .replace(/(\d)0+$/gm, '');
+                return parseInt(str, 10)
+                    .toString(i)
+                    .toUpperCase();
             }
         });
     }

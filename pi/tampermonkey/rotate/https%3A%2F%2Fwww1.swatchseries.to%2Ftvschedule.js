@@ -87,11 +87,11 @@
                     if(followed.find(followedElement => text.includes(followedElement.name))) {
                         let url = sc.g('b', show).parentElement.href;
                         if(!opnd.find(opend => opend.url === url)) {
+                            open(url + '#autoplay=1');
                             sc.G.p(ewatchopenedvideos, {
                                 url: url,
                                 time: new Date().valueOf()
                             });
-                            open(url + '#autoplay=1');
                         }
                     }
                 }

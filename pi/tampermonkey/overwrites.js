@@ -2,8 +2,6 @@
 
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
-
-	return;
 	let originalSetTimeout = setTimeout;
 	// @ts-ignore
 	setTimeout = (fnc, ...args) => {

@@ -148,5 +148,5 @@ function getCanvas(iamgeData) {
 }
 
 module.exports = {
-    getClassifier, addExample, evaluate
+    getClassifier, addExample, evaluate, dbtest: () => database.test()
 };

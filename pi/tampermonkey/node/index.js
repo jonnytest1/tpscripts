@@ -24,6 +24,10 @@ function startWebServer() {
 
     app.post('/eval', evaluateImage);
     app.post('/add', addExample);
+    app.get('/dbtest', async (req, res) => {
+        const response = await classifier.dbtest();
+        res.send(response);
+    });
 }
 /**@type {import("express").RequestHandler} */
 async function evaluateImage(request, response) {
