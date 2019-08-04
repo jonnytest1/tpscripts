@@ -144,7 +144,6 @@ function getEncodings() {
         encodings.push({
             name: 'dec to ' + i,
             fnc: (str) => {
-                debugger;
                 // @ts-ignore
                 return parseInt(str, 10)
                     .toString(i)
