@@ -48,15 +48,7 @@ interface Debug {
     l?: Function
 }
 
-interface CustomStorage {
-    g: Function;
-    s: Function;
-    p: Function;
 
-    remove?: (identfier: string, filterFunction: Function, standard?: any) => void;
-
-    filter?: (identfier: string, filterFunction: Function, standard?: any) => Array<any>;
-}
 interface scI {
     menu?: CircularMenuInstnace;
     menuContainer: HTMLElement;

@@ -185,14 +185,16 @@ new EvalScript('', {
                     sc.circularmenu = obj;
                     return obj;
                 }
-
                 getBackgroundObject(center, radius) {
                     let parent = sc.menuContainer;
+                    /**@type {HTMLElement} */
+                    // @ts-ignore
                     let el = document.elementFromPoint(center.x, center.y);
                     if(el && el.tagName.toUpperCase() === 'VIDEO') {
                         parent = el.parentElement;
                     }
-                    let alphaFilter = this.set(crIN(parent, '', undefined, undefined, (btn) => {
+                    const scaledRadius = radius * this.scale;
+                    let alphaFilter = this.set(crIN(parent, '', () => el.click(), undefined, (btn) => {
 
                         this.isActive = false;
                         btn.remove();
@@ -200,11 +202,11 @@ new EvalScript('', {
                             .then(ev => this.onActivate.call(this, ev));
                     }, undefined, {
                             style: {
-                                borderRadius: `${radius * this.scale}px`,
-                                width: `${radius * this.scale}px`,
-                                height: `${radius * this.scale}px`,
-                                left: `${center.x - (radius * this.scale / 2)}px`,
-                                top: `${center.y - (radius * this.scale / 2)}px`,
+                                borderRadius: `${scaledRadius}px`,
+                                width: `${scaledRadius}px`,
+                                height: `${scaledRadius}px`,
+                                left: `${center.x - (scaledRadius / 2)}px`,
+                                top: `${center.y - (scaledRadius / 2)}px`,
                                 visibility: 'visible',
                                 backgroundColor: 'rgba(255, 240, 240, 0.8)',
                             }
@@ -352,15 +354,13 @@ new EvalScript('', {
                                                 }
                                             }
                                         }
-
                                     }
                                     buttonInstance.menu.setButtons.call(buttonInstance.menu, btn.menuOption.children, btn.degree, 90, 100 + (35 * btn.menuOption.children.length), btn.center);
                                 }
                             },
                             /** @param { CircularMenuHTMLButton } btn */
                             (btn) => btn.style.backgroundColor = (btn.menuOption.normalColor || 'white')
-                            ,
-                            {
+                            , {
                                 target: center.target,
                                 style: {
                                     borderRadius: `${distance}px`,

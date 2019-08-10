@@ -24,7 +24,6 @@ var L = {
     filter: (identifier, filterFunction) => {
         /**@type {Array<any>} */
         let elements = L.g(identifier, []);
-        debugger;
         elements = elements.filter(filterFunction);
         L.s(identifier, elements);
         return elements;

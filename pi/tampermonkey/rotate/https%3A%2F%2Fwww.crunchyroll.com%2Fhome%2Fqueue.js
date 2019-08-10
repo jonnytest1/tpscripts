@@ -2,19 +2,40 @@
 
 new EvalScript('', {
     run: async () => {
-        function rek(array = sc.g('queue-item'), index = 0) {
-            if (index < array.length) {
-                let i = array[index];
-                let videoElement = sc.g('episode-progress', i);
-                if (videoElement.style.width.replace('%', '') - 0 < 1) {
-                    open(sc.g('episode', i).href);
-                    setTimeout(rek, 500, array, index + 1);
+        const time = await reqS('time');
+        const lSt = await reqS('Storage/localStorage');
+        await time.waitForAsync({
+            duration: 2000,
+            callback: () => true
+        });
+        const openedVideosKey = 'crunchyrollOpenedVideos';
+        /**
+         * @typedef VideoElement
+         * @property {number} time
+         * @property {string} url
+         */
+        const oneWeekAgo = Date.now() - (1000 * 60 * 60 * 24 * 7);
+        const openedVideos = lSt.filter(openedVideosKey,/**@param {VideoElement} vid */vid => vid.time >= oneWeekAgo);
+        /**@type {NodeListOf<HTMLElement>} */
+        const items = document.querySelectorAll('.queue-item');
+        time.asyncForEach({
+            array: [...items],
+            callback: async (item) => {
+                /**@type {HTMLElement} */
+                const videoElement = item.querySelector('.episode-progress');
+                const url = sc.g('episode', item).href;
+                if(+videoElement.style.width.replace('%', '') < 1 && !openedVideos.some(vid => vid.url === url)) {
+                    /**@type {VideoElement} */
+                    const openedVideo = {
+                        time: Date.now(),
+                        url
+                    };
+                    lSt.p(openedVideosKey, openedVideo);
+                    open(url);
+                    return;
                 }
-                else {
-                    rek(array, index + 1);
-                }
+                return false;
             }
-        }
-        setTimeout(rek, 2000);
+        });
     }
 });

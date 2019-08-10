@@ -4,6 +4,28 @@ var CustomTime = class CustomTimeC {
         this.n = () => new Date().valueOf();
         this.abort = false;
     }
+    /**
+      * @param {{
+         * startTime?: Number,
+         * duration: Number,
+         * callback:Function,
+         * timeout?:number,
+         * onStep?:(percent:number)=>void}} obj
+         */
+    async waitForAsync(obj) {
+        return new Promise((res, err) => {
+            const options = obj;
+            const origCallback = options.callback;
+            options.callback = (...args) => {
+                if(origCallback) {
+                    origCallback(...args);
+                }
+                res(...args);
+            };
+            this.waitFor(obj);
+        });
+
+    }
 
     /**
      * @param {{
@@ -36,6 +58,7 @@ var CustomTime = class CustomTimeC {
         }
         setTimeout(() => this.waitFor.call(this, obj), obj.timeout);
     }
+
     /**
      * @template T
      * @param {()=>Promise<T>} callble
@@ -46,6 +69,31 @@ var CustomTime = class CustomTimeC {
         const value = await callble();
         fortime(Date.now() - start);
         return value;
+    }
+
+    /**
+     * @template T
+     * @param {{
+     *     array:Array<T>,
+     *     callback:(item:T)=>Promise<boolean|null>,
+     *     delay?:number
+     * }} options
+     */
+    async asyncForEach(options) {
+        const delay = options.delay || 500;
+
+        for(let item of options.array) {
+            const nextDelay = await options.callback(item);
+            if(nextDelay === null || nextDelay === true) {
+                await this.waitForAsync({
+                    duration: delay,
+                    callback: () => {
+                        //
+                    }
+                });
+            }
+
+        }
     }
 
 };

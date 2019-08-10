@@ -2,6 +2,7 @@
 console.log('LOADING REQUIRE');
 
 let prevWarn = console.warn;
+let first = 0;
 console.warn = (warning, ...agrs) => {
     debugger;
     prevWarn(warning, ...agrs);
@@ -223,11 +224,19 @@ async function req(path, cache = true) {
              * @type {EventTarget & CustomScript}
              */
             errorFixScript.resolve = resolve;
-
+            if(first === 0) {
+                first = 1;
+                setTimeout(() => {
+                    if(first === 1) {
+                        alert('broken network ?');
+                    }
+                }, 1000);
+            }
             GM_xmlhttpRequest({
                 url: path,
                 method: 'GET',
                 onload: (e) => {
+                    first = 2;
                     errorFixScript.textContent = e.responseText;
                     if(path.includes('http://localhost:4280?url=')) {
                         window['scriptContent'] = errorFixScript.textContent;
@@ -236,6 +245,7 @@ async function req(path, cache = true) {
                         document.props.canInjectText = false;
                         injectByEval(errorEvent.target);
                     };
+
                     document.body.appendChild(errorFixScript);
                     errorFixScript.onload = onScriptLoad(errorFixScript.resolve);
                     console.log('calling standard finish for ' + errorFixScript.source);
@@ -254,6 +264,7 @@ async function req(path, cache = true) {
                 },
                 ontimeout: (e) => { debugger; }
             });
+
         }
     });
 }
