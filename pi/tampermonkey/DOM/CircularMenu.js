@@ -440,6 +440,6 @@ new EvalScript('', {
         sc.menu.remove();
     },
     afterReset: async () => {
-        await req('http://localhost:4280/req.php?url=test/php/testing', false);
+        await req(window.backendUrl + '/req.php?url=test/php/testing', { cache: false });
     }
 });

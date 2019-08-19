@@ -5,7 +5,7 @@ new EvalScript('', {
     run: async (resolver, set) => {
         const http = await reqS('http');
         var scriptContents = {};
-        var url = 'http://localhost:4280?url=' + location.href;
+        var url = `${window.backendUrl || 'http://localhost:4280'}?url=${location.href}`;
 
         /**@param {CustomScript} script */
         function shouldCheck(script) {
@@ -123,7 +123,7 @@ new EvalScript('', {
                     script.remove();
                     scriptContents[script.src] = undefined;
                     delete document.props.evalScripts[script.src];
-                    await req(scriptUrl, false);
+                    await req(scriptUrl, { cache: false });
                     if(afterRefresh) {
                         afterRefresh();
                     }

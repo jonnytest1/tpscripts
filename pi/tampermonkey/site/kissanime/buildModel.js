@@ -69,7 +69,7 @@ buildModelScript.isAsync = true;
         });
     }
     // @ts-ignore
-    new FontFace('Tahoma', 'url(http://localhost:4280/site/kissanime/Tahoma.ttf)').load();
+    new FontFace('Tahoma', `url(${window.backendUrl}/site/kissanime/Tahoma.ttf)`).load();
     txt.textContent = 'loading classifier';
 
     let classifier;

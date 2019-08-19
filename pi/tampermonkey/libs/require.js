@@ -3,16 +3,54 @@ console.log('LOADING REQUIRE');
 
 let prevWarn = console.warn;
 let first = 0;
+let tmOnly = false;
 console.warn = (warning, ...agrs) => {
     debugger;
     prevWarn(warning, ...agrs);
 };
+
+async function checkConnection(path) {
+    if(!path.includes(window.top.backendUrl)) {
+        return;
+    }
+    return new Promise(resolver => {
+        GM_xmlhttpRequest({
+            url: path,
+            onload: async (response) => {
+                const text = response.responseText;
+                const shortText = text.replace('<br />', '\n')
+                    .replace(/\<b\>/g, '')
+                    .replace(/\<\/b\>/g, '')
+                    .trim();
+                if(shortText
+                    .startsWith('Warning')) {
+                    debugger;
+                }
+                resolver();
+            },
+            headers: {
+                'Accept': 'application/javascript'
+            }
+        });
+    });
+
+}
 /**
  *
  * @param {string} path
- * @param {boolean} [cache]
+ * @param {{
+ * cache?:boolean
+ * tmOnly?:boolean
+ * }} [options]
  */
-async function req(path, cache = true) {
+async function req(path, options = {}) {
+    await checkConnection(path);
+    if(options.cache === undefined) {
+        options.cache = true;
+    }
+    if(options.tmOnly) {
+        tmOnly = true;
+    }
     let stack = '';
     try {
         path['stack']();
@@ -35,7 +73,7 @@ async function req(path, cache = true) {
                         e.target.loaded = true;
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
-                        if((e.target.source || e.target.src) === 'http://localhost:4280/req.php?url=DOM/CircularMenu') {
+                        if((e.target.source || e.target.src) === window.backendUrl + '/req.php?url=DOM/CircularMenu') {
                             //debugger;
                         }
                         resolver(e.args);
@@ -48,7 +86,7 @@ async function req(path, cache = true) {
                 }
             };
         });
-        if(cache) {
+        if(options.cache) {
             /**@type {Array<CustomHTMLscript>} */
             // @ts-ignore
             let rootElements = document.querySelectorAll('script');
@@ -79,7 +117,7 @@ async function req(path, cache = true) {
                 }
             }
         }
-        if(document.props.canInject === true) {
+        if(document.props.canInject === true && !tmOnly) {
             injectScriptNyUrl(path);
         } else if(document.props.canInjectText) {
             // @ts-ignore
@@ -92,9 +130,10 @@ async function req(path, cache = true) {
          * @param {CustomHTMLscript} scr
          */
         function injectByEval(scr) {
+
             scr.src = scr.src || scr.source;
             function evalText(text, url) {
-                if(url.includes('http://localhost:4280?url=')) {
+                if(url.includes(window.backendUrl + '?url=')) {
                     window['scriptContent'] = text;
                 }
                 /**@type {CustomEvalScript } */
@@ -134,6 +173,7 @@ async function req(path, cache = true) {
                 evalText(scr.textContent, scr.src);
                 return;
             }
+            console.log('injecting text', scr.src);
             GM_xmlhttpRequest({
                 url: scr.src,
                 method: 'GET',
@@ -204,7 +244,7 @@ async function req(path, cache = true) {
              */
             let errorFixScript = document.createElement('script');
             errorFixScript.onload = onScriptLoad(failedScriptElement.resolve);
-            console.log('blocked ? injecting extension ' + path);
+            console.log('injecting by text ' + path);
             errorFixScript.source = failedScriptElement.src;
             errorFixScript.stack = stack;
             window.onerror = (/**@type {Event} */e) => {
@@ -228,7 +268,7 @@ async function req(path, cache = true) {
                 first = 1;
                 setTimeout(() => {
                     if(first === 1) {
-                        alert('broken network ?');
+                        // alert('broken network ?');
                     }
                 }, 1000);
             }
@@ -236,9 +276,11 @@ async function req(path, cache = true) {
                 url: path,
                 method: 'GET',
                 onload: (e) => {
+                    console.log('loaded');
                     first = 2;
                     errorFixScript.textContent = e.responseText;
-                    if(path.includes('http://localhost:4280?url=')) {
+                    // console.log(errorFixScript.textContent);
+                    if(path.includes(window.backendUrl + '?url=')) {
                         window['scriptContent'] = errorFixScript.textContent;
                     }
                     errorFixScript.onerror = /**@param {any} errorEvent */errorEvent => {
@@ -255,14 +297,19 @@ async function req(path, cache = true) {
 
                 },
                 onerror: (e) => {
+                    console.log('err', e);
                     debugger;
                     handleError(e);
                 },
                 onabort: (e) => {
+                    console.log('abort');
                     debugger;
                     handleError(e);
                 },
-                ontimeout: (e) => { debugger; }
+                ontimeout: (e) => {
+                    console.log('time');
+                    debugger;
+                }
             });
 
         }
@@ -275,10 +322,14 @@ window.req = req;
 /**
  * inject script with path as url from local backend
  * @type {import('./require').reqSType};
+ * @param {{
+ * cache?:boolean
+ * tmOnly?:boolean
+ * }} [options]
  */
-var reqS = async function reqSImpl(path) {
-    path = 'http://localhost:4280/req.php?url=' + path;
-    return req(path);
+var reqS = async function reqSImpl(path, options = {}) {
+    path = `${window.backendUrl}/req.php?url=${path}`;
+    return req(path, options);
 };
 window.reqS = reqS;
 /**

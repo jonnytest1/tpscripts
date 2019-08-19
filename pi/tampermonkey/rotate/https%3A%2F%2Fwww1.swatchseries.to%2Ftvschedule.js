@@ -62,9 +62,11 @@
                     //new episode isnt added yet
                     let text = link.split('serie/')[1]
                         .split('-')[0];
-                    let episodeStrings = show.children[1].textContent.split('\n')[1]
+                    let episodeStrings = show.children[1].textContent.trim()
+                        .split('Season')[1]
+                        .trim()
                         .split(' Episode ');
-                    let episode = `S${episodeStrings[0].replace('Season ', '')}E${episodeStrings[1]}`;
+                    let episode = `S${episodeStrings[0]}E${episodeStrings[1]}`;
                     debugger;
                     if(followed.find(followedElement => followedElement.name === text)) {
                         let url = sc.g('b', show).parentElement.href;

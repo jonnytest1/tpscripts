@@ -28,6 +28,12 @@ var sc = {
 };
 
 window.sc = sc;
+var querydoc = (identifier) => {
+    /**@type {HTMLElement} */
+    const value = document.querySelector(identifier);
+    return value;
+};
+globalThis.querydoc = querydoc;
 
 /**
  * @typedef {{
@@ -79,7 +85,6 @@ new Promise(async (resolver) => {
     //tslint:disable-next-line variable-name
     let Storage_greaseStorage = IMPORT;
 
-    window.backendUrl = 'http://localhost:4280';
     resolver({});
 
     //index.php adds here

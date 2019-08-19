@@ -48,7 +48,7 @@ new EvalScript('', {
             return (e, button) => {
                 (async () => {
                     const http = await reqS('http');
-                    const resp = await http.http('GET', 'http://localhost:4280/test/php/index.php?test=' + encodeURIComponent(test.name));
+                    const resp = await http.http('GET', `${window.backendUrl}/test/php/index.php?test=` + encodeURIComponent(test.name));
                     /**@type {PHPTest} */
                     const testResult = resp[0];
                     button.menuOption.normalColor = getColor(testResult.success);
@@ -60,7 +60,7 @@ new EvalScript('', {
 
         function runAllTests() {
             reqS('http')
-                .then(t => t.http('GET', 'http://localhost:4280/test/php/index.php'))
+                .then(t => t.http('GET', `${window.backendUrl}/test/php/index.php`))
                 .then(/**@param {Array<PHPTest>} tests */async tests => {
                     let errorString = '';
                     let green = true;

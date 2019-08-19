@@ -1,11 +1,13 @@
 <html>
+
   <head> </head>
+
   <body>
     TEST SITE
     <script>
       console.log("running script");
       let prepareScript = () => {
-        if (!unsafeWindow.scriptContent) {
+        if(!unsafeWindow.scriptContent) {
           return "";
         }
         let lines = unsafeWindow.scriptContent.split("\n");
@@ -17,7 +19,7 @@
 
       function logKibana(level, message, error) {
         let jsonMessage = message;
-        if (!jsonMessage && error) {
+        if(!jsonMessage && error) {
           jsonMessage = error.message;
         }
         let jsonData = {
@@ -27,14 +29,14 @@
         };
         try {
           jsonData.javascript = prepareScript();
-        } catch (error) {
+        } catch(error) {
           // console.log(error);
         }
-        if (error) {
+        if(error) {
           jsonData.error_message = error.message;
           jsonData.error_stacktrace = error.message;
         }
-        if (typeof GM_xmlhttpRequest == "function") {
+        if(typeof GM_xmlhttpRequest == "function") {
           GM_xmlhttpRequest({
             method: "PUT",
             url: "http://localhost/logging",
@@ -59,7 +61,7 @@
         debugger;
         let note = "";
         let scriptMessage = unsafeWindow.scriptContent;
-        if (scriptMessage.includes("error</b>:")) {
+        if(scriptMessage.includes("error</b>:")) {
           scriptMessage = scriptMessage.split("error</b>:")[1];
           note = scriptMessage
             .replace(/<br \/>\n/gm, "")
@@ -82,7 +84,7 @@
         });
       }
       window.evaluate = function evaluate(str) {
-        if (
+        if(
           str.split("error</b>:").length >= 3 ||
           str.split("\n").length < 20
         ) {
@@ -91,18 +93,18 @@
         try {
           throw { message: "Refused to evaluate a string" };
           eval(str);
-        } catch (e) {
-          if (e.message.includes("Refused to evaluate a string")) {
+        } catch(e) {
+          if(e.message.includes("Refused to evaluate a string")) {
             try {
               let sc = document.createElement("script");
               document.window = window;
               sc.innerHTML = str;
-              if (!document.body) {
+              if(!document.body) {
                 setTimeout(evaluate, 500, str);
               } else {
                 document.body.appendChild(sc);
               }
-            } catch (err) {
+            } catch(err) {
               console.log(str);
               handleError(err);
             }
@@ -115,27 +117,27 @@
       function onRequestLoad(event, a, b, c, d) {
         try {
           unsafeWindow.scriptContent = event.responseText;
-        } catch (e) {
+        } catch(e) {
           window.scriptContent = event.responseText;
         }
-        if (event.responseHeaders) {
+        if(event.responseHeaders) {
           event.responseHeaders.split("\n").forEach(header => {
-            if (header.startsWith("exception")) {
+            if(header.startsWith("exception")) {
               evaluate(header.split("exception: ")[1]);
             }
-            if (header.startsWith("missingsite")) {
+            if(header.startsWith("missingsite")) {
               logKibana("INFO", header);
             }
           });
         }
-        if (event.responseText) {
+        if(event.responseText) {
           evaluate(event.responseText);
         } else {
           event.text().then(evaluate);
         }
       }
       function failed(a) {
-        if (
+        if(
           a.status == 0 &&
           GM_getValue("lastunavailablerror") < Date.now() - 10000
         ) {
@@ -166,11 +168,12 @@
         onabort: aborted
       };
 
-      if (typeof GM_xmlhttpRequest == "function") {
+      if(typeof GM_xmlhttpRequest == "function") {
         GM_xmlhttpRequest(request);
       } else {
         fetch(requestUrl).then(onRequestLoad);
       }
     </script>
   </body>
+
 </html>

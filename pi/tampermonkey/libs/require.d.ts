@@ -45,5 +45,5 @@ export interface RequireMap {
 }
 
 export interface reqSType {
-    <K extends keyof RequireMap>(path:K):Promise<RequireMap[K]>;
+    <K extends keyof RequireMap>(path:K,options?:any):Promise<RequireMap[K]>;
 }
