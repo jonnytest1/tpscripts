@@ -28,7 +28,7 @@
         });
     }
     sc.S.s('image', {});
-    querydoc('#containerRoot').style.backgroundColor = 'linear-gradient(#161616, #8f8f96)';
+    querydoc('#containerRoot').style.background = 'linear-gradient(#161616, #8f8f96)';
     // location.href = "https://kissanime.ru/Special/AreYouHuman2?reUrl=%2fAnime%2fKatsute-Kami-Datta-Kemono-tachi-e%2fEpisode-004%3fid%3d160517%26s%3dnova";
 })()
     .catch(console.log);
