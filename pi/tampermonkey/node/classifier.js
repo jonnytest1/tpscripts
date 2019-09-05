@@ -43,17 +43,43 @@ async function getClassifier(name) {
     const mobilenet = await mobilenetModule.load();
     let weights = {};
 
-    (await database.getWeights('knnAnime')).forEach(element => {
-        try {
-            const tensorArray = JSON.parse(element.modelvalue);
-            weights[element.modelkey] = tf.tensor(tensorArray, [tensorArray.length / 1024, 1024]);
-        } catch(e) {
-            debugger;
-        }
-    });
+    const dbWeights = await database.getWeights('knnAnime');
+    if(dbWeights.length === 0) {
+        knnClassifier = setClassifier(knn, mobilenet);
+        console.log('loading previous data');
+        const data = await database.getExamples();
 
-    knn.setClassifierDataset(weights);
-    knnClassifier = setClassifier(knn, mobilenet);
+        for(let i = 0; i < data.length; i++) {
+            const imageElement = data[i];
+            const canvas = getCanvas(imageElement.imagedata);
+            const activation = mobilenet.infer(canvas, 'conv_preds');
+
+            // Pass the intermediate activation to the classifier.
+            knnClassifier.addExample(activation, imageElement.tag_id);
+            activation.dispose();
+
+            //console.log('added example ' + JSON.stringify(imageElement.tag_name));
+            if(i % 100 === 0) {
+                console.log(`${i * 100 / data.length} % done`);
+            }
+
+        }
+        console.log(`finsihed adding ${data.length} items`);
+        await database.save(knnClassifier);
+    } else {
+        dbWeights.forEach(element => {
+            try {
+                const tensorArray = JSON.parse(element.modelvalue);
+                weights[element.modelkey] = tf.tensor(tensorArray, [tensorArray.length / 1024, 1024]);
+            } catch(e) {
+                debugger;
+            }
+        });
+
+        knn.setClassifierDataset(weights);
+        knnClassifier = setClassifier(knn, mobilenet);
+    }
+
     knnClassifier.name = name;
     knnClassifier.tags = tags;
     console.log('loaded classifier');

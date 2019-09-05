@@ -1,6 +1,6 @@
 
-const knnClassifier = require('@tensorflow-models/knn-classifier');
-import * as mobilenetModule from '@tensorflow-models/mobilenet';
+import { create, KNNClassifier } from '@tensorflow-models/knn-classifier';
+import { load, MobileNet } from '@tensorflow-models/mobilenet';
 import { ArrayMap } from '@tensorflow/tfjs-core/dist/types';
 
 import { DataBase } from './database';
@@ -24,9 +24,9 @@ export interface Example {
 
 export class Classifier {
 
-    public knnClassifier: any;
+    public knnClassifier: KNNClassifier;
 
-    private mobilenet;
+    private mobilenet: MobileNet;
 
     public tags;
     public name;
@@ -115,9 +115,9 @@ export class Classifier {
         const classifier = new Classifier();
 
         const tags = await database.getTags();
-        classifier.knnClassifier = knnClassifier.create();
+        classifier.knnClassifier = create();
         // Load mobilenet.
-        classifier.mobilenet = await mobilenetModule.load();
+        classifier.mobilenet = await load();
         let weights = {};
 
         const dbWeights = await database.getWeights('knnAnime');

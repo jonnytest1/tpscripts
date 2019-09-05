@@ -1,6 +1,6 @@
 //const mariadb = require('mariadb');
 import { createPool, Pool } from 'mariadb';
-import { Classifier, Example } from './classifier';
+import { Classifier, Example } from '../classifier';
 let count = 0;
 
 export class DataBase {

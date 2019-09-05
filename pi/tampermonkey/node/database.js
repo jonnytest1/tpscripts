@@ -30,6 +30,17 @@ async function sqlquery(queryString, params = [], db = 'knnAnimeTest') {
     return query(connection => connection.query(queryString, params));
 }
 /**
+ * @template T
+ * @param {String} queryString
+ * @param {Array<any>} [params]
+ * @param {String} [db]
+ * @returns {Promise<Array<T>>}
+ */
+async function selectQuery(queryString, params = [], db = 'knnAnimeTest') {
+    return query(connection => connection.query(queryString, params));
+}
+
+/**
  * @typedef {Array & {
  *      meta:any
  * }} SelectResponse
@@ -44,6 +55,18 @@ async function getWeights(name) {
     /**@type {Array} */
     const rows = await sqlquery(`SELECT * FROM ${name}`);
     return rows.filter(row => row.modelkey !== 'name' && row.modelkey !== 'timestamp');
+}
+
+/**
+ * @returns {Promise<Array<{imagedata:Array<number>,tag_id:number,tag_name:string}>>}
+ */
+async function getExamples() {
+    return selectQuery(`
+    SELECT kissanime_tags.tag_id,kissanime_tags.tag_name ,kissanime_images.imagedata
+    FROM kissanime_images_tag
+    JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
+    JOIN kissanime_images ON kissanime_images_tag.image=kissanime_images.image_id
+    WHERE kissanime_images_tag.correct= 1`);
 }
 
 /**
@@ -145,5 +168,5 @@ async function test() {
 
 }
 module.exports = {
-    getWeights, addExample, getTags, save, test
+    getWeights, addExample, getTags, save, test, getExamples
 };

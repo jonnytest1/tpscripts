@@ -1,4 +1,4 @@
-import { Classifier } from './classifier';
+import { Classifier } from './Classifier';
 
 console.log('loading reqire');
 
