@@ -16,6 +16,9 @@ new EvalScript('', {
             });
 
         function addVideo(videoElement) {
+            if(videoElement[0]) {
+                videoElement = videoElement[0];
+            }
             /**
              * @param {HTMLElement} parent
              * @returns {HTMLVideoElement & {
@@ -26,15 +29,15 @@ new EvalScript('', {
             function getVideo(parent) {
                 let localVideo = videoElement;
                 let element = document.elementFromPoint(parent.offsetLeft, parent.offsetTop);
-                if (element.tagName === 'VIDEO') {
+                if(element.tagName === 'VIDEO') {
                     localVideo = element;
                 }
                 return localVideo;
             }
 
-            if (!hasAdded) {
+            if(!hasAdded) {
                 hasAdded = true;
-                if (!videoElement.hasStarted) {
+                if(!videoElement.hasStarted) {
                     videoElement.hasStarted = true;
                     videoElement.play();
                 }
@@ -60,7 +63,7 @@ new EvalScript('', {
                             name: 'fullscreen',
                             mouseOver: (parent) => {
                                 const localVideo = getVideo(parent);
-                                if (!document.fullscreen) {
+                                if(!document.fullscreen) {
                                     localVideo.previousStyle = localVideo.style;
                                     localVideo.style.width = '100%';
                                     localVideo.style.height = '100%';
@@ -68,7 +71,7 @@ new EvalScript('', {
                                 } else {
                                     localVideo.style.width = 'unset';
                                     localVideo.style.height = 'unset';
-                                    for (let st in localVideo.previousStyle) {
+                                    for(let st in localVideo.previousStyle) {
                                         localVideo.style[st] = localVideo.previousStyle[st];
                                     }
                                     document.exitFullscreen();
@@ -81,14 +84,14 @@ new EvalScript('', {
                                     let localVideo = getVideo(parent);
                                     let object = new CustomSlider(parent, center, (precent) => {
                                         var speed = (precent / 50) * (precent / 50);
-                                        if (precent < 2) {
+                                        if(precent < 2) {
                                             speed = -0.5;
                                         }
                                         localVideo.playbackRate = speed;
                                     }, Math.sqrt(localVideo.playbackRate * 2500));
                                     object.container.style.backgroundColor = '#ffffff6e';
                                     object.setSeparate(angle);
-                                    return object;
+                                    return object.container;
                                 }
                             }],
                         }, {
@@ -97,14 +100,14 @@ new EvalScript('', {
                                 creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
                                     let localVideo = getVideo(parent);
                                     let object = new CustomSlider(parent, center, (precent) => {
-                                        if (localVideo.muted) {
+                                        if(localVideo.muted) {
                                             localVideo.muted = false;
                                         }
                                         localVideo.volume = precent / 100;
                                     }, localVideo.volume * 100);
                                     object.container.style.backgroundColor = '#ffffff6e';
                                     object.setSeparate(angle);
-                                    return object;
+                                    return object.container;
                                 }
                             }],
                         }
@@ -118,7 +121,7 @@ new EvalScript('', {
                             let localVideo = getVideo(parent);
                             let scale = 5;
                             let duration = localVideo.duration;
-                            if (isNaN(duration)) {
+                            if(isNaN(duration)) {
                                 duration = 0;
                             }
                             let object = new CustomSlider(parent, center, (percent) => {
@@ -129,7 +132,7 @@ new EvalScript('', {
 
                             let globlaTranslate = ` translate(${(object.container.dim.width / 2) - (19 * scale)}px,${22 * scale}px)`;
                             object.container.style.transform = `translate(-230px, 6px) ${rotationStyle} translate(-30px, 30px)`;
-                            return object;
+                            return object.container;
                         }
                     }]
                 });

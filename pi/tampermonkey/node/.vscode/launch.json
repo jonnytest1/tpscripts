@@ -8,8 +8,15 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\index.js",
+            // "program": "${workspaceFolder}\\index.ts",
             "autoAttachChildProcesses": true,
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}\\index.ts"
+            ],
             "restart": true,
         }
     ]

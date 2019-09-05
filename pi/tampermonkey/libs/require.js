@@ -28,6 +28,15 @@ async function checkConnection(path) {
                 }
                 resolver();
             },
+            timeout: 2000,
+            ontimeout: () => {
+                debugger;
+                for(let i = 0; i < 50; i++) {
+                    console.log('connection check timeout');
+                }
+                GM_notification('connection check timeout');
+                setTimeout(() => location.reload(), 1000 * 30);
+            },
             headers: {
                 'Accept': 'application/javascript'
             }
@@ -44,7 +53,9 @@ async function checkConnection(path) {
  * }} [options]
  */
 async function req(path, options = {}) {
+
     await checkConnection(path);
+
     if(options.cache === undefined) {
         options.cache = true;
     }

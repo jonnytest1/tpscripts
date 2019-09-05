@@ -42,6 +42,12 @@ serviceWorker.addEventListener('message', () => {
     });
     console.log('note');
 });
+addEventListener('push', () => {
+    if(!Notification || Notification.permission !== 'granted') {
+        return;
+    }
+    serviceWorker.registration.showNotification('push Notification', { body: 'push' });
+});
 serviceWorker.addEventListener('notificationclick', (event) => {
     var messageId = event.notification.data;
 

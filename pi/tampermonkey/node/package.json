@@ -1,24 +1,26 @@
 {
-    "name": "node",
-    "version": "1.0.1",
-    "description": "node",
-    "main": "index.js",
-    "dependencies": {
-        "@tensorflow/tfjs": "^1.1.2",
-        "mariadb": "^2.1.0",
-        "tslint": "^5.18.0",
-        "canvas": "^2.5.0",
-        "express": "^4.17.1",
-        "@tensorflow/tfjs-node": "^1.2.4",
-        "@tensorflow-models/knn-classifier": "^1.2.1",
-        "@tensorflow-models/mobilenet": "^2.0.2"
-    },
-    "devDependencies": {
-        "@types/p5": "^0.7.2"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "",
-    "license": "ISC"
+  "name": "node",
+  "version": "1.0.1",
+  "description": "node",
+  "main": "index.js",
+  "dependencies": {
+    "@tensorflow/tfjs": "^1.1.2",
+    "mariadb": "^2.1.0",
+    "canvas": "^2.5.0",
+    "express": "^4.17.1",
+    "@tensorflow/tfjs-node": "^1.2.4",
+    "@tensorflow-models/knn-classifier": "^1.2.1",
+    "@tensorflow-models/mobilenet": "^2.0.2",
+    "typescript": ""
+  },
+  "devDependencies": {
+    "@types/p5": "^0.7.2",
+    "ts-node": "",
+    "tslint": ""
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }

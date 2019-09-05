@@ -11,7 +11,7 @@ export interface RequireMap {
 
     'http':httpResolv
 
-    'libs/eval-script':void
+    
 
     'logging':void
     'learning/tensorflow':void
@@ -20,6 +20,8 @@ export interface RequireMap {
 
 
     'learning/tfIO':any
+    'libs/eval-script':void
+    'libs/log-level':void
     'notification':notificationI
     'find':ElementGetter
     'graphics/p5addon':void

@@ -67,6 +67,8 @@ new Promise(async (resolver) => {
 
     await reqS('libs/eval-script');
 
+    await reqS('libs/log-level');
+
     await reqS('logging');
 
     await reqS('notification');

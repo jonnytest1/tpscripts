@@ -1,5 +1,8 @@
 
 function swTest() {
+    if(!window['swTest']) {
+        return;
+    }
     navigator.serviceWorker.register('/tampermonkey/libs/serviceworker/worker.js', { scope: '/' })
         .then(
             (s) => {

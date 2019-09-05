@@ -1,5 +1,5 @@
 /* eslint-disable */
-// @ts-nocheck
+//@ts-nocheck
 
 define('Bar/Table', ['require', 'exports', 'environment'], function (require, exports, environment_1) {
     'use strict';

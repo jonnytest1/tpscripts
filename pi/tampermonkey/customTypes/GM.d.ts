@@ -6,7 +6,8 @@ interface GM_Request_Options{
     url:string
     onload:(response:GM_RequestResponse)=>any
     method?:string
-    onerror?:Function
+    onerror?:Function,
+    timeout?:number,
     onabort?:Function
     ontimeout?:Function
     data?:any
