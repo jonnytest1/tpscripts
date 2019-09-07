@@ -6,17 +6,21 @@ let count = 0;
  * @returns {Promise<T>}
  */
 async function query(callback) {
-
-    const db = 'knnAnimeTest';
-    let dHost = 'times_maria_1:3306';
-    dHost = 'localhost';
-    const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
-    const connection = await pool.getConnection();
-    console.log(count++);
-    const result = await callback(pool);
-    await connection.end();
-    await pool.end();
-    return result;
+    try {
+        const db = 'knnAnimeTest';
+        let dHost = 'localhost:13306';
+        dHost = 'localhost';
+        const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
+        const connection = await pool.getConnection();
+        console.log(count++);
+        const result = await callback(pool);
+        await connection.end();
+        await pool.end();
+        return result;
+    } catch(e) {
+        console.error(e);
+        process.exit();
+    }
 }
 
 /**
@@ -58,7 +62,7 @@ async function getWeights(name) {
 }
 
 /**
- * @returns {Promise<Array<{imagedata:Array<number>,tag_id:number,tag_name:string}>>}
+ * @returns {Promise<Array<{imagedata:string,tag_id:number,tag_name:string}>>}
  */
 async function getExamples() {
     return selectQuery(`

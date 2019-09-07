@@ -9,7 +9,7 @@ class DataBase
 
   function __construct($database = "tpscript")
   {
-    $this->link = mysqli_connect("times_maria_1:3306", "tpscript", "123", $database);
+    $this->link = mysqli_connect("database:3306", "tpscript", "123", $database);
     //times_maria_1
   }
 

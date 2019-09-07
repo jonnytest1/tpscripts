@@ -105,7 +105,6 @@
             return;
         }
 
-
         let image = event.target;
 
         let canvas = document.createElement('canvas');
@@ -139,7 +138,7 @@
 
                 let bestones = '<table style="margin-left:50px;">';
                 for(let p of pred) {
-                    bestones += `<tr><td>${p.tag}</td><td>prob: ${Math.round(p.prob * 100) / 100}</td></tr>`;
+                    bestones += `<tr><td>${p.tag}</td><td>${Math.round(p.prob * 100) / 100}</td></tr>`;
                     if(tagArrays[0].tagArray.includes(p.tag)) {
                         matches1++;
                     }
@@ -167,7 +166,6 @@
                 }
                 image.parentElement.appendChild(document.createElement('br'));
                 image.parentElement.appendChild(textNode);
-
 
             });
 

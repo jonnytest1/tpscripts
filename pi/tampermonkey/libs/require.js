@@ -34,7 +34,7 @@ async function checkConnection(path) {
                 for(let i = 0; i < 50; i++) {
                     console.log('connection check timeout');
                 }
-                GM_notification('connection check timeout');
+                GM_notification(location.origin + ' connection check timeout');
                 setTimeout(() => location.reload(), 1000 * 30);
             },
             headers: {

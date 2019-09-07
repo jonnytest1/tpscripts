@@ -6,7 +6,7 @@ const { createCanvas } = require('canvas');
 /**
  * @typedef {classifier.KNNClassifier & {
 *      mobilenet:import("@tensorflow-models/mobilenet").MobileNet,
-*      addExampleClass:(id:number,img:any)=>void,
+*      addExampleClass:(tag:string,img:any)=>void,
 *      name:String,
 *      tags:Array<{tag_id:number,tag_name:string}>
 * }} CustomClassifier
@@ -51,12 +51,13 @@ async function getClassifier(name) {
 
         for(let i = 0; i < data.length; i++) {
             const imageElement = data[i];
-            const canvas = getCanvas(imageElement.imagedata);
-            const activation = mobilenet.infer(canvas, 'conv_preds');
-
+            /**
+             * @type { Array<number>}
+             */
+            const imageDataArray = JSON.parse(imageElement.imagedata);
+            const canvas = getCanvas(imageDataArray);
             // Pass the intermediate activation to the classifier.
-            knnClassifier.addExample(activation, imageElement.tag_id);
-            activation.dispose();
+            knnClassifier.addExampleClass(imageElement.tag_name, canvas);
 
             //console.log('added example ' + JSON.stringify(imageElement.tag_name));
             if(i % 100 === 0) {
@@ -100,8 +101,8 @@ async function addExample(example) {
     const canvas = getCanvas(example.image);
 
     for(let tag of example.tags) {
-        const tagId = getTagId(tag);
-        knnClassifier.addExampleClass(tagId, canvas);
+        // const tagId = getTagId(tag);
+        knnClassifier.addExampleClass(tag, canvas);
     }
     console.log('added examples ' + JSON.stringify(example.tags));
     database.save(knnClassifier);
@@ -132,11 +133,11 @@ async function evaluate(imageData) {
     results.sort((a, b) => b.percent - a.percent);
 
     const best5 = [];
-    for(let i = 0; i < 3; i++) {
-        best5.push({ tag: getTagName(results[i].i), prob: results[i].percent });
+    for(let i = 0; i < 5; i++) {
+        best5.push({ tag: results[i].i, prob: results[i].percent });
     }
 
-    return best5;
+    return best5.filter(el => el.prob > 0);
 }
 
 function getTagName(tagId) {
