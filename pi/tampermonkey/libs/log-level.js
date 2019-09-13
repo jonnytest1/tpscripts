@@ -6,6 +6,7 @@ new EvalScript('', {
         const orginalLog = console.log;
         console.log = (...args) => {
             try {
+                // @ts-ignore
                 window['undefined'].stacktrace();
             } catch(e) {
                 try {

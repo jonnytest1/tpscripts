@@ -13,6 +13,7 @@ class EvalScript {
     constructor(url, options = {}) {
         this.url = url;
         /**@type {CustomHTMLscript}*/
+        // @ts-ignore
         this.script = document.currentScript || document.props.evalScripts[this.url];
         if(this.script) {
             this.script.reset = () => this.reset.call(this);
@@ -35,6 +36,7 @@ class EvalScript {
                 // @ts-ignore
                 document.currentScript[propName] = this[propName];
             } else if(document.props.evalScripts[this.url]) {
+                // @ts-ignore
                 document.props.evalScripts[this.url][propName] = this[propName];
             }
         }
@@ -107,4 +109,5 @@ class EvalScript {
         this.onload({ ...loadEvent, target: this });
     }
 }
+// @ts-ignore
 window.EvalScript = EvalScript;

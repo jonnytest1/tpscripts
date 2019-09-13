@@ -1,4 +1,5 @@
 /// <reference path="../DOM/customSlider.js" />
+/// <reference path="../DOM/CircularMenu.js" />
 let currentPercent = 0;
 let rotationSlider2;
 let rotationSlider;
@@ -15,7 +16,7 @@ async function noDeactivator() {
 async function keyActivator() {
     return new Promise((resolver) => {
         function onKeyDown(event) {
-            if (event.key === 'Control') {
+            if(event.key === 'Control') {
                 document.removeEventListener('keydown', onKeyDown);
                 resolver(event);
             }
@@ -27,7 +28,7 @@ async function keyActivator() {
 async function unPressDeactivator() {
     return new Promise((resolver) => {
         function onKeyUp(event) {
-            if (event.key === 'Control') {
+            if(event.key === 'Control') {
                 document.removeEventListener('keyup', onKeyUp);
                 resolver(event);
             }
@@ -35,32 +36,35 @@ async function unPressDeactivator() {
         document.addEventListener('keyup', onKeyUp);
     });
 }
+reqS('DOM/CircularMenu')
+    .then(resolv => {
+        let testMenu = new resolv(document.body, [], {
+            activator: keyActivator,
+            deactivator: unPressDeactivator,
+            getCenter: () => ({
+                x: window.innerWidth / 2,
+                y: window.innerHeight / 2,
+                target: document.body
+            })
 
-let testMenu = new CircularMenu(document.body, [], {
-    activator: keyActivator,
-    deactivator: unPressDeactivator,
-    getCenter: () => ({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-        target: document.body
-    })
+        });
 
-});
+        for(let i = 0; i < 8; i++) {
+            testMenu.addToMenu({
+                name: 'scroll' + i,
+                creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
+                    const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
+                    rotationSlider2 = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
+                        scale: 0.5,
+                        // color: "red",
+                        arcWidth: 7
+                    });
+                    rotationSlider2.container.style.zIndex = '2199999999';
+                    rotationSlider2.setRotation(angle);
 
-for (let i = 0; i < 8; i++) {
-    testMenu.addToMenu({
-        name: 'scroll' + i,
-        creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
-            const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
-            rotationSlider2 = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
-                scale: 0.5,
-                // color: "red",
-                arcWidth: 7
+                    return button;
+                },
             });
-            rotationSlider2.container.style.zIndex = '2199999999';
-            rotationSlider2.setRotation(angle);
+        }
 
-            return button;
-        },
     });
-}

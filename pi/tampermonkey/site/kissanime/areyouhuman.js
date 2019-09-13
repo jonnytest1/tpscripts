@@ -23,6 +23,7 @@
             sessionStorage = st;
             sessionStorage.s('image', {});
         });
+    /**@type {httpResolv} */
     let http;
     reqS('http')
         .then(ht => http = ht);
@@ -115,8 +116,8 @@
         let imageData = context.getImageData(0, 0, 160, 160);
         let dataArray = [];
         let scaleSize = 2;
-        for(let j = 0; j < imageData.data.length; j++) {
-            dataArray.push(imageData.data[j]);
+        for(let j of imageData.data) {
+            dataArray.push(j);
         }
 
         //debugger;

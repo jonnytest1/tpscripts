@@ -2,7 +2,7 @@
 ///<reference path="../customTypes/storage.d.ts"/>
 /**
  * @typedef {CustomStorage & {
- * filter:(identifier,filterFunction:(value:any)=>boolean)=>Array<any>
+ * filter:(identifier:string,filterFunction:(value:any)=>boolean)=>Array<any>
  * }} LocalStorage
  *
  * @type {LocalStorage}

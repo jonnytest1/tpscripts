@@ -34,8 +34,12 @@ async function checkConnection(path) {
                 for(let i = 0; i < 50; i++) {
                     console.log('connection check timeout');
                 }
-                GM_notification(location.origin + ' connection check timeout');
-                setTimeout(() => location.reload(), 1000 * 30);
+                const connCheck = 'lastConnectionCheckFailure';
+                if(GM_getValue(connCheck) < Date.now() - (1000 * 60 * 60)) {
+                    GM_notification(location.origin + ' connection check timeout');
+                    GM_setValue(connCheck, Date.now());
+                }
+                setTimeout(() => location.reload(), 1000 * 60);
             },
             headers: {
                 'Accept': 'application/javascript'

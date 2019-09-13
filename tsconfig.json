@@ -15,9 +15,9 @@
         ]
     },
     "include": [
-        "pi/tampermonkey/customTypes/index.d.ts",
+        "pi/tampermonkey/customTypes/index.d.ts"
     ],
     "exclude": [
-        "tpscripts/compiledjs/**",
+        "tpscripts/compiledjs/**"
     ]
 }

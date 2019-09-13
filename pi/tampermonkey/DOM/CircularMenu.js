@@ -19,60 +19,64 @@
 * @property {Function} [onclick]
 * @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseOver]
 * @property {(target)=>boolean} [isValid]
-* @property {CreationFunction} [creationFunction]
+* @property {CreateElement} [creationFunction]
 * @property {String} [enabledColor]
 * @property {string} [normalColor]
 * @property {CircularMenuHTMLButton} [element]
 * @property {Line} [line]
 */
-/**
- * @callback CreationFunction
-* @param {HTMLElement} parent
-* @param {string} text
-* @param {Function} onclick
-* @param {Function} fncmouseEnter
-* @param {Function} fncMouseLeave
-* @param {any} style
-* @param {Center&{target:HTMLElement}} center
-* @param {number} angle
-* @param {*} menu
-* @returns {CircularMenuHTMLButton}
- */
 
 /**
  * @callback addToMEnuCB
  * @param {MenuElementItem} menu
  * @param {(ar:MenuElementItem[])=>MenuElementItem|MenuElementItem[]} [selector]
+ * @returns {void}
  */
+
+// parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu
 /**
  * @typedef CircularMenuInstnace
  * @property {addToMEnuCB} addToMenu
+ * @property {CreateElement} createElement
  * @property {Function} [setButtons]
  * @property {()=>void} remove
  * @property {(rootMenuName:String)=>void} removeByName
- */
-/**
+ *
+ * @typedef {(
+ *  parent,
+ *  text:string,
+ *  onclick:Function,
+ *  mouseEnter:Function,
+ *  mouseLEave:Function,
+ *  style:any,
+ *  center:Center,
+ *  angle:number,
+ *  menu:CircularMenuInstnace
+ * )=>CircularMenuHTMLButton} CreateElement
+ *
+ *
+ *
  * @typedef  {CircularConstructor &
  *  {main:()=>CircularMenuInstnace
  * }} CircularMenuResolv
  */
 
 /**
-*@callback CircularConstructor
-* @param {HTMLElement} parent
-* @param {MenuElementItem[]} elements
-* @param {{
-*   deactivatorChoice?:string,
-*  deactivator?:()=>Promise<Event>,
-* activator?:()=>Promise<Event>,
-*  getCenter?:()=>{x:number,y:number,target:HTMLElement},
-*  scale?:number
-* }} [options]
-* @returns {void}
+* @typedef {new (
+*   parent:HTMLElement,
+*   elements:MenuElementItem[],
+*   options?:{
+*       deactivatorChoice?:string
+*       deactivator?:() => Promise<Event>
+*       activator?:() => Promise<Event>
+*       getCenter?:() => { x: number, y: number, target: HTMLElement; }
+*       scale?:number
+* }) => CircularMenuInstnace} CircularConstructor
+*
+*
 */
 
 /**
-*
 *
 *@typedef CircularConstructorOptions
 *@property {string} [deactivatorChoice]
@@ -201,16 +205,16 @@ new EvalScript('', {
                         this.activator()
                             .then(ev => this.onActivate.call(this, ev));
                     }, undefined, {
-                            style: {
-                                borderRadius: `${scaledRadius}px`,
-                                width: `${scaledRadius}px`,
-                                height: `${scaledRadius}px`,
-                                left: `${center.x - (scaledRadius / 2)}px`,
-                                top: `${center.y - (scaledRadius / 2)}px`,
-                                visibility: 'visible',
-                                backgroundColor: 'rgba(255, 240, 240, 0.8)',
-                            }
-                        }));
+                        style: {
+                            borderRadius: `${scaledRadius}px`,
+                            width: `${scaledRadius}px`,
+                            height: `${scaledRadius}px`,
+                            left: `${center.x - (scaledRadius / 2)}px`,
+                            top: `${center.y - (scaledRadius / 2)}px`,
+                            visibility: 'visible',
+                            backgroundColor: 'rgba(255, 240, 240, 0.8)',
+                        }
+                    }));
                     alphaFilter.position = center;
                     alphaFilter.deactivation = this.deactivators[this.deactivatorChoice];
                     return alphaFilter;
@@ -275,9 +279,10 @@ new EvalScript('', {
                         this.setButtons(filteredOptions, 0, 360, radius, this.center);
                     }
                 }
-
-                /**@type {CreationFunction} */
-                createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu) {
+                /**
+                 * @type {CreateElement}
+                 */
+                createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) {
                     let sradius = 50;
                     /** @type {CircularMenuHTMLButton} */
                     let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
@@ -318,7 +323,7 @@ new EvalScript('', {
                         let newElementCenterX = center.x + posX;
                         let newElementCenterY = center.y + posY;
 
-                        /**@type {CreationFunction} */
+                        /**@type {CreateElement} */
                         let creationFunction = buttonArray[i].creationFunction || this.createElement;
 
                         let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };

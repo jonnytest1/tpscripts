@@ -9,43 +9,43 @@
 
 export interface RequireMap {
 
-    'http':httpResolv
-
-    
-
-    'logging':void
-    'learning/tensorflow':void
-
-    'learning/knnIO':KNNLoader;
+    'http': httpResolv
 
 
-    'learning/tfIO':any
-    'libs/eval-script':void
-    'libs/log-level':void
-    'notification':notificationI
-    'find':ElementGetter
-    'graphics/p5addon':void
 
-    'graphics/canvas':void
-    'DOM/CircularMenu':CircularMenuResolv;
-    'DOM/customSlider':void
-    'DOM/DOMConstants':DConstants;
-    'DOM/dependencyCheck':void
-    'DOM/line':void
+    'logging': void
+    'learning/tensorflow': void
 
-    'DOM/button':void
-    'site/kissanime/buildModel':void
-    'Storage/SessionStorage':any
-    'Storage/crossDomainStorage':any
-    'Storage/localStorage':LocalStorage
+    'learning/knnIO': KNNLoader;
 
-    'test/php/testing':void
+
+    'learning/tfIO': any
+    'libs/eval-script': void
+    'libs/log-level': void
+    'notification': notificationI
+    'find': ElementGetter
+    'graphics/p5addon': void
+
+    'graphics/canvas': void
+    'DOM/CircularMenu': CircularMenuResolv;
+    'DOM/customSlider': void
+    'DOM/DOMConstants': DConstants;
+    'DOM/dependencyCheck': void
+    'DOM/line': void
+
+    'DOM/button': void
+    'site/kissanime/buildModel': void
+    'Storage/SessionStorage': CustomStorage
+    'Storage/crossDomainStorage': any
+    'Storage/localStorage': LocalStorage
+
+    'test/php/testing': void
     'time': CustomTimeClass
     'Videos/next',
 
-    
+
 }
 
 export interface reqSType {
-    <K extends keyof RequireMap>(path:K,options?:any):Promise<RequireMap[K]>;
+    <K extends keyof RequireMap>(path: K, options?: any): Promise<RequireMap[K]>;
 }

@@ -1,6 +1,6 @@
 
 document.querySelectorAll('.video-card')
-    .forEach(card => {
+    .forEach(/**@param {HTMLElement} card*/card => {
         return;
         card.addEventListener('mouseover',/**@param {MouseEvent} e*/(e) => {
             let { x, y } = e;
@@ -26,8 +26,7 @@ document.querySelectorAll('.video-card')
             card.style.transform = `translate(${scaledDirection.x}px,${scaledDirection.y}px)`;
         });
 
-        card.addEventListener('mouseleave', (e) => {
+        card.addEventListener('mouseleave',/**@param { Event & { currentTarget:HTMLElement}} e*/(e) => {
             e.currentTarget.style.transform = 'translate(0)';
         });
     });
-
