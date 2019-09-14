@@ -1,10 +1,13 @@
 
+/**
+ * @template V
+ */
 class EvalScript {
     /**
      * @template { Array<keyof import('./require').RequireMap> } LIB
      * @typedef EvalScriptOptions
-     * @property {(obj:any)=>boolean|void} [reset]
-     * @property {(resolver:<T>(obj:T)=>any,set:any)=>Promise<boolean|void>} [run] if true waits for manual call to finish
+     * @property {(obj:Partial<V>)=>boolean|void} [reset]
+     * @property {(resolver:<T>(obj:T)=>any,set:Partial<V>)=>Promise<boolean|void>} [run] if true waits for manual call to finish
      * @property {()=>void} [afterReset]
      *
      * @param {EvalScriptOptions<?>} options
@@ -21,6 +24,7 @@ class EvalScript {
         this.callback = options.run;
         this.resetFunction = options.reset;
         this.afterReset = options.afterReset;
+        /**@type {Partial<V>} */
         this.options = {};
         this.onload = null;
         this.loaded = false;

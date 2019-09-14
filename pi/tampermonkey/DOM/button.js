@@ -16,30 +16,30 @@ new EvalScript('', {
                 let btn = document.createElement('tampermonkey-button');
                 let backgroundcolor = 'white';
                 let txtcolor = '#333'; //black
-                if (location.href.indexOf('twitter') > -1) {
+                if(location.href.indexOf('twitter') > -1) {
                     backgroundcolor = '#1DA1F2';
                 }
-                else if (location.href.indexOf('kissanime') > -1) {
+                else if(location.href.indexOf('kissanime') > -1) {
                     backgroundcolor = '#161616';
                     txtcolor = '#d5f406';
                 }
-                else if (location.href.indexOf('kissmanga') > -1) {
+                else if(location.href.indexOf('kissmanga') > -1) {
                     backgroundcolor = '#161616';
                     txtcolor = '#72cefe';
                 }
-                else if (location.href.indexOf('instagram') > -1) {
+                else if(location.href.indexOf('instagram') > -1) {
                     backgroundcolor = '#fafafa';
                 }
-                else if (location.href.indexOf('facebook') > -1) {
+                else if(location.href.indexOf('facebook') > -1) {
                     backgroundcolor = '#fafafa';
                 }
-                else if (location.href.indexOf('youtube') > -1) {
+                else if(location.href.indexOf('youtube') > -1) {
                     backgroundcolor = '#fafafa';
                 }
-                else if (location.href.indexOf('bs.to') > -1) {
+                else if(location.href.indexOf('bs.to') > -1) {
                     backgroundcolor = '#07559a';
                 }
-                else if (location.href.indexOf('cine.to') > -1) {
+                else if(location.href.indexOf('cine.to') > -1) {
                     backgroundcolor = '#fff';
                 }
                 btn.style.backgroundColor = backgroundcolor;
@@ -50,11 +50,11 @@ new EvalScript('', {
                 btn.style.position = 'fixed';
                 btn.style.zIndex = constants.zIndex.toString();
                 try {
-                    if (style) {
-                        if (style.constructor.name === 'Object') {
-                            for (let j in style) {
-                                if (style[j].constructor.name === 'Object') {
-                                    for (let k in style[j]) {
+                    if(style) {
+                        if(style.constructor.name === 'Object') {
+                            for(let j in style) {
+                                if(style[j].constructor.name === 'Object') {
+                                    for(let k in style[j]) {
                                         btn[j][k] = style[j][k];
                                     }
                                 }
@@ -64,15 +64,15 @@ new EvalScript('', {
                             }
                         }
                         else {
-                            for (let styleEl of style) {
+                            for(let styleEl of style) {
                                 btn[styleEl[0]] = JSON.stringify(styleEl[1]);
                             }
                         }
-                        if (btn['property']) {
+                        if(btn['property']) {
                             throw new Error('havent implemented GM lsitener');
                             // eslint-disable-next-line no-unreachable
-                            addEventListener('GM', btn['property'], function (a, b, c, d, e) {
-                                if (e) {
+                            addEventListener('GM', btn['property'], function(a, b, c, d, e) {
+                                if(e) {
                                     this.sc.D.e('not implemented at DOM button()');
                                     //btn['onclick'](a, d);
                                 }
@@ -80,23 +80,23 @@ new EvalScript('', {
                             }, { target: btn });
                         }
                     }
-                } catch (e) {
+                } catch(e) {
                     debugger;
                 }
                 btn['hrefs'] = fncopen;
-                if (fncopen) {
+                if(fncopen) {
                     let link = document.createElement('a');
                     btn.appendChild(link);
                     link['hrefs'] = btn['hrefs'];
-                    if (fncopen.constructor.name === 'Array') {
+                    if(fncopen.constructor.name === 'Array') {
                         link.href = btn['hrefs'][0];
                     }
                     else {
                         link.href = btn['hrefs'];
                     }
                     link.onclick = (event) => {
-                        if (event.target['hrefs']) {
-                            if (event.target['hrefs'].constructor.name === 'Array') {
+                        if(event.target['hrefs']) {
+                            if(event.target['hrefs'].constructor.name === 'Array') {
                                 open(event.target['hrefs'][0], location.href, undefined, event.target['hrefs'][1]);
                             }
                             else {
@@ -115,12 +115,12 @@ new EvalScript('', {
                     link.style.cursor = 'inherit';
                     //link.style.padding="inherit";
                 }
-                if (txt) {
-                    if (txt.constructor.name !== 'String') {
+                if(txt) {
+                    if(txt.constructor.name !== 'String') {
                         txt = JSON.stringify(txt);
                     }
                     let txtar = txt.split('\n');
-                    if (txtar[0].length > 0) {
+                    if(txtar[0].length > 0) {
                         let textElement = document.createElement('tampoermonkey-text');
                         textElement.textContent = txtar[0];
                         textElement.style.position = 'relative';
@@ -129,9 +129,9 @@ new EvalScript('', {
                         textElement.style.wordWrap = 'initial';
                         btn.appendChild(textElement);
                     }
-                    for (let i = 1; i < txtar.length; i++) {
+                    for(let i = 1; i < txtar.length; i++) {
                         btn.appendChild(document.createElement('BR'));
-                        if (txtar[i].length > 0) {
+                        if(txtar[i].length > 0) {
                             let textElement = document.createElement('tampoermonkey-text');
                             textElement.style.position = 'relative';
                             textElement.style.top = `calc(50% - ${(txtar.length - i) * 21 / 2 + ((txtar.length - 1) * 6)}px)`;
@@ -144,18 +144,18 @@ new EvalScript('', {
                 btn['clickts'] = -1000;
                 btn.onclick = ((clickFnc, button) => {
                     return (event) => {
-                        if (event.target['clickts'] + 500 > event.timeStamp) {
+                        if(event.target['clickts'] + 500 > event.timeStamp) {
                             console.log(event.timeStamp + ' blocked');
                             return;
                         }
                         console.log(event.timeStamp);
                         event.target['clickts'] = event.timeStamp;
-                        if (clickFnc !== null && clickFnc !== undefined) {
-                            if (sc.D.c) {
+                        if(clickFnc !== null && clickFnc !== undefined) {
+                            if(sc.D.c) {
                                 try {
                                     clickFnc(button);
                                 }
-                                catch (error) {
+                                catch(error) {
                                     handleError(error);
                                 }
                             }
@@ -166,21 +166,21 @@ new EvalScript('', {
                     };
                 })(fncclick, btn);
 
-                if (fncmouseEnter !== null && fncmouseEnter !== undefined) {
+                if(fncmouseEnter !== null && fncmouseEnter !== undefined) {
                     btn.onmouseenter = function mouseenterlsitener(e) {
                         try {
                             fncmouseEnter(e.target);
                         }
-                        catch (er) {
+                        catch(er) {
                             handleError(er);
                         }
                     };
                 }
-                if (fncMouseLeave !== null && fncMouseLeave !== undefined) {
+                if(fncMouseLeave !== null && fncMouseLeave !== undefined) {
                     btn.addEventListener('mouseleave', function mouseleavelsitener() {
                         try {
                             fncMouseLeave.call(this, btn);
-                        } catch (er) {
+                        } catch(er) {
                             handleError(er);
                         }
                     });
@@ -193,7 +193,7 @@ new EvalScript('', {
              * @param {Function} fnct
              * @param {Function} fncmouseEnter
              * @param {Function} fncMouseLeave
-             * @param {Function} fncopen
+             * @param {string} fncopen
              * @param {StyleSheet} style
              */
             static crBE(element, txt, fnct, fncmouseEnter, fncMouseLeave, fncopen, style) {

@@ -2719,73 +2719,7 @@ define('Sites/sites', ['require', 'exports', 'Bar/Site', 'environment', 'sc/Vide
     Object.defineProperty(exports, '__esModule', { value: true });
     class Sites {
         static init() {
-            new Site_1.Site('www.muenchner-bank.de/banking-private/portal', function () {
-                if (find_8.default('stackedFrontletTitle') != undefined && find_8.default('stackedFrontletTitle').innerText == 'Umsatzanzeige' && find_8.default('lblUmsaetzeVonValue') != undefined) {
-                    let vonDate = +new Date(find_8.default('lblUmsaetzeVonValue').innerText.split('.').reverse().join('.'));
-                    let toDate = +new Date(find_8.default('lblUmsaetzeBisValue').innerText.split('.').reverse().join('.'));
-                    if ((toDate - vonDate) / (1000 * 60 * 60 * 24) > 10) {
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('cntSalden'), 'archiv', undefined, undefined, undefined, 'https://www.muenchner-bank.de/banking-private/portal?menuId=Postfach', { style: { position: 'absolute', left: '240px', top: '300px', height: '27px', width: '100px', backgroundColor: '#50e61c' } });
-                        let elements = find_8.default('tblUmsaetze').children[2].children;
-                        let monatlich = 0;
-                        let essen = 0;
-                        let rest = 0;
-                        let gehalt = 0;
-                        for (let i = 0; i < elements.length; i++) {
-                            let obj = elements[i];
-                            let booking = obj.innerText;
-                            let amounts = booking.trim().split('\n')[5].split('\t');
-                            let amount = amounts[0].replace('.', '').replace(',', '.') - 0;
-                            debugger;
-                            if (amounts[2].includes('S')) {
-                                if (booking.includes('E-CENTER SCHULER FUERT')) {
-                                    essen += amount;
-                                    obj.style.backgroundColor = 'orange';
-                                }
-                                else if (booking.includes('VERKEHRS AG NUERNBERG/NUERN')) {
-                                    monatlich += amount;
-                                    obj.style.backgroundColor = 'aqua';
-                                }
-                                else if (booking.includes('Miete')) {
-                                    monatlich += amount;
-                                    obj.style.backgroundColor = 'aqua';
-                                }
-                                else if (booking.includes('GAA-AUSZAHLUNG')) {
-                                    monatlich += amount;
-                                    obj.style.backgroundColor = 'aqua';
-                                }
-                                else {
-                                    rest += amount;
-                                    obj.style.backgroundColor = 'red';
-                                }
-                            }
-                            else if (booking.includes('LOHN/GEHALT')) {
-                                gehalt += amount;
-                                obj.style.backgroundColor = 'green';
-                            }
-                        }
-                        let elementWidth = 130;
-                        let cssWidth = elementWidth + 'px';
-                        let sndWidth = 2 * elementWidth + 'px';
-                        let trdWidth = 3 * elementWidth + 'px';
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'monat: ' + monatlich, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: '0px', width: cssWidth, top: '0px' } });
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'essen: ' + Math.round(essen * 100) / 100, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: cssWidth, width: cssWidth, top: '0px' } });
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'rest: ' + Math.round(rest), undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: sndWidth, width: cssWidth, top: '0px' } });
-                        let ges = (rest + essen + monatlich);
-                        let gesamt = environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'gesamt: ' + Math.round(ges), undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '0px' } });
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: '0px', width: cssWidth, top: '23px', backgroundColor: 'green' } });
-                        environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '23px', backgroundColor: 'green' } });
-                        let differenz = environment_13.Environment.sc.DOM.crIN(find_8.default('breadcrumb'), 'diff: ' + Math.round(gehalt - ges), undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: trdWidth, top: '46px', width: cssWidth } });
-                        if (gehalt < ges) {
-                            gesamt.style.backgroundColor = 'orange';
-                            differenz.style.backgroundColor = 'red';
-                        }
-                        else {
-                            gesamt.style.backgroundColor = 'green';
-                            differenz.style.backgroundColor = 'green';
-                        }
-                    }
-                }
-            });
+           
             new Site_1.Site('kissmanga', function kissmanga() {
                 environment_13.Environment.sc.D.sT(function () {
                     if (location.href.indexOf('Manga') > -1 && location.href.indexOf('?id=') > 0) {
