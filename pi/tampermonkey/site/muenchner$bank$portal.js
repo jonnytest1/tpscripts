@@ -33,6 +33,9 @@ var _ = new EvalScript('', {
                     'https://www.muenchner-bank.de/banking-private/portal?menuId=Postfach',
                     { style: { position: 'absolute', left: '240px', top: '300px', height: '27px', width: '100px', backgroundColor: '#50e61c' } });
 
+                /**
+                 * @type {Array<HTMLElement>}
+                 */
                 let elements = sc.g('tblUmsaetze').children[2].children;
                 let monatlich = 0;
                 let essen = 0;
@@ -43,15 +46,15 @@ var _ = new EvalScript('', {
                     let amounts = booking.trim()
                         .split('\n')[5]
                         .split('\t');
-                    let amount = amounts[0]
+                    let amount = +amounts[0]
                         .replace('.', '')
-                        .replace(',', '.') - 0;
+                        .replace(',', '.');
                     if(amounts[2].includes('S')) {
-                        if(booking.includes('E-CENTER SCHULER FUERT')) {
+                        if(booking.includes('E-CENTER SCHULER')) {
                             essen += amount;
                             obj.style.backgroundColor = 'orange';
                         }
-                        else if(booking.includes('VERKEHRS AG NUERNBERG/NUERN')) {
+                        else if(booking.includes('VERKEHRS AG')) {
                             monatlich += amount;
                             obj.style.backgroundColor = 'aqua';
                         }
