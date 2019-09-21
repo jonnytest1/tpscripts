@@ -6,7 +6,6 @@
   "dependencies": {
     "@tensorflow/tfjs": "^1.1.2",
     "mariadb": "^2.1.0",
-    "canvas": "^2.5.0",
     "express": "^4.17.1",
     "@tensorflow/tfjs-node": "^1.2.4",
     "@tensorflow-models/knn-classifier": "^1.2.1",

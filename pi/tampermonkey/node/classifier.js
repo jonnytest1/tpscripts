@@ -2,7 +2,6 @@ const classifier = require('@tensorflow-models/knn-classifier/dist/knn-classifie
 const mobilenetModule = require('@tensorflow-models/mobilenet/dist/mobilenet');
 const tf = require('@tensorflow/tfjs-node');
 const database = require('./database');
-const { createCanvas } = require('canvas');
 /**
  * @typedef {classifier.KNNClassifier & {
 *      mobilenet:import("@tensorflow-models/mobilenet").MobileNet,
@@ -121,6 +120,7 @@ async function evaluate(imageData) {
 
     // @ts-ignore
     const activation = knnClassifier.mobilenet.infer(canvas, 'conv_preds');
+    canvas.dispose();
     const result = await knnClassifier.predictClass(activation);
     activation.dispose();
     /**
@@ -160,17 +160,10 @@ function getTagId(tagName) {
  */
 function getCanvas(iamgeData) {
     const size = Math.sqrt(iamgeData.length) / 2;
-    // const iD = tf.tensor(example.image, [size, size, 4]);
-    const canvas = createCanvas(size, size);
-    const context = canvas.getContext('2d');
-    canvas.width = size;
-    canvas.height = size;
-    let iD = context.createImageData(size, size);
-    for(let i = 0; i < iamgeData.length; i++) {
-        iD.data[i] = iamgeData[i];
-    }
-    context.putImageData(iD, 0, 0);
 
+    const withoutAlpha = iamgeData.filter((d, i) => (i + 1) % 4 !== 0);
+
+    const canvas = tf.tensor(withoutAlpha, [size, size, 3]);
     return canvas;
 }
 
