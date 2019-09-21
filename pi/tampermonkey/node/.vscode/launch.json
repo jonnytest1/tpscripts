@@ -21,7 +21,19 @@
             "autoAttachChildProcesses": true,
             "restart": true,
         },
-        /*  {
+        {
+            "type": "php",
+            "request": "launch",
+            "name": "debug php on pi",
+            "log": true,
+            "pathMappings": {
+                "/var/www/html/": "d:\\vm\\dockervm\\storage\\tpscripts\\pi\\tampermonkey\\"
+            }
+        }
+        /*  
+        ts node ?
+        
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",

@@ -3,9 +3,12 @@
 
 new EvalScript('', {
     run: async (resolver, set) => {
+        return;
         const http = await reqS('http');
         var scriptContents = {};
-        var url = `${window.backendUrl || 'http://localhost:4280'}?url=${location.href}`;
+
+        // @ts-ignore
+        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href}`;
 
         /**@param {CustomScript} script */
         function shouldCheck(script) {
@@ -87,7 +90,7 @@ new EvalScript('', {
             if(shouldCheck(script)) {
                 try {
                     let time = Date.now();
-                    let newScript = await http.gm_fetch(script.src, false)
+                    let newScript = await http.gm_fetch(script.src + '&fileOnly=true', false)
                         .catch(e => {
                             console.log(`error with script ${script.src} \n${script.stack}`);
                         });

@@ -12,7 +12,7 @@
 
         function __construct($tableName,$inputs=6241+3,$database="tpscript") {
             $this->weightLength=$inputs+1;
-            $this->db = new DataBase($database);
+            $this->db = new DataBase($database,"","");
             $this->tableName=$tableName;
 
             try{
@@ -150,6 +150,3 @@
         }
 
     }
-
-
-?>

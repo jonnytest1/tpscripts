@@ -15,7 +15,7 @@ async function checkConnection(path) {
     }
     return new Promise(resolver => {
         GM_xmlhttpRequest({
-            url: path,
+            url: window.backendUrl,
             onload: async (response) => {
                 const text = response.responseText;
                 const shortText = text.replace('<br />', '\n')
@@ -28,7 +28,7 @@ async function checkConnection(path) {
                 }
                 resolver();
             },
-            timeout: 2000,
+            timeout: 4000,
             ontimeout: () => {
                 debugger;
                 for(let i = 0; i < 50; i++) {
@@ -173,7 +173,7 @@ async function req(path, options = {}) {
                     stack
                 };
                 document.props.evalScripts[url] = customEvalScript;
-                const evalScr = eval.call(window, text.replace('new EvalScript(\'\'', `new EvalScript('${url}'`));
+                const evalScr = eval.call(window, text.replace('new EvalScript(\'\'', `new EvalScript('${url.replace('$', '$$$$')}'`));
                 if(!evalScr || (evalScr.name && evalScr.name === 'EvalScript')) {
                     document.props.evalScripts[url].loaded = true;
                     scr.resolve();

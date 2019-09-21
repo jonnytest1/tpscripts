@@ -3,7 +3,7 @@
 
 include(dirname(__FILE__) . '/../database.php');
 
-$db = new DataBase("neural_test");
+$db = new DataBase("-----", "", "");
 
 function getRealPOST()
 {

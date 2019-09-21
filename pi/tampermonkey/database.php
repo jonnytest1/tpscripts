@@ -7,9 +7,28 @@ class DataBase
   public $link;
 
 
-  function __construct($database = "tpscript")
+  function __construct($database, $usr, $pwd)
   {
-    $this->link = mysqli_connect("database:3306", "tpscript", "123", $database);
+    if ($usr == FALSE) {
+      $usr = "tpscript";
+    }
+    if ($pwd == FALSE) {
+      $pwd = "123";
+    }
+
+
+    $server = getenv("DB_SERVER");
+    if ($server == FALSE) {
+      $server = "database";
+    }
+    $port = getenv("DB_PORT");
+    if ($port == FALSE) {
+      $port = "3306";
+    }
+
+    $db = $server . ":" . $port;
+
+    $this->link = mysqli_connect($db,  $usr, $pwd, $database);
     //times_maria_1
   }
 
