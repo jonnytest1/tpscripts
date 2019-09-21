@@ -11,9 +11,6 @@ export interface RequireMap {
 
     'http': httpResolv
 
-
-
-    'logging': void
     'learning/tensorflow': void
 
     'learning/knnIO': KNNLoader;
@@ -22,6 +19,8 @@ export interface RequireMap {
     'learning/tfIO': any
     'libs/eval-script': void
     'libs/log-level': void
+
+    'libs/log/logging': void
     'notification': notificationI
     'find': ElementGetter
     'graphics/p5addon': void

@@ -47,3 +47,6 @@ foreach ($modelData as $key => $value) {
     $params[] = $value;
 }
 echo $db->sql(rtrim($sql, ','), $paramTypes, $params);
+
+
+?>

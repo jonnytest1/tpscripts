@@ -3,7 +3,7 @@
 
 new EvalScript('', {
     run: async (resolver, set) => {
-        return;
+
         const http = await reqS('http');
         var scriptContents = {};
 

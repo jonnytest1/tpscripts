@@ -17,6 +17,12 @@
 
     //await reqS("graphics/p5import");
 
+    try {
+        text.hallo();
+    } catch(er) {
+        handleError(er);
+    }
+
 })();
 
 window.setups = [];

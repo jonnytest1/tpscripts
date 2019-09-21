@@ -69,7 +69,7 @@ new Promise(async (resolver) => {
 
     await reqS('libs/log-level');
 
-    await reqS('logging');
+    await reqS('libs/log/logging');
 
     await reqS('notification');
 

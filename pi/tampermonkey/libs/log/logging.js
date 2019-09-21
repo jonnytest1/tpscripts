@@ -1,4 +1,4 @@
-/// <reference path="customTypes/index.d.ts" />
+/// <reference path="../../customTypes/index.d.ts" />
 
 var logHistory = {};
 let prepareScript = () => {
@@ -40,18 +40,19 @@ function logKibana(level, message, error) {
   };
   GM_xmlhttpRequest({
     method: 'POST',
-    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/rocket/api/v1/chat.postMessage',
+    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log',
     headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': '9YoEBFAWBxmPBgGo8',
-      'X-Auth-Token': 'R0GIB3AA28r6D8CESJpJF-jXqUkbdXMtO6a-2aWGxML'
+      'Content-Type': 'application/json'
     },
-    data: JSON.stringify(rocketJson),
+    data: btoa(JSON.stringify(rocketJson)),
     onerror: console.log,
     onabort: e => {
       debugger;
     },
-    onload: () => { return; }
+    onload: (res) => {
+      debugger;
+      return;
+    }
   });
 }
 

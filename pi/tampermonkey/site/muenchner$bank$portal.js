@@ -86,29 +86,27 @@ var _ = new EvalScript('', {
                     .appendChild(container);
                 set.overview = container;
 
-                crIN(container, 'monat: ' + monatlich, undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: '0px', width: cssWidth, top: '0px' } });
-                crIN(container, 'essen: ' + Math.round(essen * 100) / 100, undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: cssWidth, width: cssWidth, top: '0px' } });
-                crIN(container, 'rest: ' + Math.round(rest), undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: sndWidth, width: cssWidth, top: '0px' } });
-                let ges = (rest + essen + monatlich);
-                let gesamt = crIN(container, 'gesamt: ' + Math.round(ges), undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '0px' } });
-                crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: '0px', width: cssWidth, top: '23px', backgroundColor: 'green' } });
-                crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '23px', backgroundColor: 'green' } });
-                let differenz = crIN(container, 'diff: ' + Math.round(gehalt - ges), undefined, undefined, undefined, undefined,
-                    { style: { position: 'fixed', left: trdWidth, top: '46px', width: cssWidth } });
-                if(gehalt < ges) {
-                    gesamt.style.backgroundColor = 'orange';
-                    differenz.style.backgroundColor = 'red';
-                }
-                else {
-                    gesamt.style.backgroundColor = 'green';
-                    differenz.style.backgroundColor = 'green';
-                }
+                createDisplayButtons(container, monatlich, cssWidth, essen, rest, sndWidth, trdWidth, gehalt);
+            }
+        }
+
+        function createDisplayButtons(container, monatlich, cssWidth, essen, rest, sndWidth, trdWidth, gehalt) {
+            crIN(container, 'monat: ' + monatlich, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: '0px', width: cssWidth, top: '0px' } });
+            crIN(container, 'essen: ' + Math.round(essen * 100) / 100, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: cssWidth, width: cssWidth, top: '0px' } });
+            crIN(container, 'rest: ' + Math.round(rest), undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: sndWidth, width: cssWidth, top: '0px' } });
+            let ges = (rest + essen + monatlich);
+            let gesamt = crIN(container, 'gesamt: ' + Math.round(ges), undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '0px' } });
+            crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: '0px', width: cssWidth, top: '23px', backgroundColor: 'green' } });
+            crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, { style: { position: 'fixed', left: trdWidth, width: cssWidth, top: '23px', backgroundColor: 'green' } });
+            let differenz = crIN(container, 'diff: ' + Math.round(gehalt - ges), undefined, undefined, undefined, undefined,
+                { style: { position: 'fixed', left: trdWidth, top: '46px', width: cssWidth } });
+            if(gehalt < ges) {
+                gesamt.style.backgroundColor = 'orange';
+                differenz.style.backgroundColor = 'red';
+            }
+            else {
+                gesamt.style.backgroundColor = 'green';
+                differenz.style.backgroundColor = 'green';
             }
         }
     },

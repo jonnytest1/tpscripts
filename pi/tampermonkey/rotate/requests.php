@@ -131,3 +131,4 @@ class RotateRequest
         return FALSE;
     }
 }
+?>

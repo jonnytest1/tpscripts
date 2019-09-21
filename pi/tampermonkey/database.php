@@ -7,7 +7,7 @@ class DataBase
   public $link;
 
 
-  function __construct($database, $usr, $pwd)
+  function __construct($database, $usr = getenv("DB_USER"), $pwd = getenv("DB_PASSWORD"))
   {
     if ($usr == FALSE) {
       $usr = "tpscript";
@@ -84,3 +84,6 @@ class DataBase
     return $response;
   }
 }
+
+
+?>

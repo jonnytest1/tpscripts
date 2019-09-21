@@ -1,6 +1,6 @@
 
 /// <reference path="../DOM/CircularMenu.js" />
-/// <reference path="../logging.js" />
+/// <reference path="../libs/log/logging.js" />
 /// <reference path="../find.js" />
 
 declare interface Window {
@@ -29,7 +29,7 @@ interface ElementGetter {
     (string: string, iF?: Element, compress?: Boolean): any;
 
     I: (string: string, iF?: Element) => HTMLElement | null;
-    C: <E>(string: string, iF?: Element, compress?: Boolean) => E|Array<E>;
+    C: <E>(string: string, iF?: Element, compress?: Boolean) => E | Array<E>;
     T: (string: string, iF?: Element, compress?: Boolean) => any;
 
     c0: (iF: Element, count: number) => Element,

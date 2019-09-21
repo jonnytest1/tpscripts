@@ -64,3 +64,4 @@ class Rotate
 		return $rotateFile . "\nreqS('rotate/rotate&rotateUrl='+location.href)"; //?url="+$url+"
 	}
 }
+?>
