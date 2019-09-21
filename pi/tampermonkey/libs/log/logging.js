@@ -34,17 +34,13 @@ function logKibana(level, message, error) {
     jsonData.error_message = error.message;
     jsonData.error_stacktrace = error.stack;
   }
-  const rocketJson = {
-    channel: 'msg',
-    text: JSON.stringify(jsonData)
-  };
   GM_xmlhttpRequest({
     method: 'POST',
-    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log',
+    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/index.php',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'text/plain'
     },
-    data: btoa(JSON.stringify(rocketJson)),
+    data: btoa(JSON.stringify(jsonData)),
     onerror: console.log,
     onabort: e => {
       debugger;

@@ -9,7 +9,7 @@ class Rotate
 
 	function __construct()
 	{
-		$this->db = new DataBase("tpscript", getenv("DB_USER"), getenv("DB_PASSWORD"));
+		$this->db = new DataBase("tpscript");
 		$this->rotateSites = $this->getRotateArray();
 	}
 	private $notRotateSites = array(
@@ -61,7 +61,21 @@ class Rotate
 
 		$requester = new RotateRequest();
 		$rotateFile = $requester->callRequests();
+		$rotateFile = $rotateFile."\n".$this->checkLogs();
 		return $rotateFile . "\nreqS('rotate/rotate&rotateUrl='+location.href)"; //?url="+$url+"
 	}
+	
+
+	function checkLogs()
+	{
+		$logsREsponse="\n//checking new logs\n";
+		$affected = $this->db->sql("UPDATE log SET checked = TRUE WHERE checked is NULL OR checked = FALSE");
+		$logsREsponse=$logsREsponse."//  ".$affected." new logs\n";
+		if($affected > 0 ){
+			$logsREsponse=$logsREsponse."open('https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/?count=".$affected."');\n";
+		}
+		return $logsREsponse;
+	}
+
 }
 ?>

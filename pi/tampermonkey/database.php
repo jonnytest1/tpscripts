@@ -7,8 +7,17 @@ class DataBase
   public $link;
 
 
-  function __construct($database, $usr = getenv("DB_USER"), $pwd = getenv("DB_PASSWORD"))
+  function __construct($database, $usr = NULL , $pwd = NULL)
   {
+
+    if ($usr == NULL) {
+      $usr = getenv("DB_USER");
+    }
+
+    if ($pwd == FALSE) {
+      $pwd = getenv("DB_PASSWORD");
+    }
+    
     if ($usr == FALSE) {
       $usr = "tpscript";
     }

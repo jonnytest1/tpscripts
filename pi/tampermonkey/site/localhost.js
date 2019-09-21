@@ -6,7 +6,7 @@
     //await reqS("learning/tensorflow");
     //await reqS("DOM/customSlider");
     //await reqT("video")
-    await reqS('site/kissanime/buildModel');
+    //await reqS('site/kissanime/buildModel');
     //await reqT("multiplemenu")
     // await reqS("DOM/rectMenu")
     // await reqT("ngtest");
@@ -16,12 +16,6 @@
     //await reqT("genetic")
 
     //await reqS("graphics/p5import");
-
-    try {
-        text.hallo();
-    } catch(er) {
-        handleError(er);
-    }
 
 })();
 
