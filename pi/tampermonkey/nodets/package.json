@@ -1,0 +1,21 @@
+{
+    "name": "nodets",
+    "version": "1.0.1",
+    "description": "node",
+    "main": "index.ts",
+    "dependencies": {
+        "mariadb": "",
+        "express": "",
+        "typescript": ""
+    },
+    "devDependencies": {
+        "@types/express": "",
+        "ts-node": "",
+        "tslint": ""
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}

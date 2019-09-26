@@ -8,27 +8,25 @@
             "type": "node",
             "request": "attach",
             "name": "Attach to Remote",
-            "address": "127.0.0.1",
-            "port": 19365,
+            "address": "192.168.178.38",
+            "port": 14747,
             "localRoot": "${workspaceFolder}",
-            "remoteRoot": "${workspaceFolder}"
+            "remoteRoot": "/var/node"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}\\index.js",
+            "name": "launch node ts server",
+            //"program": "${workspaceFolder}\\index.ts",
             "autoAttachChildProcesses": true,
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}\\index.ts"
+            ],
             "restart": true,
-        },
-        {
-            "type": "php",
-            "request": "launch",
-            "name": "debug php on pi",
-            "log": true,
-            "pathMappings": {
-                "/var/www/html/": "d:\\vm\\dockervm\\storage\\tpscripts\\pi\\tampermonkey\\"
-            }
         }
     ]
 }

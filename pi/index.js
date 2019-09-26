@@ -10,7 +10,6 @@ function swTest() {
                     console.log('Notification permission status:', status);
                     //navigator.serviceWorker.controller.postMessage('notify');
                 });
-
             },
             (reason) => {
                 debugger;

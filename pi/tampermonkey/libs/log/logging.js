@@ -36,7 +36,7 @@ function logKibana(level, message, error) {
   }
   GM_xmlhttpRequest({
     method: 'POST',
-    url: 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/index.php',
+    url: `${document.window.backendUrl}/libs/log/index.php`,
     headers: {
       'Content-Type': 'text/plain'
     },

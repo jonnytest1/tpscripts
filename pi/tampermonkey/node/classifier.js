@@ -133,7 +133,7 @@ async function evaluate(imageData) {
     results.sort((a, b) => b.percent - a.percent);
 
     const best5 = [];
-    for(let i = 0; i < 5; i++) {
+    for(let i = 0; i < 10; i++) {
         best5.push({ tag: results[i].i, prob: results[i].percent });
     }
 
