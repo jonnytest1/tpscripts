@@ -8,11 +8,13 @@
     </head>
 
     <body class="center">
-        copy <a href="outlook.vba?file=true">outlook.vba</a> into your outlook entwickler tools and restart outlook <br>
+        copy <a href="outlook.vba?file=true">outlook.vba</a> into your outlook entwickler tools
+        , replace sapId=512 with your own id <br>
+        and restart outlook <br>
         make a category with the name of sap project and assign it to relevant appointments
         (multiple categories get split evenly) <br>
 
-        install <a href="/plugin/index.html">the eclipse plugin</a> <br>
+        install <a href="/plugin/index.html">the eclipse plugin (targetProcess)</a> <br>
 
         ... TODO <br>
 
@@ -22,11 +24,8 @@
 
         get some values to match the individual person
         <ul>
-            <li>Personalnummer (vll outlook properties ? / appointment properties)</li>
+            <li>Optional(Personalnummer (via ldap where possible))</li>
             <li>ServiceNummer </li>
-            <li>Zeiten aus outlook</li>
-            <li>Beschreibung + Interner Kommentar aus Subject </li>
-            <li>ContextParameterKeyDate ?</li>
         </ul>
         automatically get booked times ( maybe remote controlled headless browser ? ) reverse engineering sap requests
         is a pain <br>

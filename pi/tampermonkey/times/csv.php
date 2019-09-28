@@ -49,7 +49,7 @@
             $duration=$timeEnd-$timeStart;
 
             foreach ($categories as $category){
-                $PersonalNummer="TODO";
+                $PersonalNummer=$dataset[2];
                 $Datum=$start->format("Y.m.d");
                 $Duration=gmdate("H:i", $duration/sizeof($categories));
                 $ServiceNumber="TODO";

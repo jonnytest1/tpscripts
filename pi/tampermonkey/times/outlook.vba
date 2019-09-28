@@ -1,5 +1,6 @@
 Public WithEvents myOlItems As Outlook.Items
 
+
 Dim url As String
 
 Private Sub Application_Startup()
@@ -23,6 +24,7 @@ Public Function update(ByVal Item As AppointmentItem)
     Dim objCalendarFolder As Outlook.MAPIFolder
     Dim objAppointment As Outlook.AppointmentItem
     Dim appointments As String
+    Dim sapId As String
     
     
     Set objNS = Application.GetNamespace("MAPI")
@@ -43,7 +45,12 @@ Public Function update(ByVal Item As AppointmentItem)
         appointments = appointments & appointment
     Next
     appointments = Left(appointments, Len(appointments) - 1) & "]"
-    sendString appointments
+
+    sapId = "512"
+
+    report = "{""sapId"":""" & sapId & """,""appointments"":" & appointments & "}"
+
+    sendString report
     
     Set objNS = Nothing
     Set objAppointment = Nothing
@@ -64,8 +71,8 @@ Public Function sendString(ByVal Item As String)
     strMethod = "POST"
     strURL = "https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/times/upload.php"
     bolAsync = False
-    strUser = "*********"
-    strPassword = "*******"
+    strUser = "*******"
+    strPassword = "*********+"
     
     postMessage = Item
     
@@ -79,3 +86,4 @@ Public Function sendString(ByVal Item As String)
     ' Rückgabewerte ausgeben
     MsgBox "Status: " & XMLHttp.Status & " responseText: " & (XMLHttp.responseText)
 End Function
+
