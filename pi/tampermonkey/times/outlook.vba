@@ -1,62 +1,107 @@
-Public WithEvents myOlItems As Outlook.Items
-
-
-Dim url As String
-
-Private Sub Application_Startup()
-    init
-End Sub
-Public Sub init()
-    Set myOlItems = Session.GetDefaultFolder(olFolderCalendar).Items
-End Sub
 Private Sub myOlItems_ItemAdd(ByVal Item As Object)
+
     MsgBox "add"
+
     update Item
+
 End Sub
+
 Private Sub myOlItems_ItemChange(ByVal Item As Object)
+
     'MsgBox "update"
+
     update Item
+
 End Sub
+
+ 
+
+Private Sub myOlItems_ItemRemove(ByVal Item As AppointmentItem)
+
+    update Item
+
+End Sub
+
+ 
 
 Public Function update(ByVal Item As AppointmentItem)
+
     Dim objNS As Outlook.NameSpace
+
     Dim objAppointments As Outlook.Items
+
     Dim objCalendarFolder As Outlook.MAPIFolder
+
     Dim objAppointment As Outlook.AppointmentItem
+
     Dim appointments As String
+
     Dim sapId As String
+
+   
+
     
-    
+
     Set objNS = Application.GetNamespace("MAPI")
+
     Set objCalendarFolder = objNS.GetDefaultFolder(olFolderCalendar)
+
     Set objAppointments = objCalendarFolder.Items
-            
+
+           
+
     appointments = "["
+
     For Each objAppointment In objAppointments
+
         appointment = "{"
+
         appointment = appointment & """subject"":""" & objAppointment.Subject & ""","
+
         appointment = appointment & """start"":""" & objAppointment.StartUTC & ""","
+
         appointment = appointment & """end"":""" & objAppointment.EndUTC & ""","
+
+       
+
+        appointment = appointment & """categories"":""" & objAppointment.Categories & """"
+
+       
+
         
-        appointment = appointment & """categories"":""" & objAppointment.categories & """"
-        
-        
+
         appointment = appointment & "},"
+
         appointments = appointments & appointment
+
     Next
+
     appointments = Left(appointments, Len(appointments) - 1) & "]"
 
-    sapId = "512"
+ 
+
+    sapId = "259"
+
+ 
 
     report = "{""sapId"":""" & sapId & """,""appointments"":" & appointments & "}"
 
+ 
+
     sendString report
-    
+
+   
+
     Set objNS = Nothing
+
     Set objAppointment = Nothing
+
     Set objAppointments = Nothing
+
     Set objCalendarFolder = Nothing
-    
+
+   
+
 End Function
 
 Public Function sendString(ByVal Item As String)

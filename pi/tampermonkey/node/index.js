@@ -5,6 +5,8 @@ import * as tf from '@tensorflow/tfjs';*/
 console.log('loading reqire');
 const express = require('express');
 const classifier = require('./classifier');
+require('dotenv')
+    .config();
 const dbName = 'knnAnimeTest';
 
 classifier.getClassifier(dbName);

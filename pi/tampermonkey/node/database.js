@@ -7,10 +7,12 @@ let count = 0;
  */
 async function query(callback) {
     try {
-        const db = 'knnAnimeTest';
-        let dHost = 'localhost:13306';
-        dHost = 'localhost';
-        const pool = mariadb.createPool({ host: dHost, user: 'tpscript', connectionLimit: 5, password: '123', port: 13306, database: db });
+        const db = process.env.DB_NAME;
+        const port = +process.env.DB_PORT;
+        const user = process.env.DB_USER;
+        const url = process.env.DB_URL;
+        const password = process.env.DB_PASSWORD;
+        const pool = mariadb.createPool({ host: url, user, connectionLimit: 5, password, port, database: db });
         const connection = await pool.getConnection();
         console.log(count++);
         const result = await callback(pool);

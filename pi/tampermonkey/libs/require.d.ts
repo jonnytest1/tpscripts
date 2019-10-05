@@ -6,6 +6,7 @@
 /// <reference path="../notification.js" />
 /// <reference path="../learning/knnIO.js" />
 /// <reference path="../Storage/localStorage.js" />
+/// <reference path="../site/swatchseries/swatchseries.to%episode%.js" />
 
 export interface RequireMap {
 
@@ -40,7 +41,7 @@ export interface RequireMap {
 
     'test/php/testing': void
     'time': CustomTimeClass
-    'Videos/next',
+    'Videos/next': (link: videoLink, links: Array<any>, excluded: Array<string>) => boolean
 
 
 }
