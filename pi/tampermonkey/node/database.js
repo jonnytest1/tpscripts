@@ -7,6 +7,7 @@ let count = 0;
  */
 async function query(callback) {
     try {
+
         const db = process.env.DB_NAME;
         const port = +process.env.DB_PORT;
         const user = process.env.DB_USER;
@@ -85,7 +86,6 @@ async function getExamples() {
  * @param {import('./classifier').CustomClassifier} classifier
  */
 async function addExample(example, classifier) {
-
     await query(async pool => {
         const connection = await pool.getConnection();
         const imageResponse = await connection.query('INSERT INTO kissanime_images (imagedata) VALUES (?)', [JSON.stringify(example.image)]);
@@ -127,34 +127,52 @@ async function addTag(connection, tag, classifier) {
 * @param {import('./classifier').CustomClassifier} classifier
  */
 async function save(classifier) {
-    query(async pool => {
+    await query(async pool => {
         const connection = await pool.getConnection();
         await connection.query('LOCK TABLE ' + 'knnAnime' + ' WRITE');
         await connection.query('DELETE FROM ' + 'knnAnime');
 
         let dataset = classifier.getClassifierDataset();
-        let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ( ? , ? ) , ( ? , ? ) , ';
-        const params = [
-            'timestamp', new Date().toISOString(),
-            'name', 'knnAnime'
-        ];
-        Object.keys(dataset)
-            .forEach((key) => {
-                if(key !== 'timestamp' && key !== 'name') {
-                    sql += ' ( ? , ? ) ,';
-                    let data = dataset[key].dataSync();
-                    params.push(key);
-                    params.push(JSON.stringify(Array.from(data)));
-                }
-            });
-        await connection.query(sql.substring(0, sql.length - 2), params);
+        let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
+        let params = [];
+
+        let index = 1;
+        for(let key of Object.keys(dataset)) {
+            if(key !== 'timestamp' && key !== 'name') {
+                sql += ' ( ? , ? ) ,';
+                let data = dataset[key].dataSync();
+                params.push(key);
+                params.push(JSON.stringify(Array.from(data)));
+            }
+            index++;
+            if(index % 20 === 0) {
+                await connection.query(sql.substring(0, sql.length - 2), params);
+                sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
+                params = [];
+                index = 1;
+            }
+        }
+        if(params.length > 0) {
+            await connection.query(sql.substring(0, sql.length - 2), params);
+        }
+
+        await setMetaAttributes(connection);
         await connection.query('UNLOCK TABLES');
 
         await connection.commit();
         connection.release();
-        connection.end();
+        await connection.end();
     });
 
+}
+
+async function setMetaAttributes(connection) {
+    let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ( ? , ? ) , ( ? , ? )';
+    const params = [
+        'timestamp', new Date().toISOString(),
+        'name', 'knnAnime'
+    ];
+    await connection.query(sql, params);
 }
 
 async function getTags(dbName) {

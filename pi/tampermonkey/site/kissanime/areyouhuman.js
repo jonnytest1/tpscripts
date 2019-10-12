@@ -10,13 +10,8 @@
 
     console.log('started are you human');
 
-    const modelName = 'knnAnime';
-
     reqS('graphics/canvas');
 
-    reqS('learning/tensorflow');
-    let knnio = await reqS('learning/knnIO');
-    const knnLoader = knnio(modelName, false);
     let sessionStorage;
     reqS('Storage/SessionStorage')
         .then(st => {
@@ -28,49 +23,50 @@
     reqS('http')
         .then(ht => http = ht);
 
-    async function getClassifier() {
-        return new Promise(res => {
-            knnLoader
-                .load()
-                .then(res)
-                .catch(() => {
-                    alert('failed');
-                    return;
-                    console.log('new');
-                    knnLoader
-                        .new()
-                        .then(res);
-                });
-        });
-    }
-
-    console.log('loading classifier');
-    //const classifier = await getClassifier();
-    console.log('got classifier');
-
     let formContainer = await sc.g.a('formVerify1');
 
     if(!formContainer) {
-        // eslint-disable-next-line no-console
         console.log('formverifynot found');
         return;
     }
     let tags = formContainer.children[0].children[1].children;
     console.log('setting interval');
+    /**
+    * @typedef {HTMLElement & {
+    *   tagArray:Array<string>,
+    *   alternative:boolean
+    * }} tagElement
+    */
     setInterval(() => {
+
         try {
             [...tags].filter(tag => tag.localName === 'span')
-                .forEach(tag => {
+                .forEach(/**@param {tagElement} tag*/tag => {
                     tag.tagArray = tag.textContent.split(', ')
                         .map(t => t.trim());
                     tag.draggable = true;
-                    tag.ondragend = (e) => {
-                        let tagElement = e.target;
+                    tag.ondragstart =/**@param {DragEvent &{ target:tagElement}}e*/(e) => {
+                        tag.alternative = e.shiftKey;
+                    };
+                    tag.ondragend =/**@param {DragEvent & { target : tagElement} }e*/ (e) => {
+                        let tagEl = e.target;
                         /**@type {Element &{ imageData?:Array<number>,click?:()=>void}} */
                         const newLocal = document.elementFromPoint(e.x, e.y);
                         if(newLocal.tagName.toLowerCase() === 'img') {
-                            sessionStorage.setValue('image', hash(newLocal.imageData), { img: newLocal.imageData, tags: tagElement.tagArray, chosen: true });
-                            newLocal.click();
+                            let tagList = tagEl.tagArray;
+                            if(tagEl.alternative) {
+                                tagList = tagList.map(str => {
+                                    if(!isNaN(+str)) {
+                                        return prompt('number', str);
+                                    }
+                                    return str;
+                                });
+                            }
+                            sessionStorage.setValue('image', hash(newLocal.imageData), { img: newLocal.imageData, tags: tagList, chosen: true });
+                            if(!tagEl.alternative) {
+                                newLocal.click();
+                            }
+
                         }
                     };
                 });
@@ -79,7 +75,6 @@
         }
     }, 200);
 
-    const cWrapper = new CanvasWrapper();
     function hash(imageData) {
         let imageHash = 0;
         for(let byte of imageData) {
@@ -88,15 +83,6 @@
         }
         return imageHash;
     }
-
-    ///**@type {model} */
-    //let kModel;
-
-    /*tf.loadLayersModel(learningknnio(modelName))
-        .then((model) => {
-            kModel = model;
-        })
-        .catch(console.log);*/
 
     function onImageLoad(event) {
 
@@ -115,7 +101,6 @@
         context.drawImage(image, 0, 0, 160, 160);
         let imageData = context.getImageData(0, 0, 160, 160);
         let dataArray = [];
-        let scaleSize = 2;
         for(let j of imageData.data) {
             dataArray.push(j);
         }
@@ -155,9 +140,9 @@
 
                 /**
                 * @type {HTMLElement & {
-                    *  tags?:Array<string>
-                    *  weight?:number
-                    * }}
+                *  tags?:Array<string>
+                *  weight?:number
+                * }}
                 **/
                 let textNode = document.createElement('div');
 
@@ -168,34 +153,8 @@
                 image.parentElement.appendChild(document.createElement('br'));
                 image.parentElement.appendChild(textNode);
 
-            });
-
-        // evaluate(image)
-        //    .catch(console.error);
-
-        //const imgEl = document.getElementById('img');
-        //classifier.mobilenet.classify(image).then(console.log);
-
-        //draw image in greyscale and smaller below site
-        /*let iD = image.imageData;
-        let size = Math.sqrt(iD.length);
-        let c = document.createElement('canvas');
-        c.height = size;
-        c.width = size;
-        c.style.width = '50px';
-        let ct = c.getContext('2d');
-        let imgD = ct.createImageData(size, size);
-
-        let s = 0;
-        for(let i = 0; i < size; i++) {
-            for(let j = 0; j < size; j++) {
-                let index = (j * 4) * imgD.width + (i * 4);
-                imgD.data[index] = imgD.data[index + 1] = imgD.data[index + 2] = iD[s++] * 255;
-                imgD.data[index + 3] = 255;
             }
-        }
-        ct.putImageData(imgD, 0, 0);
-        image.parentElement.insertBefore(c, image.parentElement.children[1]);*/
+            );
     }
 
     /**

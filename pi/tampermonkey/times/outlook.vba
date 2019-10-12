@@ -56,7 +56,7 @@ Public Function update(ByVal Item As AppointmentItem)
 
         appointment = "{"
 
-        appointment = appointment & """subject"":""" & objAppointment.Subject & ""","
+        appointment = appointment & """subject"":""" & Replace(objAppointment.Subject,"""","\""") & ""","
 
         appointment = appointment & """start"":""" & objAppointment.StartUTC & ""","
 
