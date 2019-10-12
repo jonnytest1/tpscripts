@@ -130,6 +130,7 @@ async function save(classifier) {
     await query(async pool => {
         const connection = await pool.getConnection();
         await connection.query('LOCK TABLE ' + 'knnAnime' + ' WRITE');
+        console.log('locked table');
         await connection.query('DELETE FROM ' + 'knnAnime');
 
         let dataset = classifier.getClassifierDataset();
@@ -158,10 +159,11 @@ async function save(classifier) {
 
         await setMetaAttributes(connection);
         await connection.query('UNLOCK TABLES');
-
+        console.log('UNLOCKed table');
         await connection.commit();
         connection.release();
         await connection.end();
+        console.log('released');
     });
 
 }

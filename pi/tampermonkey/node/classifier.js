@@ -9,9 +9,26 @@ const database = require('./database');
 *      name:String,
 *      tags:Array<{tag_id:number,tag_name:string}>
 * }} CustomClassifier
+*
+* @typedef {Array<{tag:string,prob:number}>} evalResponse
+*
+*
+*
 * @type {import('./classifier').CustomClassifier}
 */
 let knnClassifier;
+
+/**
+* @type {Array<{
+*   tags:Array<string>,
+*   chosen:boolean,
+*   image:Array<number>
+* }>}
+*/
+let examples = [];
+
+let running = false;
+
 /**
  * @param {string} name
  * @returns {Promise<CustomClassifier>}
@@ -86,26 +103,40 @@ async function preTrain(setClassifier, knn, mobilenet) {
 }
 
 /**
-* @param {{
+* @param {Array<{
 *   tags:Array<string>,
 *   chosen:boolean,
 *   image:Array<number>
-* }} example
+* }>} exampleArray
 */
-async function addExample(example) {
-    await database.addExample(example, knnClassifier);
+async function addExample(exampleArray) {
+    exampleArray.forEach(example => {
+        examples.push(example);
+    });
 
-    const canvas = getCanvas(example.image);
-
-    for(let tag of example.tags) {
-        // const tagId = getTagId(tag);
-        knnClassifier.addExampleClass(tag, canvas);
+    if(!running) {
+        trainExamples();
     }
-    console.log('added examples ' + JSON.stringify(example.tags));
-    await database.save(knnClassifier);
 }
+
+async function trainExamples() {
+    running = true;
+
+    while(examples.length > 0) {
+        const example = examples.shift();
+        await database.addExample(example, knnClassifier);
+        const canvas = getCanvas(example.image);
+        for(let tag of example.tags) {
+            knnClassifier.addExampleClass(tag, canvas);
+        }
+        console.log('added examples ' + JSON.stringify(example.tags));
+    }
+
+    await database.save(knnClassifier);
+    running = false;
+}
+
 /**
- * @typedef {Array<{tag:string,prob:number}>} evalResponse
  *
  * @param {Array<number>} imageData
  * @returns {Promise<evalResponse>}

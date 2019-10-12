@@ -10,9 +10,10 @@ const classifier = require('./classifier');
 
 const dbName = 'knnAnimeTest';
 
-classifier.getClassifier(dbName);
+classifier.getClassifier(dbName)
+    .then(startWebServer);
 
-(function startWebServer() {
+function startWebServer() {
     const app = express();
     app.listen(8080, 'localhost');
     app.use(express.static('public'));
@@ -26,8 +27,8 @@ classifier.getClassifier(dbName);
 
     app.post('/eval', evaluateImage);
     app.post('/add', addExample);
-
-})();
+    console.log('registered server');
+}
 
 /**@type {import("express").RequestHandler} */
 async function databaseTest(req, res) {
@@ -44,6 +45,6 @@ async function evaluateImage(request, response) {
 /**@type {import("express").RequestHandler} */
 async function addExample(request, response) {
     response.header('Access-Control-Allow-Origin', '*');
-    await classifier.addExample(request.body);
+    classifier.addExample(request.body);
     response.send('done');
 }
