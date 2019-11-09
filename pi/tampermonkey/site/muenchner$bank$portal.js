@@ -5,16 +5,11 @@ var _ = new EvalScript('', {
     run: async (res, set) => {
         await reqS('DOM/button');
 
-        if(sc.g('stackedFrontletTitle') && sc.g('stackedFrontletTitle').innerText === 'Umsatzanzeige' && document.querySelector('#lblUmsaetzeVonValue')) {
+        if(sc.g('stackedFrontletTitle') && sc.g('stackedFrontletTitle').innerText === 'Umsatzanzeige' && querydoc('#lblUmsaetzeVonValue')) {
 
-            /**
-             * @type {HTMLElement}
-             */
-            const vonField = document.querySelector('#lblUmsaetzeVonValue');
-            /**
-            * @type {HTMLElement}
-            */
-            const bisField = document.querySelector('#lblUmsaetzeBisValue');
+            const vonField = querydoc('#lblUmsaetzeVonValue');
+
+            const bisField = querydoc('#lblUmsaetzeBisValue');
             let vonDate = +new Date(vonField.innerText
                 .split('.')
                 .reverse()

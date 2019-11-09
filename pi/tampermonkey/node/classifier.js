@@ -3,19 +3,19 @@ const mobilenetModule = require('@tensorflow-models/mobilenet/dist/mobilenet');
 const tf = require('@tensorflow/tfjs-node');
 const database = require('./database');
 /**
-* @typedef {classifier.KNNClassifier & {
-*      mobilenet:import("@tensorflow-models/mobilenet").MobileNet,
-*      addExampleClass:(tag:string,img:any)=>void,
-*      name:String,
-*      tags:Array<{tag_id:number,tag_name:string}>
-* }} CustomClassifier
-*
-* @typedef {Array<{tag:string,prob:number}>} evalResponse
-*
-*
-*
-* @type {import('./classifier').CustomClassifier}
-*/
+ * @typedef {classifier.KNNClassifier & {
+ *      mobilenet:import("@tensorflow-models/mobilenet").MobileNet,
+ *      addExampleClass:(tag:string,img:any)=>void,
+ *      name:String,
+ *      tags:Array<{tag_id:number,tag_name:string}>
+ * }} CustomClassifier
+ *
+ * @typedef {Array<{tag:string,prob:number}>} evalResponse
+ *
+ *
+ *
+ * @type {import('./classifier').CustomClassifier}
+ */
 let knnClassifier;
 
 /**

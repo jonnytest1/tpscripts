@@ -174,7 +174,7 @@ buildModelScript.isAsync = true;
         mouseOver: () => {
             test(classifier, cWrapper, data)
                 .then((acc) => {
-                    document.querySelector('#text').textContent = 'finished with ' + acc;
+                    querydoc('#text').textContent = 'finished with ' + acc;
                 });
         }
     });
@@ -184,7 +184,7 @@ buildModelScript.isAsync = true;
         mouseOver: () => {
             testNumbers(classifier, cWrapper, data)
                 .then((acc) => {
-                    document.querySelector('#text').textContent = 'finished with ' + acc;
+                    querydoc('#text').textContent = 'finished with ' + acc;
                 });
         }
     });

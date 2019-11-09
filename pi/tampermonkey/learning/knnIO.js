@@ -49,22 +49,6 @@ function setClassifier(classifier, net) {
                 await http.sendData(backendUrl + '/learning/saveModel.php', newDetails, (data) => {
                     resolver(data);
                 });
-                /*  let response = '';
-                  let count = 0;
-                  for(let i in newDetails) {
-                      const reqData = {
-                          name
-                      };
-                      reqData[i] = newDetails[i];
-                      try {
-                          document.querySelector('#text').textContent = `saved ${count++} / ${amount}`;
-                      } catch(e) {
-                          //
-                      }
-                      response +=;
-                  }
-                  document.querySelector('#text').textContent = 'saved all';
-                  */
             });
 
         },

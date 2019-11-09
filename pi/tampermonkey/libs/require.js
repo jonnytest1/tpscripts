@@ -59,7 +59,6 @@ async function checkConnection(path) {
 async function req(path, options = {}) {
 
     await checkConnection(path);
-
     if(options.cache === undefined) {
         options.cache = true;
     }
@@ -132,6 +131,7 @@ async function req(path, options = {}) {
                 }
             }
         }
+        preCheckInjection();
         if(document.props.canInject === true && !tmOnly) {
             injectScriptNyUrl(path);
         } else if(document.props.canInjectText) {
@@ -141,6 +141,7 @@ async function req(path, options = {}) {
             // @ts-ignore
             injectByEval({ src: path, resolve: resolve });
         }
+
         /**
          * @param {CustomHTMLscript} scr
          */
@@ -328,7 +329,15 @@ async function req(path, options = {}) {
             });
 
         }
+
     });
+}
+function preCheckInjection() {
+    if(location.origin.includes('https://github.com') && document.props.canInject) {
+        console.log('presetting for github');
+        document.props.canInject = false;
+        document.props.canInjectText = false;
+    }
 }
 window.req = req;
 //random change
@@ -347,6 +356,7 @@ var reqS = async function reqSImpl(path, options = {}) {
     return req(path, options);
 };
 window.reqS = reqS;
+
 /**
  * @param {*} content
  * @param {*} async

@@ -21,11 +21,11 @@ new EvalScript('', {
                 }
                 else if(location.href.indexOf('kissanime') > -1) {
                     backgroundcolor = '#161616';
-                    txtcolor = '#d5f406';
+                    // txtcolor = '#d5f406';
                 }
                 else if(location.href.indexOf('kissmanga') > -1) {
                     backgroundcolor = '#161616';
-                    txtcolor = '#72cefe';
+                    //txtcolor = '#72cefe';
                 }
                 else if(location.href.indexOf('instagram') > -1) {
                     backgroundcolor = '#fafafa';

@@ -5,11 +5,13 @@
   "main": "BASE.js",
   "dependencies": {
     "@tensorflow/tfjs": "^1.1.2",
+    "@types/jquery": "^3.3.31",
     "eslint-plugin-jsdoc": "^15.5.2",
     "eslint-plugin-jsdoc-typecheck": "file:linter",
     "firacode": "^1.206.0",
     "node": "^12.6.0",
-    "tslint": "^5.18.0"
+    "tslint": "^5.18.0",
+    "tslint-jsdoc-rules": "^0.2.0"
   },
   "devDependencies": {
     "@types/p5": "^0.7.2"

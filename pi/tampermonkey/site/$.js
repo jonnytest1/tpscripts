@@ -29,7 +29,7 @@ new EvalScript('', {
             function getVideo(parent) {
                 let localVideo = videoElement;
                 let element = document.elementFromPoint(parent.offsetLeft, parent.offsetTop);
-                if(element.tagName === 'VIDEO') {
+                if(element && element.tagName === 'VIDEO') {
                     localVideo = element;
                 }
                 return localVideo;

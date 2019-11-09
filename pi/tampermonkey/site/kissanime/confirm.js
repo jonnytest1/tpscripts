@@ -15,17 +15,18 @@
      */
     let images = sc.S.g('image', {});
 
-    debugger;
     const examples = Object.values(images)
         .map(img => ({ image: img.img, tags: img.tags, chosen: img.chosen }));
 
-    await fetch('http://localhost:8080/add', {
-        body: JSON.stringify(examples),
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+    if(examples.length > 0) {
+        await fetch('http://localhost:8080/add', {
+            body: JSON.stringify(examples),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
 
     sc.S.s('image', {});
     querydoc('#containerRoot').style.background = 'linear-gradient(#161616, #8f8f96)';
