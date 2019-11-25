@@ -14,7 +14,7 @@ new EvalScript('', {
         function shouldCheck(script) {
             script.src = script.src || script.source;
 
-            return script.src.includes('localhost') || script.src.includes('raspberrypi.e6azumuvyiabvs9s.myfritz.net');
+            return script.src.includes('localhost') || script.src.includes('pi4.e6azumuvyiabvs9s.myfritz.net');
         }
         /**@param {string} urlString */
         function scriptify(urlString) {
@@ -40,7 +40,7 @@ new EvalScript('', {
                 }
                 return shouldCheck(scr);
             });
-            if(location.origin.includes('raspberrypi.e6azumuvyiabvs9s')) {
+            if(location.origin.includes('pi4.e6azumuvyiabvs9s')) {
                 const styles = [...document.querySelectorAll('link')].map(link => scriptify(link.href));
                 sources = [...sources, scriptify(location.href), ...styles];
             }
@@ -81,7 +81,7 @@ new EvalScript('', {
             } catch(error) {
                 console.error(error);
             }
-            set.intervalId = setTimeout(scriptCheck, 500);
+            set.intervalId = setTimeout(scriptCheck, 1000);
         }
 
         /**@param {CustomScript} script */

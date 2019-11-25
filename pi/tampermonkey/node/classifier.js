@@ -10,7 +10,13 @@ const database = require('./database');
  *      tags:Array<{tag_id:number,tag_name:string}>
  * }} CustomClassifier
  *
- * @typedef {Array<{tag:string,prob:number}>} evalResponse
+ *
+ * @typedef TagEvaluation
+ * @property {string} tag
+ * @property {number} prob
+ *
+ *
+ * @typedef {Array<TagEvaluation>} evalResponse
  *
  *
  *
@@ -34,6 +40,10 @@ let running = false;
  * @returns {Promise<CustomClassifier>}
  */
 async function getClassifier(name) {
+    /**
+     *
+     * @param {import("@tensorflow-models/mobilenet").MobileNet} net
+     */
     function setClassifier(knnC, net) {
         const addExampleClass = (classId, img) => {
             // Get the intermediate activation of MobileNet 'conv_preds' and pass that

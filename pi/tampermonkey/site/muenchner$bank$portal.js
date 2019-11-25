@@ -45,28 +45,17 @@ var _ = new EvalScript('', {
                         .replace('.', '')
                         .replace(',', '.');
                     if(amounts[2].includes('S')) {
-                        if(booking.includes('E-CENTER SCHULER')) {
+                        if(isFood(booking)) {
                             essen += amount;
                             obj.style.backgroundColor = 'orange';
-                        }
-                        else if(booking.includes('VERKEHRS AG')) {
+                        } else if(isMonthly(booking)) {
                             monatlich += amount;
                             obj.style.backgroundColor = 'aqua';
-                        }
-                        else if(booking.includes('Miete')) {
-                            monatlich += amount;
-                            obj.style.backgroundColor = 'aqua';
-                        }
-                        else if(booking.includes('GAA-AUSZAHLUNG')) {
-                            monatlich += amount;
-                            obj.style.backgroundColor = 'aqua';
-                        }
-                        else {
+                        } else {
                             rest += amount;
                             obj.style.backgroundColor = 'red';
                         }
-                    }
-                    else if(booking.includes('LOHN/GEHALT')) {
+                    } else if(booking.includes('LOHN/GEHALT')) {
                         gehalt += amount;
                         obj.style.backgroundColor = 'green';
                     }
@@ -83,6 +72,27 @@ var _ = new EvalScript('', {
 
                 createDisplayButtons(container, monatlich, cssWidth, essen, rest, sndWidth, trdWidth, gehalt);
             }
+        }
+
+        /**
+         * @param {string} booking
+         * @returns {boolean}
+         */
+        function isFood(booking) {
+            return booking.includes('E-CENTER SCHULER') ||
+                booking.includes('MCDONALDS') ||
+                booking.includes('MARKTKAUF/NUERNBERG/DE') ||
+                booking.includes('TAKEAWAYCOM');
+        }
+
+        /**
+         * @param {string} booking
+         * @returns {boolean}
+         */
+        function isMonthly(booking) {
+            return booking.includes('VERKEHRS AG') ||
+                booking.includes('Miete') ||
+                booking.includes('GAA-AUSZAHLUNG');
         }
 
         function createDisplayButtons(container, monatlich, cssWidth, essen, rest, sndWidth, trdWidth, gehalt) {

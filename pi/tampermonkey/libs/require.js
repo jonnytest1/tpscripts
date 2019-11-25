@@ -1,6 +1,5 @@
 /// <reference path="./require.d.ts" />
 console.log('LOADING REQUIRE');
-
 let prevWarn = console.warn;
 let first = 0;
 let tmOnly = false;
