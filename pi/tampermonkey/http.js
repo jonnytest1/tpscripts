@@ -32,6 +32,10 @@ new EvalScript('', {
      * @returns {boolean}
      */
     function shouldLogResponse(response, htmlErrorCheck = true) {
+      if(!response) {
+        //debugger;
+        return false;
+      }
       let refTExt = '<reference path="customTypes/index.d.ts" />';
       let brText = '<br />';
       if(response.includes('console.log("entrypoint");') && response.includes('tampermonkey_base_container')) {

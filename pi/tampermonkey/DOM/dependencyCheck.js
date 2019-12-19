@@ -8,7 +8,7 @@ new EvalScript('', {
         var scriptContents = {};
 
         // @ts-ignore
-        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href}`;
+        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href.replace(location.search, '')}`;
 
         /**@param {CustomScript} script */
         function shouldCheck(script) {
@@ -42,7 +42,7 @@ new EvalScript('', {
             });
             if(location.origin.includes('pi4.e6azumuvyiabvs9s')) {
                 const styles = [...document.querySelectorAll('link')].map(link => scriptify(link.href));
-                sources = [...sources, scriptify(location.href), ...styles];
+                sources = [...sources, scriptify(location.origin + location.pathname), ...styles];
             }
             return sources;
         }
@@ -132,7 +132,7 @@ new EvalScript('', {
                     }
                 }
             } else {
-                if(shouldCheck(scriptify(location.href))) {
+                if(shouldCheck(scriptify(location.origin + location.pathname))) {
                     location.reload();
                 }
             }

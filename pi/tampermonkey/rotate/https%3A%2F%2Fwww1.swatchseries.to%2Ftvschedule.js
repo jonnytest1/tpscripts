@@ -67,7 +67,6 @@
                         .trim()
                         .split(' Episode ');
                     let episode = `S${episodeStrings[0]}E${episodeStrings[1]}`;
-                    debugger;
                     if(followed.find(followedElement => followedElement.name === text)) {
                         let url = sc.g('b', show).parentElement.href;
                         if(!opnd.find(opend => opend.url === url)) {
