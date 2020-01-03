@@ -67,8 +67,10 @@ async function getClassifier(name) {
 
     const dbWeights = await database.getWeights('knnAnime');
     if(dbWeights.length === 0) {
+        console.log('pretraining');
         await preTrain(setClassifier, knn, mobilenet);
     } else {
+        console.log('setting weights');
         dbWeights.forEach(element => {
             try {
                 const tensorArray = JSON.parse(element.modelvalue);

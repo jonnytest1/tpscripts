@@ -6,4 +6,6 @@ interface CustomStorage {
     remove?: (identfier: string, filterFunction: Function, standard?: any) => void;
 
     filter?: <T> (identfier: string, filterFunction: (element: T) => boolean) => Array<T>;
+
+    setValue;
 }

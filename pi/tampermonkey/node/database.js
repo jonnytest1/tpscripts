@@ -146,7 +146,8 @@ async function save(classifier) {
                 params.push(JSON.stringify(Array.from(data)));
             }
             index++;
-            if(index % 20 === 0) {
+            if(index % 10 === 0) {
+                console.log('saving');
                 await connection.query(sql.substring(0, sql.length - 2), params);
                 sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
                 params = [];

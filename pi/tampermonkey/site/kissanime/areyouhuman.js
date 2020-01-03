@@ -12,6 +12,9 @@
 
     reqS('graphics/canvas');
 
+    /**
+     * @type {CustomStorage}
+     */
     let sessionStorage;
     reqS('Storage/SessionStorage')
         .then(st => {
@@ -70,11 +73,18 @@
                     }
                 };
             });
+
         } catch(e) {
             debugger;
         }
     }, 200);
+    sc.menu.addToMenu({
+        name: 'autoselect',
+        mouseOver: () => {
+            autoSelect();
+        }
 
+    });
     function hash(imageData) {
         let imageHash = 0;
         for(let byte of imageData) {
@@ -190,6 +200,31 @@
     const matches = {};
     let matchCount = 0;
 
+    async function autoSelect() {
+        sessionStorage.s('autoselect', true);
+        for(let i in matches) {
+            let match = matches[i];
+            if(!match.clicked) {
+                if(match.length === 2 || match.some(tagsMatch => tagsMatch.matches.length === 3)) {
+                    match.clicked = true;
+                    const match3 = [];
+                    for(let j of match) {
+                        if(j.matches.length === 3) {
+                            match3.push(j);
+                        }
+                    }
+                    let matchArray = match;
+                    if(match3.length > 0) {
+                        matchArray = match3;
+                    }
+
+                    let index = Math.floor(Math.random() * matchArray.length);
+                    selectMatch(matchArray[index]);
+                }
+            }
+        }
+    }
+
     /**
      *
      * @param {HTMLTagImageElement & {imageData:Array<number>}} image
@@ -212,28 +247,8 @@
             matches: imageMatches
         });
         matchCount++;
-        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi')) {
-            for(let i in matches) {
-                let match = matches[i];
-                if(!match.clicked) {
-                    if(match.length === 2 || match.some(tagsMatch => tagsMatch.matches.length === 3)) {
-                        match.clicked = true;
-                        const match3 = [];
-                        for(let j of match) {
-                            if(j.matches.length === 3) {
-                                match3.push(j);
-                            }
-                        }
-                        let matchArray = match;
-                        if(match3.length > 0) {
-                            matchArray = match3;
-                        }
-
-                        let index = Math.floor(Math.random() * matchArray.length);
-                        selectMatch(matchArray[index]);
-                    }
-                }
-            }
+        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', false) === true) {
+            autoSelect();
         }
     }
 

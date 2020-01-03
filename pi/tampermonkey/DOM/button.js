@@ -55,6 +55,9 @@ new EvalScript('', {
                             for(let j in style) {
                                 if(style[j].constructor.name === 'Object') {
                                     for(let k in style[j]) {
+                                        if(typeof style[j][k] === 'number' && (k === 'width' || k === 'left')) {
+                                            style[j][k] += 'px';
+                                        }
                                         btn[j][k] = style[j][k];
                                     }
                                 }

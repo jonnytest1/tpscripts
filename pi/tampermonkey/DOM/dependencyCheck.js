@@ -115,8 +115,12 @@ new EvalScript('', {
             if(script.isModular || script.reset) {
                 let refresh = true;
                 if(script.reset) {
-                    if(script.reset() === false) {
-                        refresh = false;
+                    try {
+                        if(script.reset() === false) {
+                            refresh = false;
+                        }
+                    } catch(e) {
+                        handleError(e);
                     }
                 }
                 let afterRefresh = script.afterReset;
@@ -128,7 +132,11 @@ new EvalScript('', {
                     delete document.props.evalScripts[script.src];
                     await req(scriptUrl, { cache: false });
                     if(afterRefresh) {
-                        afterRefresh();
+                        try {
+                            afterRefresh();
+                        } catch(e) {
+                            handleError(e);
+                        }
                     }
                 }
             } else {
