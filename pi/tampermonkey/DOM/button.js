@@ -6,7 +6,9 @@ new EvalScript('', {
         /**
          *  @name dom_b
          */
+        debugger;
         const constants = await reqS('DOM/DOMConstants');
+
         /** @global */
         //tslint:disable-next-line variable-name
         var Button = class ButtonC {
