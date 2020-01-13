@@ -22,6 +22,8 @@ export interface RequireMap {
     'libs/log-level': void
 
     'libs/log/logging': void
+
+    'libs/math/vector-2d': any
     'notification': notificationI
     'find': ElementGetter
     'graphics/p5addon': void
@@ -36,14 +38,14 @@ export interface RequireMap {
     'DOM/button': void
     'site/kissanime/buildModel': void
     'Storage/SessionStorage': CustomStorage
-    'Storage/crossDomainStorage': any
+    'Storage/crossDomainStorage': CustomStorage
     'Storage/localStorage': LocalStorage
 
     'test/php/testing': void
     'time': CustomTimeClass
     'Videos/next': (link: videoLink, links: Array<any>, excluded: Array<string>) => boolean
 
-
+    'Videos/automation': any
 }
 
 export interface reqSType {

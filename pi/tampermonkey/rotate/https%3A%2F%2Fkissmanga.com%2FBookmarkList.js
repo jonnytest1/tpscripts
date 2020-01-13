@@ -32,12 +32,8 @@
                     }
                 }
                 let status = element.children[1].textContent.trim();
-                let openurl;
-                if(status === 'Completed') {
-                    openurl = element.children[0].children[0].href;
-                } else {
-                    openurl = element.children[1].children[0].href;
-                }
+                let openurl = element.children[0].children[0].href;
+                openurl += '?open=latest';
                 GMnot('Manga: ' + element.children[0].textContent.trim(), element.children[1].textContent.trim(), iconUrl, undefined, openurl);
                 element.children[2].children[1].click();
                 open(openurl);

@@ -63,6 +63,7 @@ globalThis.querydoc = querydoc;
 */
 new Promise(async (resolver) => {
     //console.log('canInject returned ' + baseContainer.canInject);
+    let Storage_greaseStorage = IMPORT;
 
     await reqS('libs/eval-script');
 
@@ -84,7 +85,7 @@ new Promise(async (resolver) => {
 
     await reqS('test/php/testing');
     //tslint:disable-next-line variable-name
-    let Storage_greaseStorage = IMPORT;
+
     resolver({});
 
     //index.php adds here

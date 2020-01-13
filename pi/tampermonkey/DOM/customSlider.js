@@ -8,6 +8,9 @@ var CustomSlider = class CustomSliderC {
      *  @property {number} [arcWidth]
      * @property {boolean} [skipInit] =false
      * @property {boolean} [skipMouseMove] =false
+     * @property {number} [viewRotation]
+     * @property {Vector} [positionOffset]
+     * @property {(value:number)=>number} [mapping]
      */
     /**
      * @typedef {HTMLElement} Slider
@@ -22,7 +25,7 @@ var CustomSlider = class CustomSliderC {
     /**
      *
      * @param {HTMLElement} parent
-     * @param {Center} position
+     * @param {Vector} position
      * @param {(number)=>void} onMouse number is 0 to 100
      * @param {number} start 0 to 100
      * @param {SliderOptions} options
@@ -32,7 +35,9 @@ var CustomSlider = class CustomSliderC {
         this.position = position;
         this.onMouse = onMouse;
         this.start = start;
-
+        this.positionOffset = options.positionOffset || { x: 0, y: 0 };
+        this.viewRotation = options.viewRotation || 0;
+        this.mapping = options.mapping;
         this.scale = options.scale || 1;
         this.color = options.color || 'blue';
         this.arcWidth = options.arcWidth || 2;
@@ -46,22 +51,47 @@ var CustomSlider = class CustomSliderC {
          * @type {SliderContainer}
          */
         this.container = this.createContainer();
+
         this.canvas = this.createArcCanvas();
         this.drawArc();
         this.sliding = this.createSlider();
 
-        if (isNaN(start)) {
+        if(isNaN(start)) {
             start = 0;
         }
+        this.setRotation();
         this.setPercent(start / 100);
-        if (!options.skipInit) {
-            if (onMouse) {
-                onMouse(start);
+        if(this.mapping) {
+            this.text = this.createText();
+            this.container.appendChild(this.text);
+        }
+
+        if(!options.skipInit) {
+            if(onMouse) {
+                this.setValue(start);
             }
         }
+
         this.container.appendChild(this.canvas);
         parent.appendChild(this.container);
         this.container.sliding = this.sliding;
+    }
+
+    setValue(value) {
+        if(this.mapping) {
+            value = this.mapping(value);
+            this.text.textContent = (value + '').substr(0, 6);
+        }
+        this.onMouse(value);
+    }
+
+    createText() {
+        const text = document.createElement('div');
+        text.style.position = 'absolute';
+        text.style.top = '50%';
+        text.style.left = '50%';
+        text.style.transform = 'translate(-50%, -50%)';
+        return text;
     }
 
     createContainer() {
@@ -73,6 +103,7 @@ var CustomSlider = class CustomSliderC {
         container.style.top = this.position.y + 'px';
         container.style.left = this.position.x + 'px';
         container.dim = { width: this.canvasWidth, height: 50, ...this.position };
+
         return container;
     }
 
@@ -89,7 +120,7 @@ var CustomSlider = class CustomSliderC {
         canvas.style.borderTopRightRadius = '2000px';
         canvas.style.width = canvas.width + 'px';
         canvas.type = 'range';
-        if (!this.skipMouseMove) {
+        if(!this.skipMouseMove) {
             canvas.onmousemove = (ev) => this.onCanvasMove.call(this, ev);
         }
         return canvas;
@@ -102,8 +133,8 @@ var CustomSlider = class CustomSliderC {
         let degrees = (rotation * 180) / Math.PI;
         this._setPosition(degrees);
 
-        if (this.onMouse) {
-            this.onMouse(Math.round(degrees * 100 / 180));
+        if(this.onMouse) {
+            this.setValue(Math.round(degrees * 100 / 180));
         }
     }
     drawArc() {
@@ -145,17 +176,15 @@ var CustomSlider = class CustomSliderC {
         this._setPosition(percent * 180);
     }
 
-    setRotation = (angle) => {
-        this.container.style.transform = `translate(-25px, -14px) rotate(${(90 + angle)}deg) translate(0px,-13px)`;
+    setRotation() {
+        let rotationStyle = `rotate(${this.viewRotation}deg)`;
+        const offsetX = this.positionOffset.x - (this.container.dim.width / 2);
+        const offsetY = this.positionOffset.y - (this.container.dim.height * this.scale / 2);
+        const positionStyle = `translate(${offsetX}px,${offsetY}px)`;
+        this.container.style.transform = `${positionStyle} ${rotationStyle} translateY(${- this.container.dim.height * this.scale / 2}px)`;
+
     }
 
-    setSeparate(angle) {
-        // this.container.style.transform = "translate(-25px, -14px) rotate(" + (90 + angle) + "deg) translate(0px,-13px)";//
-        let rot = `rotate(${(90 + angle)}deg)`;
-        // this.container.style.transform = rot + " translate(" + ((this.container.dim.width / 2) - (19 * this.scale)) + "px," + (22 * this.scale) + "px)";
-        let x = 50 * this.scale - 100;
-        this.container.style.transform = `translate(0px,0px) ${rot} translate(${x}px,${(33 * this.scale - 44)}px)`;
-    }
     blink() {
         this.sliding.style.borderColor = this.sliding.style.borderColor === 'white' ? 'black' : 'white';
     }

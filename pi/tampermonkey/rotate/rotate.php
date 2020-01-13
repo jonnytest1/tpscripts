@@ -73,7 +73,7 @@ class Rotate
 		$affected = $this->db->sql("UPDATE log SET checked = TRUE WHERE checked is NULL OR checked = FALSE");
 		$logsREsponse=$logsREsponse."//  ".$affected." new logs\n";
 		if($affected > 0 ){
-			$logsREsponse=$logsREsponse."open('https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/?count=".$affected."');\n";
+			$logsREsponse=$logsREsponse."open('https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/?count=".$affected."');\n";
 		}
 		return $logsREsponse;
 	}

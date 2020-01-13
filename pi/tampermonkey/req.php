@@ -1,5 +1,7 @@
 <?PHP
+
 try {
+    include(__DIR__."/libs/log/logging.php");
     include(__DIR__ . "/request.php");
 } catch (Warning $e) {
     return;
@@ -7,10 +9,46 @@ try {
 $qParams = getQueryParams();
 $url = $qParams["url"];
 
-$url = "/" . $url . ".js";
-$url = dirname(__FILE__) . $url;
+if (!array_key_exists("auth", $qParams)) {
+    echo "missing authentication " . json_encode($qParams);
+    return;
+}
+$authCode=$qParams["auth"];
+
+$permissionFile=file_get_contents(dirname(__FILE__)."/perm.json");
+$permissionObject=json_decode($permissionFile,True);
+if(!array_key_exists($qParams["auth"],$permissionObject)){
+    echo "unauthorized key" . json_encode($qParams);
+    return;
+}	
+$permsissions=$permissionObject[$authCode];
+
+$url = $url . ".js";
+
 try {
 
+    $authorized=False;
+    if(!array_key_exists(0,$permsissions)){
+        log_be("INFO","unauthorized site request");
+        echo "//-------------------- unauthorized site : ".$url." -----------------------\n";
+        return;
+    }
+    if($permsissions[0] == "*"){
+        $authorized=True;
+    }
+    if(!$authorized){
+        foreach($permsissions as $fileNamePermission){
+            if($fileNamePermission == $url){
+                $authorized=True;
+            }
+        }
+    }
+    if(!$authorized){
+        echo "//-------------------- unauthorized site : ".$url." -----------------------\n";
+        log_be("INFO","unauthorized site request");
+        return;
+    }
+    $url = dirname(__FILE__) ."/". $url;
     if (file_exists($url)) {
         $str = file_get_contents($url);
     } else {
@@ -38,6 +76,7 @@ try {
     }
     echo $str;
 } catch (ErrorException $e) {
+    log_be("ERROR",$e->getMessage());
     echo "alert('failed getting file')";
 }
 
@@ -74,3 +113,4 @@ function parseLibs($str, $url)
     }
     echo $newStr;
 }
+?>

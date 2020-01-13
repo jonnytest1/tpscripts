@@ -9,10 +9,9 @@ new EvalScript('', {
         if(!t) {
             setTimeout(cale, 10);
         }
-        sc.G.p('tempSS', { url: t.href, identifier: buttonsfornextinstance, content: crossDomainStorage.g(buttonsfornextinstance) }, []);
-        sc.G.p('tempSS', { url: t.href, identifier: 'autoplay', content: crossDomainStorage.g('autoplay') }, []);
+        sc.G.p('tempSS', { url: t.href, identifier: buttonsfornextinstance, content: crossDomainStorage.g(buttonsfornextinstance, undefined) }, []);
+        sc.G.p('tempSS', { url: t.href, identifier: 'autoplay', content: crossDomainStorage.g('autoplay', undefined) }, []);
 
-        debugger;
         if(t.href) {
             location.href = t.href;
         }

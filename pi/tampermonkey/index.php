@@ -3,7 +3,7 @@ require('request.php');
 include(dirname(__FILE__) . '/fileLoader.php');
 try {
 	require("rotate/rotate.php");
-
+	include(__DIR__."/libs/log/logging.php");
 	$rotate = new Rotate();
 	$fileLoader = new FileLoader();
 	$exceptionHeader = " ";
@@ -79,6 +79,11 @@ try {
 		echo "missing url param in " . json_encode($queryPAramas);
 		return;
 	}
+	if (!array_key_exists("auth", $queryPAramas)) {
+		echo "missing authentication " . json_encode($queryPAramas);
+		return;
+	}
+	$authCode=$queryPAramas["auth"];
 
 	$requestUrl = getQueryParams()["url"];
 	$parsedUrl = parse_url($requestUrl);
@@ -89,6 +94,16 @@ try {
 		$json = $json . $rotate->getNext($requestUrl);
 	}
 	$rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('site'));
+	
+	$permissionFile=file_get_contents(dirname(__FILE__)."/perm.json");
+	$permissionObject=json_decode($permissionFile,True);
+
+	if(!array_key_exists($queryPAramas["auth"],$permissionObject)){
+		echo "unauthorized key" . json_encode($queryPAramas);
+		return;
+	}	
+	$permsissions=$permissionObject[$authCode];
+
 	foreach ($rii as $file) {
 		if ($file->isDir()) {
 			continue;
@@ -107,6 +122,26 @@ try {
 		$pattern = "/(.*)" . $filesName . "(.*)/";
 		//logKibana(array("message"=>"matching ".$pattern." to ".$requestUrlPAttern));
 		if (preg_match($pattern, $requestUrlPAttern) == 1) {
+			$authorized=False;
+			if(!array_key_exists(0,$permsissions)){
+				$json = $json . "//-------------------- unauthorized site : ".$file->getPathname()." -----------------------\n";
+				continue;
+			}
+			if($permsissions[0] == "*"){
+				$authorized=True;
+			}
+			if(!$authorized){
+				foreach($permsissions as $fileNamePermission){
+					if($fileNamePermission == $file->getPathname()){
+						$authorized=True;
+					}
+				}
+			}
+			if(!$authorized){
+				$json = $json . "//-------------------- unauthorized site : ".$file->getPathname()." -----------------------\n";
+				continue;
+			}
+
 			//logKibana(array("message"=>"matched"));
 			$json = $json . "//---------------------site start:-----------------------" . $file->getPathname() . "-----------------------\n";
 			$requireName = $file->getPathname();
@@ -118,6 +153,8 @@ try {
 				//$json=$json.$fileLoader->preProcessFileName($file->getPathname());
 			}
 			$json = $json . "//_________________________end of site________" . $file->getPathname() . "___________________\n";
+			
+			
 		}
 	}
 	$json = $json . "//_________________________end of site___________________________\n";

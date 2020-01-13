@@ -6,7 +6,7 @@
 *
 * @typedef {HTMLElement & {
 *      menuOption?:MenuElementItem,
-*      center?:Center,
+*      center?:Vector,
 *      menu?:CircularMenuInstnace,
 *      degree?:number,
 *      parentSpace?:number
@@ -49,7 +49,7 @@
  *  mouseEnter:Function,
  *  mouseLEave:Function,
  *  style:any,
- *  center:Center,
+ *  center:Vector,
  *  angle:number,
  *  menu:CircularMenuInstnace
  * )=>CircularMenuHTMLButton} CreateElement
@@ -152,7 +152,6 @@ new EvalScript('', {
                     }
                 }
                 async deactivationFunction() {
-
                     await this.backgroundObj.deactivation();
 
                     this.isActive = false;
@@ -199,7 +198,6 @@ new EvalScript('', {
                     }
                     const scaledRadius = radius * this.scale;
                     let alphaFilter = this.set(crIN(parent, '', () => el.click(), undefined, (btn) => {
-
                         this.isActive = false;
                         btn.remove();
                         this.activator()
@@ -232,6 +230,7 @@ new EvalScript('', {
                     if(this.backgroundObj) {
                         await this.backgroundObj.deactivation();
                     }
+
                     this.destroyed = true;
                     this.isActive = false;
                     if(this.backgroundObj) {
@@ -301,7 +300,7 @@ new EvalScript('', {
                  * @param {*} startAngle
                  * @param {*} availableAngle
                  * @param {*} distance
-                 * @param {Center&{target:HTMLElement}} center
+                 * @param {Vector&{target:HTMLElement}} center
                  * @param {*} parent
                  */
                 setButtons(buttonArray, startAngle, availableAngle, distance, center, parent = this.backgroundObj) {
@@ -396,11 +395,13 @@ new EvalScript('', {
                     async function activator() {
                         return new Promise(resolv => {
                             function onKeyDown(event) {
-                                if(event.key === 'Control') {
+                                if(event.key === 'Control' || event.ctrlKey) {
                                     document.removeEventListener('keydown', onKeyDown);
+                                    window.removeEventListener('mousemove', onKeyDown);
                                     resolv(event);
                                 }
                             }
+                            window.addEventListener('mousemove', onKeyDown);
                             document.addEventListener('keydown', onKeyDown);
                         });
 
@@ -408,7 +409,7 @@ new EvalScript('', {
                     async function deactivator() {
                         return new Promise(resolv => {
                             function onKeyUp(event) {
-                                if(event.key === 'Control') {
+                                if(event.key === 'Control' || !event.ctrlKey) {
                                     document.removeEventListener('keyup', onKeyUp);
                                     resolv(event);
                                 }

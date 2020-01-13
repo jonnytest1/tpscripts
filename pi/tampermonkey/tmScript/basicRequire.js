@@ -55,9 +55,10 @@ function shouldRunInFrame() {
 
 console.log('running script');
 
-window.top.backendUrl = 'https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm';
+window.top.backendUrl = 'https://pi4.e6azumuvyiabvs9s.myfritz.net/tm';
 //window.top.backendUrl = 'http://localhost:4280'
 unsafeWindow.scriptContent = '';
+// @ts-ignore
 document.window = window;
 (function ev() {
     if(!document.body) {

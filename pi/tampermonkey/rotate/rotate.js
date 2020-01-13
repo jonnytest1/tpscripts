@@ -23,7 +23,7 @@ new EvalScript('', {
         await reqS('DOM/customSlider');
         await reqS('time');
 
-        if (!document.title.startsWith('ROTATE')) {
+        if(!document.title.startsWith('ROTATE')) {
             document.title = 'ROTATE ' + document.title;
         }
 
@@ -42,16 +42,16 @@ new EvalScript('', {
                     scale: 0.5,
                     color: 'red',
                     arcWidth: 7,
-                    skipMouseMove: true
+                    skipMouseMove: true,
+                    viewRotation: 90 + angle
                 });
                 rotationSlider.container.style.zIndex = '2199999999';
-                rotationSlider.setRotation(angle);
                 return button;
             },
             children: URLS.filter(url => !url.includes(location.href))
                 .map(URL => {
                     let displayURL = URL.replace('https://', '');
-                    if (displayURL.startsWith('www')) {
+                    if(displayURL.startsWith('www')) {
                         let splits = displayURL.split('.');
                         splits.shift();
                         displayURL = splits.join('.');
@@ -79,7 +79,7 @@ new EvalScript('', {
                     location.href = NEXTURL;
                 },
                 onStep: (percent) => {
-                    if (rotationSlider) {
+                    if(rotationSlider) {
                         rotationSlider.setPercent(1 - percent);
                         rotationSlider.blink();
                     }

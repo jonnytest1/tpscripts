@@ -39,10 +39,33 @@ sc.g.a('linktable')
         }
 
         sc.menu.addToMenu({
+            name: 'previous',
+            isValid: () => !!document.querySelector('.button-previous'),
+            mouseOver: () => {
+                /**
+                 * @type {HTMLElement}
+                 */
+                const button = document.querySelector('.button-previous');
+                button.click();
+            }
+        });
+
+        sc.menu.addToMenu({
             name: 'autoplay',
             mouseOver: () => {
                 sc.CD.s('autoplay', true);
                 setlink();
+            }
+        });
+        sc.menu.addToMenu({
+            name: 'next',
+            isValid: () => !!document.querySelector('.button-next'),
+            mouseOver: () => {
+                /**
+                 * @type {HTMLElement}
+                 */
+                const button = document.querySelector('.button-next');
+                button.click();
             }
         });
 
@@ -55,7 +78,7 @@ sc.g.a('linktable')
         //btn.style.paddingRight = "7px";
 
         if(sc.CD.g('autoplay', false) || location.hash.indexOf('autoplay') > -1) {
-            //setlink();
+            setlink();
         }
     });
 
@@ -82,6 +105,7 @@ async function setlink() {
          * @type {Array<videoLink>}
          */
         let linkarray = [
+            { link: 'download_link_vidup.me ', priority: 100 },
             { link: 'download_link_movpod.in ', priority: 55 },
             { link: 'download_link_openload.co ', priority: 70 },
             { link: 'download_link_powvideo.net ', priority: 80 },

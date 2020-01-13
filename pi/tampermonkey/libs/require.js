@@ -351,7 +351,12 @@ window.req = req;
  * }} [options]
  */
 var reqS = async function reqSImpl(path, options = {}) {
-    path = `${window.backendUrl}/req.php?url=${path}`;
+    let key = sc.G.g('security_key', '');
+    if(!key) {
+        key = prompt('enter key');
+        sc.G.s('security_key', key);
+    }
+    path = `${window.backendUrl}/req.php?auth=${key}&url=${path}`;
     return req(path, options);
 };
 window.reqS = reqS;

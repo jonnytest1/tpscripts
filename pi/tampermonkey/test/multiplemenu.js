@@ -57,10 +57,10 @@ reqS('DOM/CircularMenu')
                     rotationSlider2 = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                         scale: 0.5,
                         // color: "red",
-                        arcWidth: 7
+                        arcWidth: 7,
+                        viewRotation: 90 + angle
                     });
                     rotationSlider2.container.style.zIndex = '2199999999';
-                    rotationSlider2.setRotation(angle);
 
                     return button;
                 },

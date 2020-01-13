@@ -15,9 +15,9 @@ let greaseCrossDomainStorage = 'crossdomainstorage';
 reqS('Storage/SessionStorage')
     .then(ss => {
         function getObject() {
-            if ((sc.g.W().name === '' || sc.g.W().name
+            if((sc.g.W().name === '' || sc.g.W().name
                 .indexOf('{') === -1)) {
-                if (sc.g.W()['name2'] === '' || sc.g.W()['name2'] === undefined || sc.g.W()['name2']
+                if(sc.g.W()['name2'] === '' || sc.g.W()['name2'] === undefined || sc.g.W()['name2']
                     .indexOf('{') === -1) {
                     sc.g.W().name = JSON.stringify(sc.S.g(greaseCrossDomainStorage, {}));
                 }
@@ -26,7 +26,7 @@ reqS('Storage/SessionStorage')
             try {
                 storageObject = JSON.parse(sc.g.W().name);
             }
-            catch (e) {
+            catch(e) {
                 storageObject = JSON.parse(sc.g.W()['name2']);
             }
             // return sc.S.g("name");
@@ -36,7 +36,7 @@ reqS('Storage/SessionStorage')
         var CD = {
 
             s: (identifier, element) => {
-                if ((location.href.indexOf('facebook') > -1 && location.href.indexOf('oauth?app_id') > -1)) {
+                if((location.href.indexOf('facebook') > -1 && location.href.indexOf('oauth?app_id') > -1)) {
                     return;
                 }
                 let storageObject = getObject();
@@ -46,7 +46,7 @@ reqS('Storage/SessionStorage')
                 return sc.g.W().name;
             },
             g: (identifier, standard = new Array(0)) => {
-                if ((location.href.indexOf('facebook') > -1 && location.href.indexOf('oauth?app_id') > -1)) {
+                if((location.href.indexOf('facebook') > -1 && location.href.indexOf('oauth?app_id') > -1)) {
                     return standard;
                 }
                 let obj = getObject();
@@ -60,14 +60,14 @@ reqS('Storage/SessionStorage')
                 }
                 G.s("tempSS", GO);*/
                 let element = obj[identifier];
-                if (element === undefined || element === null) {
+                if(element === undefined || element === null) {
                     CD.s(identifier, standard);
                     return standard;
                 }
                 return element;
             },
             p: (identifier, object, standard) => {
-                if (!standard) {
+                if(!standard) {
                     standard = [];
                 }
                 try {
@@ -76,9 +76,12 @@ reqS('Storage/SessionStorage')
                     CD.s(identifier, ar);
                     return sc.g.W().name;
                 }
-                catch (err) {
+                catch(err) {
                     handleError(err);
                 }
+            },
+            setValue: () => {
+                throw 'not implemented';
             }
         };
         sc.CD = CD;

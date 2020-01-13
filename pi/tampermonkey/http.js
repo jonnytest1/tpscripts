@@ -57,7 +57,7 @@ new EvalScript('', {
      */
     async function http(type = 'GET', url, callback = () => console.log, data = null, headers = {}, htmlErrorCheck = true) {
       let request = new XMLHttpRequest();
-      if(!url.includes('localhost') && !url.includes('raspberrypi.e6')) {
+      if(!url.includes('localhost') && !url.includes('.e6azumuvyiabvs9')) {
         console.log('request to ' + url);
       }
       request.open(type, url, true);

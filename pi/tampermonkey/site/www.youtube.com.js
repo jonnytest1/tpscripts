@@ -53,10 +53,10 @@ youtubeScript.reset = () => {
                 rotationSlider = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                     scale: 0.5,
                     color: 'red',
-                    arcWidth: 7
+                    arcWidth: 7,
+                    viewRotation: 90 + angle
                 });
                 rotationSlider.container.style.zIndex = '2199999999';
-                rotationSlider.setRotation(angle);//  style.transform = "rotate(" + (90 + (angle)) + "deg) translate(-24px,-24px) ";
                 return button;
             },
         });
@@ -133,15 +133,15 @@ youtubeScript.reset = () => {
                             }
                         }
                     }, undefined, undefined, undefined, {
-                            style: {
-                                left: current.offsetLeft - 100 + 'px',
-                                top: (current.offsetTop + 80) + 'px',
-                                backgroundColor: 'lightgreen',
-                                position: 'absolute',
-                                width: '60px',
-                                height: '100px'
-                            }
-                        });
+                        style: {
+                            left: current.offsetLeft - 100 + 'px',
+                            top: (current.offsetTop + 80) + 'px',
+                            backgroundColor: 'lightgreen',
+                            position: 'absolute',
+                            width: '60px',
+                            height: '100px'
+                        }
+                    });
                     createdElements.push(current.autoScrollButton);
                     checkTime(current);
                 } catch(e) {
