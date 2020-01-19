@@ -1,4 +1,7 @@
-new EvalScript('', {
+/**
+ * @type { EvalScript<{originalOpen:any,interval:any}>}
+ */
+var lovooscript = new EvalScript('', {
     run: async (ret, set) => {
         let users = {};
         let userHistory = {};
@@ -43,7 +46,7 @@ new EvalScript('', {
         };
         let currentUser = null;
         let textRef = null;
-        set.internal = setInterval(() => {
+        set.interval = setInterval(() => {
             /**
              * @type {HTMLAnchorElement}
              */

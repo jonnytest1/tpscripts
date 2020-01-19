@@ -1,13 +1,17 @@
 
 /**
- * @template V
+ * @template {unknown} V
  */
 class EvalScript {
     /**
+     * @typedef {Partial<(V) & { evalScript?:EvalScript}>} EvalScriptRunOptions
+     */
+
+    /**
      * @template { Array<keyof import('./require').RequireMap> } LIB
      * @typedef EvalScriptOptions
-     * @property {(obj:Partial<V>)=>boolean|void} [reset]
-     * @property {(resolver:<T>(obj:T)=>any,set:Partial<V>)=>Promise<boolean|void>} [run] if true waits for manual call to finish
+     * @property {(obj:EvalScriptRunOptions)=>boolean|void} [reset]
+     * @property {(resolver:<T>(obj:T)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
      * @property {()=>void} [afterReset]
      *
      * @param {EvalScriptOptions<?>} options
@@ -19,13 +23,19 @@ class EvalScript {
         // @ts-ignore
         this.script = document.currentScript || document.props.evalScripts[this.url];
         if(this.script) {
-            this.script.reset = () => this.reset.call(this);
+            this.script.reset = () => {
+                if(sc.menu) {
+                    sc.menu.removeByLib(this.getUrl());
+                }
+                this.reset.call(this);
+            };
         }
         this.callback = options.run;
         this.resetFunction = options.reset;
         this.afterReset = options.afterReset;
-        /**@type {Partial<V>} */
+        /**@type {Partial<V & {evalScript?:any}>} */
         this.options = {};
+        this.options.evalScript = this;
         this.onload = null;
         this.loaded = false;
         ///**@type {Array<keyof import('./require').RequireMap>} */
@@ -45,6 +55,12 @@ class EvalScript {
             }
         }
     }
+    /**
+     * @returns {string}
+     */
+    getUrl() {
+        return this.url || this.script.src;
+    }
 
     set() {
         return this.options;
@@ -56,6 +72,7 @@ class EvalScript {
         }
         return this.resetFunction(this.options);
     }
+
     async run() {
         const result = await new Promise(
             async resolver => {

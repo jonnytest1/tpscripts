@@ -9,7 +9,6 @@ new EvalScript('', {
              * @type {NodeListOf<HTMLAnchorElement>}
              */
             const mangas = document.querySelectorAll('.listing tr a');
-
             /**
              * @type {HTMLAnchorElement}
              */
@@ -27,13 +26,11 @@ new EvalScript('', {
                 }
             }
         }
-
         const imgs = [...document.querySelectorAll('#divImage img')];
-
         imgs.forEach((el) =>
             el.addEventListener('click', () => {
                 try {
-                    /**@type HTMLElement */
+                    /**@type {HTMLElement} */
                     const nextButton = document.querySelector('.btnNext');
                     nextButton.click();
                 } catch(err) {
@@ -46,26 +43,23 @@ new EvalScript('', {
                 name: 'next',
                 mouseOver: (parnet, btn) => {
                     try {
-                        /**@type HTMLElement */
+                        /**@type {HTMLElement} */
                         const nextButton = document.querySelector('.btnNext');
                         if(!nextButton) {
                             btn.style.backgroundColor = 'red';
                         } else {
                             nextButton.click();
                         }
-
                     } catch(err) {
                         //
                     }
-                }
+                },
+                lib: set.evalScript.getUrl()
             });
         } else {
             if(location.search.includes('open=latest')) {
                 openLatestUnread();
             }
         }
-    },
-    reset: () => {
-        sc.menu.removeByName('next');
     }
 });

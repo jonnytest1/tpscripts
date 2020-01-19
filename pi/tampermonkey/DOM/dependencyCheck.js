@@ -1,14 +1,23 @@
 
 /// <reference path="../customTypes/index.d.ts" />
 
-new EvalScript('', {
+/**
+ * @type {EvalScript<{intervalId:NodeJS.Timeout}> }
+ */
+var dep = new EvalScript('', {
     run: async (resolver, set) => {
 
         const http = await reqS('http');
         var scriptContents = {};
 
+        let key = GM_getValue('security_key');
+        if(!key) {
+            key = prompt('enter key');
+            GM_setValue('security_key', key);
+        }
+
         // @ts-ignore
-        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href.replace(location.search, '')}`;
+        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href.replace(location.search, '')}&auth=${key}`;
 
         /**@param {CustomScript} script */
         function shouldCheck(script) {

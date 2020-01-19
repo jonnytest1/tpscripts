@@ -1,6 +1,6 @@
 /// <reference path="../customTypes/index.d.ts"/>
 /**
- * @type {EvalScript<{autoInterval}>}
+ * @type {EvalScript<{autoInterval : NodeJS.Timeout}>}
  */
 var auto = new EvalScript('', {
     run: async (resolver, options) => {
@@ -23,13 +23,19 @@ var auto = new EvalScript('', {
                 const nextAr = buttons.find(ar => ar[0] === 'next');
                 sc.menu.addToMenu({
                     name: 'next',
-                    mouseOver: () => {
-                        location.href = nextAr[1] + '#autoplay=true';
-                    }
+                    mouseOver: (parent, button) => {
+                        if(nextAr) {
+                            location.href = nextAr[1] + '#autoplay=true';
+                        } else {
+                            button.style.backgroundColor = 'red';
+                        }
+                    },
+                    lib: options.evalScript.url
                 });
                 sc.menu.addToMenu({
                     name: 'other',
-                    mouseOver: other
+                    mouseOver: other,
+                    lib: options.evalScript.url
                 });
 
                 sc.g.a('video', undefined, undefined, sc.g.T)
@@ -45,8 +51,8 @@ var auto = new EvalScript('', {
             resolver(other);
         })();
         return true;
-    }, reset: (data) => {
-        sc.menu.removeByName('next');
+    },
+    reset: (data) => {
         if(data.autoInterval) {
             clearInterval(data.autoInterval);
         }

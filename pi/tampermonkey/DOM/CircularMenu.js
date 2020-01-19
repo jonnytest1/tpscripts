@@ -24,6 +24,7 @@
 * @property {string} [normalColor]
 * @property {CircularMenuHTMLButton} [element]
 * @property {Line} [line]
+* @property {string} [lib]
 */
 
 /**
@@ -41,6 +42,7 @@
  * @property {Function} [setButtons]
  * @property {()=>void} remove
  * @property {(rootMenuName:String)=>void} removeByName
+ * @property { (libName:string) => void } removeByLib
  *
  * @typedef {(
  *  parent,
@@ -247,6 +249,14 @@ new EvalScript('', {
                 removeByName(name) {
                     this.filter(m => m.name !== name);
                 }
+
+                /**
+                 * @param {string} lib
+                 */
+                removeByLib(lib) {
+                    this.filter(m => m.lib !== lib);
+                }
+
                 /**
 
                  * @param {(menu:MenuElementItem)=>boolean} filterfnc
