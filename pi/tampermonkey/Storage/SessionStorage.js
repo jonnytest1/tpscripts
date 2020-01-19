@@ -5,9 +5,12 @@ var S = {
     s: (identifier, element) => {
         sessionStorage.setItem('tampermonkey_' + identifier, JSON.stringify(element));
     },
-    g: (identifier, standard = new Array(0)) => {
+    g: (identifier, standard) => {
+        if(!standard === undefined) {
+            standard = [];
+        }
         let element = JSON.parse(sessionStorage.getItem('tampermonkey_' + identifier));
-        if (element === null) {
+        if(element === null) {
             S.s(identifier, standard);
             return standard;
         }
@@ -16,12 +19,12 @@ var S = {
     p: (identifier, object, standard = []) => {
         try {
             let ar = S.g(identifier, standard);
-            if (ar.constructor.name === 'Array') {
+            if(ar.constructor.name === 'Array') {
                 ar.push(object);
                 S.s(identifier, ar);
             }
         }
-        catch (e) {
+        catch(e) {
             handleError(e);
         }
     },

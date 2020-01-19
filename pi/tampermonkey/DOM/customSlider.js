@@ -88,7 +88,7 @@ var CustomSlider = class CustomSliderC {
     createText() {
         const text = document.createElement('div');
         text.style.position = 'absolute';
-        text.style.top = '50%';
+        text.style.top = '70%';
         text.style.left = '50%';
         text.style.transform = 'translate(-50%, -50%)';
         return text;

@@ -77,7 +77,7 @@ sc.g.a('linktable')
         // btn.style.paddingLeft = "7px";
         //btn.style.paddingRight = "7px";
 
-        if(sc.CD.g('autoplay', false) || location.hash.indexOf('autoplay') > -1) {
+        if((sc.CD.g('autoplay', false) && false) || location.hash.indexOf('autoplay') > -1) {
             setlink();
         }
     });
@@ -113,10 +113,14 @@ async function setlink() {
         ]; //, "download_link_thevideo.me ""download_link_nowvideo.sx ",
         let sorted = linkarray.sort((p, a) => a.priority - p.priority);
         var opened = false;
-        /**@type {Array<HTMLElement & {children:Array<any>}>} */
-        var list = [...container.children];
+        /**@type {Array<HTMLAnchorElement & {children:Array<any>}>} */
+        var list = [...container.children]
+            .filter(current => linkarray.some(implemnnted => implemnnted.link === current.className))
+            .sort((l1, l2) =>
+                linkarray.find(link => l2.className === link.link).priority
+                - linkarray.find(link => l1.className === link.link).priority
+            );
         if(excludedLinks.length > 0) {
-            debugger;
             let last = list.find(link => link.children[1].children[0].href === excludedLinks[excludedLinks.length - 1]);
             if(last) {
                 let nextType = linkarray.find(linkType => linkType.link !== last.className);

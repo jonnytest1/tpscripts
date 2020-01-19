@@ -67,7 +67,7 @@
 *   elements:MenuElementItem[],
 *   options?:{
 *       deactivatorChoice?:string
-*       deactivator?:() => Promise<Event>
+*       deactivator?:(backgroundObj) => Promise<Event>
 *       activator?:() => Promise<Event>
 *       getCenter?:() => { x: number, y: number, target: HTMLElement; }
 *       scale?:number
@@ -132,9 +132,9 @@ new EvalScript('', {
                     if(options.getCenter) {
                         this.getCenter = options.getCenter;
                     }
-                    if(options.activator) {
-                        this.activator = options.activator;
-                    }
+
+                    this.activator = options.activator || this.defaultActivator;
+
                     this.scale = options.scale | 1;
                     this.activator()
                         .then(ev => this.onActivate.call(this, ev));
@@ -152,7 +152,7 @@ new EvalScript('', {
                     }
                 }
                 async deactivationFunction() {
-                    await this.backgroundObj.deactivation();
+                    await this.backgroundObj.deactivation(this.backgroundObj);
 
                     this.isActive = false;
                     this.backgroundObj.remove();
@@ -160,7 +160,7 @@ new EvalScript('', {
                         .then(ev => this.onActivate.call(this, ev));
                 }
 
-                async activator() {
+                async defaultActivator() {
                     return new Promise(resolv => {
                         this.parent.addEventListener('mouseenter', (ev) => {
                             resolv(ev);
@@ -193,7 +193,7 @@ new EvalScript('', {
                     /**@type {HTMLElement} */
                     // @ts-ignore
                     let el = document.elementFromPoint(center.x, center.y);
-                    if(el && el.tagName.toUpperCase() === 'VIDEO') {
+                    if(el && el.tagName.toUpperCase() === 'VIDEO' && document.fullscreen) {
                         parent = el.parentElement;
                     }
                     const scaledRadius = radius * this.scale;
@@ -214,7 +214,11 @@ new EvalScript('', {
                         }
                     }));
                     alphaFilter.position = center;
+
                     alphaFilter.deactivation = this.deactivators[this.deactivatorChoice];
+                    if(!alphaFilter.deactivation) {
+                        debugger;
+                    }
                     return alphaFilter;
                 }
 
@@ -228,7 +232,7 @@ new EvalScript('', {
 
                 async remove() {
                     if(this.backgroundObj) {
-                        await this.backgroundObj.deactivation();
+                        await this.backgroundObj.deactivation(this.backgroundObj);
                     }
 
                     this.destroyed = true;
@@ -406,14 +410,16 @@ new EvalScript('', {
                         });
 
                     }
-                    async function deactivator() {
+                    async function deactivator(background) {
                         return new Promise(resolv => {
                             function onKeyUp(event) {
                                 if(event.key === 'Control' || !event.ctrlKey) {
                                     document.removeEventListener('keyup', onKeyUp);
+                                    background.removeEventListener('keyup', onKeyUp);
                                     resolv(event);
                                 }
                             }
+                            background.addEventListener('keyup', onKeyUp);
                             document.addEventListener('keyup', onKeyUp);
                         });
                     }

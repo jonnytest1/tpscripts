@@ -93,7 +93,7 @@ youtubeScript.reset = () => {
         console.log('searching for last checked');
         /**@type {Array<CustomYoutubeVideoElement>} */
         let list = sc.g('contents').children;
-        let toscroll = localStorage.g(youtubemostrecent, []);
+        let toscroll = localStorage.g(youtubemostrecent, '');
         let seen = false;
         if(list.length > 20) {
             for(let i = 0; i < list.length; i++) {

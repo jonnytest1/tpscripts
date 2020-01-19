@@ -65,18 +65,24 @@ new EvalScript('', {
                             name: 'fullscreen',
                             mouseOver: (parent) => {
                                 const localVideo = getVideo(parent);
+                                debugger;
                                 if(!document.fullscreen) {
-                                    localVideo.previousStyle = localVideo.style;
-                                    localVideo.style.width = '100%';
-                                    localVideo.style.height = '100%';
+                                    localVideo.previousStyle = { ...localVideo.style };
                                     localVideo.parentElement.webkitRequestFullScreen();
+                                    setTimeout(() => {
+                                        localVideo.style.width = '100%';
+                                        localVideo.style.height = '100%';
+                                        localVideo.style.left = localVideo.style.top = '0px';
+
+                                    }, 100);
+
                                 } else {
+                                    document.exitFullscreen();
                                     localVideo.style.width = 'unset';
                                     localVideo.style.height = 'unset';
                                     for(let st in localVideo.previousStyle) {
                                         localVideo.style[st] = localVideo.previousStyle[st];
                                     }
-                                    document.exitFullscreen();
                                 }
                             }
                         }, {

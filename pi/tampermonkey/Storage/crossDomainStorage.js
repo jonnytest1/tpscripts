@@ -45,7 +45,10 @@ reqS('Storage/SessionStorage')
                 sc.S.s(greaseCrossDomainStorage, storageObject);
                 return sc.g.W().name;
             },
-            g: (identifier, standard = new Array(0)) => {
+            g: (identifier, standard) => {
+                if(!standard) {
+                    standard = [];
+                }
                 if((location.href.indexOf('facebook') > -1 && location.href.indexOf('oauth?app_id') > -1)) {
                     return standard;
                 }

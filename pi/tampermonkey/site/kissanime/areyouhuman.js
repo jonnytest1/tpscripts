@@ -247,7 +247,12 @@
             matches: imageMatches
         });
         matchCount++;
-        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', false) === true) {
+
+        /**
+         * @type {boolean}
+         */
+        const initial = false;
+        if(true || location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
             autoSelect();
         }
     }

@@ -44,11 +44,16 @@ new EvalScript('', {
         if(location.search.includes('id')) {
             sc.menu.addToMenu({
                 name: 'next',
-                mouseOver: () => {
+                mouseOver: (parnet, btn) => {
                     try {
                         /**@type HTMLElement */
                         const nextButton = document.querySelector('.btnNext');
-                        nextButton.click();
+                        if(!nextButton) {
+                            btn.style.backgroundColor = 'red';
+                        } else {
+                            nextButton.click();
+                        }
+
                     } catch(err) {
                         //
                     }
