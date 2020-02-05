@@ -3,6 +3,7 @@
  */
 var lovooscript = new EvalScript('', {
     run: async (ret, set) => {
+
         let users = {};
         let userHistory = {};
         set.originalOpen = XMLHttpRequest.prototype.open;
@@ -60,7 +61,11 @@ var lovooscript = new EvalScript('', {
                     .find((entry) => currentUserName.split(',')[0] === entry[1].name)[1].id;
                 link.href = 'https://de.lovoo.com/profile/' + userId;
             }
+            if(!users[userId] && textRef !== null) {
 
+                textRef.remove();
+
+            }
             if((currentUser === null || currentUser !== userId) && users[userId]) {
                 const user = users[userId];
 

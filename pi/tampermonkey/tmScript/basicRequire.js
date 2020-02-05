@@ -9,7 +9,9 @@
 // @match        http://*/*
 // @match        about:*
 // @match        https://*/*
+// @exclude      http://192.168.178.39/*
 // @exclude      http://fritz.box/*
+// @exclude      https://www.facebook.com/*
 // @connect *
 // @grant GM_setValue
 // @grant GM_getValue
@@ -29,14 +31,17 @@
 // @grant GM_saveTab
 // @grant GM_setClipboard
 // @grant GM_xmlhttpRequest
-// @require https://raspberrypi.e6azumuvyiabvs9s.myfritz.net/tm/libs/require.js
+// @require https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/require.js
 // ==/UserScript==
-
 if(location.href.includes('http://localhost:4200/') || location.href.includes('http://localhost:4280/site/') || (inFrame() && !shouldRunInFrame())) {
     // @ts-ignore
     return;
 }
-
+let secKey = GM_getValue('security_key');
+if(!secKey) {
+    secKey = prompt('enter key');
+    GM_setValue('security_key', secKey);
+}
 function inFrame() {
     try {
         return window.self !== window.top;
@@ -64,6 +69,6 @@ document.window = window;
     if(!document.body) {
         setTimeout(ev, 500);
     } else {
-        req(`${window.backendUrl}?url=${location.href}`);
+        req(`${window.backendUrl}?auth=${secKey}&url=${location.href.replace(location.search, '')}`);
     }
 })();

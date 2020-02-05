@@ -15,12 +15,10 @@
     /**
      * @type {CustomStorage}
      */
-    let sessionStorage;
-    reqS('Storage/SessionStorage')
-        .then(st => {
-            sessionStorage = st;
-            sessionStorage.s('image', {});
-        });
+    let sessionStorage = await reqS('Storage/SessionStorage');
+
+    sessionStorage.s('image', {});
+
     /**@type {httpResolv} */
     let http;
     reqS('http')
@@ -81,7 +79,7 @@
     sc.menu.addToMenu({
         name: 'autoselect',
         mouseOver: () => {
-            autoSelect();
+            sessionStorage.s('autoselect', false);
         }
 
     });
@@ -251,8 +249,8 @@
         /**
          * @type {boolean}
          */
-        const initial = false;
-        if(true || location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
+        const initial = true;
+        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
             autoSelect();
         }
     }
@@ -276,7 +274,11 @@
 
     /**@type { HTMLCollectionOf<HTMLTagImageElement> } */
     let images = sc.g('img', formContainer);
-
+    if(images.length > 15) {
+        debugger;
+        new Notification('too many images');
+        sessionStorage.s('autoselect', false);
+    }
     [...images].forEach(
         /**@param  i */
         i => {

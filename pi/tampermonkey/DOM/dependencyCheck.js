@@ -99,7 +99,8 @@ var dep = new EvalScript('', {
             if(shouldCheck(script)) {
                 try {
                     let time = Date.now();
-                    let newScript = await http.gm_fetch(script.src + '&fileOnly=true', false)
+                    const requestUrl = `${script.src}${script.src.includes('?') ? '&' : '?'}fileOnly=true`;
+                    let newScript = await http.gm_fetch(requestUrl, false)
                         .catch(e => {
                             console.log(`error with script ${script.src} \n${script.stack}`);
                         });

@@ -88,9 +88,10 @@ var CustomSlider = class CustomSliderC {
     createText() {
         const text = document.createElement('div');
         text.style.position = 'absolute';
-        text.style.top = '70%';
-        text.style.left = '50%';
-        text.style.transform = 'translate(-50%, -50%)';
+        text.style.top = '20px';
+        text.className = 'textField';
+        text.style.left = '30px';
+        //text.style.transform = 'translateX(-50%)';
         return text;
     }
 
@@ -121,14 +122,20 @@ var CustomSlider = class CustomSliderC {
         canvas.style.width = canvas.width + 'px';
         canvas.type = 'range';
         if(!this.skipMouseMove) {
-            canvas.onmousemove = (ev) => this.onCanvasMove.call(this, ev);
+            this.container.onmousemove = (ev) => this.onCanvasMove.call(this, ev);
         }
         return canvas;
     }
 
     onCanvasMove(ev) {
-        let direction = { x: this.canvasHeight - ev.offsetX, y: (this.canvasWidth / 2) - ev.offsetY };
 
+        let direction = { x: this.canvasHeight - ev.offsetX, y: (this.canvasWidth / 2) - ev.offsetY };
+        if(ev.target.tagName !== 'CANVAS') {
+            direction.x -= 30;
+            direction.y -= 20;
+        }
+
+        console.log(ev.offsetX, ev.offsetY, direction, ev.target);
         let rotation = Math.atan2(direction.y, direction.x);
         let degrees = (rotation * 180) / Math.PI;
         this._setPosition(degrees);

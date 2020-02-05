@@ -116,10 +116,10 @@ function getEncodings() {
                 let stringMatch = out.val;
                 out.textContent = 'regex :' + stringMatch;
 
-                const regexp = new RegExp(str, 'gm');
+                const regexp = new RegExp(stringMatch, 'gm');
                 let match;
                 const matches = [];
-                while((match = regexp.exec(stringMatch)) !== null) {
+                while((match = regexp.exec(str)) !== null) {
                     matches.push({
                         index: match.index,
                         matches: [...match],

@@ -69,14 +69,6 @@ sc.g.a('linktable')
             }
         });
 
-        var btn = {};// parent.appendChild(document.createElement("a")); //find.C("npbutton button-next")[0].cloneNode(true)
-        btn.innerText = 'Autoplay';
-        btn.className = 'npbutton';
-
-        // btn.style.backgroundImage = "http://static.mywatchseries.to/templates/default/images/hd.png";
-        // btn.style.paddingLeft = "7px";
-        //btn.style.paddingRight = "7px";
-
         if((sc.CD.g('autoplay', false) && false) || location.hash.indexOf('autoplay') > -1) {
             setlink();
         }
@@ -85,17 +77,7 @@ sc.g.a('linktable')
 async function setlink() {
     let next = await reqS('Videos/next');
     history.pushState(null, document.title, location.href);
-    /*G.p(sc.c.sI.GS.eventstorage, {
-         title: "watching series",
-         body: document.title.replace("Watch Online ", "").replace(" - Watch Series", ""),
-         host: "log",
-         timeout: 10,
-         url: location.href,
-         iurl: "",
-         fnc: null,
-         timestamp: sc.T.n()
-        });
-    */
+
     let container = sc.g('tbody');
     /**@type {Array<string>} */
     var excludedLinks = sc.CD.g('exclude', []);

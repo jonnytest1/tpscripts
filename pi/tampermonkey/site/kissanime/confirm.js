@@ -10,9 +10,6 @@
 
     await reqS('notification');
 
-    /**
-     * @type {Array}
-     */
     let images = sc.S.g('image', {});
 
     const examples = Object.values(images)
@@ -34,6 +31,17 @@
         setTimeout(() => {
             location.href = 'https://kissanime.ru/Special/AreYouHuman2?reUrl=%2fAnime%2fKatsute-Kami-Datta-Kemono-tachi-e%2fEpisode-004%3fid%3d160517%26s%3dnova';
         }, 500);
+    } else {
+        sc.menu.addToMenu({
+            name: 'next',
+            mouseOver: () => {
+                const nextImg = document.querySelector('#btnNext');
+                if(nextImg) {
+                    const nextLink = nextImg.closest('a');
+                    location.href = nextLink.href;
+                }
+            }
+        });
     }
 })()
     .catch(console.log);

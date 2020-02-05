@@ -14,7 +14,7 @@ async function checkConnection(path) {
     }
     return new Promise(resolver => {
         GM_xmlhttpRequest({
-            url: window.backendUrl,
+            url: window.backendUrl + '/healthcheck.php',
             onload: async (response) => {
                 const text = response.responseText;
                 const shortText = text.replace('<br />', '\n')
@@ -39,6 +39,8 @@ async function checkConnection(path) {
                     GM_setValue(connCheck, Date.now());
                 }
                 setTimeout(() => location.reload(), 1000 * 60);
+            }, onerror: e => {
+                debugger;
             },
             headers: {
                 'Accept': 'application/javascript'

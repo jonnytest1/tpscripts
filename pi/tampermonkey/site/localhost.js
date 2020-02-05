@@ -39,7 +39,7 @@
     //createSliders(1, rotation);
 
     new CustomSlider(document.body, { x: 500, y: 500 }, value => {
-        console.trace(value);
+        //  console.trace(value);
     }, Math.sqrt(0.5 * 2500), {
         mapping: percent => {
             var speed = (percent / 50) * (percent / 50);
@@ -59,7 +59,7 @@
         const rowOff = 2;
         for(let x = 0; x < amount; x++) {
             let angle = (360 * (x) / 4) + rotationOffset;
-            console.log(angle);
+            // console.log(angle);
             let object = new CustomSlider(document.body, new Vector2d(300 + (x % rowOff) * 200, 50 + 200), () => null, 0, {
                 scale,
                 viewRotation: angle
