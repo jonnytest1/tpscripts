@@ -99,8 +99,9 @@ var dep = new EvalScript('', {
             if(shouldCheck(script)) {
                 try {
                     let time = Date.now();
-                    const requestUrl = `${script.src}${script.src.includes('?') ? '&' : '?'}fileOnly=true`;
-                    let newScript = await http.gm_fetch(requestUrl, false)
+                    const requestUrl = new URL(script.src);
+                    requestUrl.searchParams.append('fileOnly', 'true');
+                    let newScript = await http.gm_fetch(requestUrl.href, false)
                         .catch(e => {
                             console.log(`error with script ${script.src} \n${script.stack}`);
                         });
@@ -120,7 +121,32 @@ var dep = new EvalScript('', {
 
             }
         }
+        /**
+         *
+         * @param {CustomScript} script
+         */
+        async function reloadDependents(script) {
+            if(script.requiredFrom) {
+                for(let source of script.requiredFrom) {
+                    if(source === 'root' || source === 'main' || source === 'DOM/dependencyCheck') {
+                        continue;
+                    }
+                    const depScript = getSCriptsArray()
+                        .find(scr => new URL(scr.src).searchParams.get('url') === source);
+                    debugger;
 
+                    await resetScript(depScript);
+                }
+
+            } else {
+                debugger;
+            }
+        }
+
+        /**
+         *
+         * @param {CustomScript} script
+         */
         async function resetScript(script) {
             if(script.isModular || script.reset) {
                 let refresh = true;
@@ -140,7 +166,7 @@ var dep = new EvalScript('', {
                     script.remove();
                     scriptContents[script.src] = undefined;
                     delete document.props.evalScripts[script.src];
-                    await req(scriptUrl, { cache: false });
+                    await req(scriptUrl, { cache: false, requiredFrom: script.requiredFrom });
                     if(afterRefresh) {
                         try {
                             afterRefresh();
@@ -149,6 +175,8 @@ var dep = new EvalScript('', {
                         }
                     }
                 }
+                reloadDependents(script);
+
             } else {
                 if(shouldCheck(scriptify(location.origin + location.pathname))) {
                     location.reload();

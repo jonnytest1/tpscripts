@@ -2,78 +2,129 @@
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../customTypes/localhost.d.ts" />
 /// <reference path="../libs/math/vector-2d.js" />
-(async function localhost() {
 
-    //await reqS("learning/tensorflow");
-    await reqS('DOM/customSlider');
-    //await reqT("video")
-    //await reqS('site/kissanime/buildModel');
-    //await reqT('multiplemenu');
-    // await reqS("DOM/rectMenu")
-    // await reqT("ngtest");
+/**
+ * @type {EvalScript<{
+ * dialogInstance:Dialog,
+ * open:HTMLElement,
+ * table:DOMTable}>}
+ */
+var ev = new EvalScript('', {
+    run: async (res, set) => {
+        //await reqS("learning/tensorflow");
+        // await reqS('DOM/customSlider');
+        //await reqT("video")
+        //await reqS('site/kissanime/buildModel');
+        //await reqT('multiplemenu');
+        // await reqS("DOM/rectMenu")
+        // await reqT("ngtest");
+        document.body.style.backgroundColor = 'orange';
+        const dialog = await reqS('DOM/dialog');
+        const table = await reqS('DOM/table');
+
+        set.open = new table({
+            rows: [
+                [
+                    {
+                        data: [
+                            [
+                                {
+                                    data: [
+                                        [
+                                            'abc', 'asd', 'asd'
+                                        ], [
+                                            'abc', 'asd', 'asd', 'asd', 'asd',
+                                            'abc', 'asd', 'asd', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds'
+                                        ]
+                                    ]
+                                }, 'hallo', 'hallo', 'hallo'
+                            ], [
+                                'abc', 'asd', 'asd'
+                            ], [
+                                'abc', 'asd', 'asd'
+                            ], [
+                                'abc', 'asd', 'asd'
+                            ]
+                        ]
+                    },
+                    'abcdef', 'hsaf', 'asfsdf'
+                ],
+                ['asdsd', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds'],
+                ['asdsd', 'asdasd', 'asdasds'],
+                ['asdsd', 'asdasd', 'asdasds'],
+                ['asdsd', 'asdasd', 'asdasds'],
+            ]
+        }).appendDom();
+    },
+    reset: (set) => {
+        set.open.remove();
+    }
+});
+
+(async function localhost() {
 
     //await reqT("shootergame")
     // await reqT("codingTrainGeneticTemplate");
     //await reqT("genetic")
-    await reqS('libs/math/vector-2d');
+    /* await reqS('libs/math/vector-2d');
 
-    window['debug'] = true;
-    //await reqS("graphics/p5import");
-    let sliders = [];
-    let rotation = 0;
+     window['debug'] = true;
+     //await reqS("graphics/p5import");
+     let sliders = [];
+     let rotation = 0;
 
-    let scaleDif = 1;
-    let var1;
-    let var2 = 0;
-    createTestSliders(ranges => {
-        var1 = ranges[0];
-        var2 = ranges[1];
-        createSliders(var1, var2);
-    }, { amount: 2 });
+     let scaleDif = 1;
+     let var1;
+     let var2 = 0;
+     createTestSliders(ranges => {
+         var1 = ranges[0];
+         var2 = ranges[1];
+         createSliders(var1, var2);
+     }, { amount: 2 });
 
-    /*setInterval(() => {
-         rotation += 2;
+     /*setInterval(() => {
+          rotation += 2;
 
-     }, 100);*/
+      }, 100);
 
-    //createSliders(1, rotation);
+     //createSliders(1, rotation);
 
-    new CustomSlider(document.body, { x: 500, y: 500 }, value => {
-        //  console.trace(value);
-    }, Math.sqrt(0.5 * 2500), {
-        mapping: percent => {
-            var speed = (percent / 50) * (percent / 50);
-            if(percent < 2) {
-                speed = -0.5;
-            }
-            return speed;
-        }
-    });
+     new CustomSlider(document.body, { x: 500, y: 500 }, value => {
+         //  console.trace(value);
+     }, Math.sqrt(0.5 * 2500), {
+         mapping: percent => {
+             var speed = (percent / 50) * (percent / 50);
+             if(percent < 2) {
+                 speed = -0.5;
+             }
+             return speed;
+         }
+     });
 
-    function createSliders(scale, rotationOffset = 0) {
-        sliders.forEach(slider => slider.remove());
-        sliders = [];
+     function createSliders(scale, rotationOffset = 0) {
+         sliders.forEach(slider => slider.remove());
+         sliders = [];
 
-        let row = 1;
-        const amount = 1;
-        const rowOff = 2;
-        for(let x = 0; x < amount; x++) {
-            let angle = (360 * (x) / 4) + rotationOffset;
-            // console.log(angle);
-            let object = new CustomSlider(document.body, new Vector2d(300 + (x % rowOff) * 200, 50 + 200), () => null, 0, {
-                scale,
-                viewRotation: angle
-            });
+         let row = 1;
+         const amount = 1;
+         const rowOff = 2;
+         for(let x = 0; x < amount; x++) {
+             let angle = (360 * (x) / 4) + rotationOffset;
+             // console.log(angle);
+             let object = new CustomSlider(document.body, new Vector2d(300 + (x % rowOff) * 200, 50 + 200), () => null, 0, {
+                 scale,
+                 viewRotation: angle
+             });
 
-            sliders.push(object);
-            if((x + 1) % rowOff === 0) {
-                row++;
-            }
-            if((x + 1) % 4 === 0) {
-                scale++;
-            }
-        }
-    }
+             sliders.push(object);
+             if((x + 1) % rowOff === 0) {
+                 row++;
+             }
+             if((x + 1) % 4 === 0) {
+                 scale++;
+             }
+         }
+     }*/
 
 })();
 
@@ -84,8 +135,8 @@ window.keyPresseds = [];
 window.mousePresseds = [];
 
 console.log('loaded');
-let cycles = 1;
-let afterSetup = false;
+var cycles = 1;
+var afterSetup = false;
 
 /**
 * width in canvas

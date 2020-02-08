@@ -278,6 +278,8 @@
         debugger;
         new Notification('too many images');
         sessionStorage.s('autoselect', false);
+    } else {
+        sessionStorage.s('autoselect', true);
     }
     [...images].forEach(
         /**@param  i */

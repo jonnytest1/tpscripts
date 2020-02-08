@@ -13,7 +13,8 @@ interface GM_Request_Options {
     onabort?: Function
     ontimeout?: Function
     data?: any
-    headers?: any
+    headers?: any,
+    synchronous?: boolean
 }
 
 interface GM_RequestResponse {

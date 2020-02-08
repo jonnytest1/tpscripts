@@ -27,6 +27,7 @@ async function checkConnection(path) {
                 }
                 resolver();
             },
+            synchronous: true,
             timeout: 4000,
             ontimeout: () => {
                 debugger;
@@ -55,6 +56,7 @@ async function checkConnection(path) {
  * @param {{
  * cache?:boolean
  * tmOnly?:boolean
+ * requiredFrom?:Array<string>
  * }} [options]
  */
 async function req(path, options = {}) {
@@ -67,10 +69,51 @@ async function req(path, options = {}) {
         tmOnly = true;
     }
     let stack = '';
+    let requiredFrom = options.requiredFrom || [];
     try {
         path['stack']();
     } catch(e) {
         stack = e.stack;
+        let requiredOrigin;
+        /**
+         * @type {Array<string>}
+         */
+        const stackLines = e.stack.split('\n');
+        if(stackLines.length === 2) {
+            requiredOrigin = 'root';
+        } else {
+            let next = false;
+            for(let line of stackLines) {
+                if(line.trim()
+                    .startsWith('at req')) {
+                    next = true;
+                    continue;
+                }
+                if(next) {
+                    let libLine = line.trim();
+                    if(libLine.includes('(')) {
+                        libLine = libLine
+                            .replace('(', '')
+                            .replace(')', '');
+                    }
+                    const parts = libLine.split(' ');
+                    const urlPart = parts.pop();
+                    const libParts = urlPart.split(':');
+                    libParts.pop();
+                    libParts.pop();
+                    const depUrl = new URL(libParts.join(':'));
+                    requiredOrigin = depUrl.searchParams.get('url');
+                    if(requiredOrigin.startsWith('http')) {
+                        requiredOrigin = 'main';
+                    }
+                    break;
+                }
+
+            }
+        }
+        if(!requiredFrom.includes(requiredOrigin)) {
+            requiredFrom.push(requiredOrigin);
+        }
     }
     if(!document.props) {
         document.props = {
@@ -153,6 +196,7 @@ async function req(path, options = {}) {
                 if(url.includes(window.backendUrl + '?url=')) {
                     window['scriptContent'] = text;
                 }
+                debugger;
                 /**@type {CustomEvalScript } */
                 const customEvalScript = {
                     src: url,
@@ -172,6 +216,7 @@ async function req(path, options = {}) {
                         //tslint:disable-next-line
                         this.resolvers.push(e);
                     },
+                    requiredFrom,
                     stack
                 };
                 document.props.evalScripts[url] = customEvalScript;
@@ -217,6 +262,7 @@ async function req(path, options = {}) {
             injectingScript.onload = onScriptLoad(resolve);
 
             injectingScript.stack = stack;
+            injectingScript.requiredFrom = requiredFrom;
             injectingScript.resolve = resolve;
             window.onerror = (/**@type Event */e) => {
                 if(e.target === injectingScript) {
@@ -264,6 +310,7 @@ async function req(path, options = {}) {
             console.log('injecting by text ' + path);
             errorFixScript.source = failedScriptElement.src;
             errorFixScript.stack = stack;
+            errorFixScript.requiredFrom = requiredFrom;
             window.onerror = (/**@type {Event} */e) => {
                 /**@type {EventTarget & {errorCallback?:Function}} */
                 const target = e.target;
@@ -358,7 +405,11 @@ var reqS = async function reqSImpl(path, options = {}) {
         key = prompt('enter key');
         sc.G.s('security_key', key);
     }
-    path = `${window.backendUrl}/req.php?auth=${key}&url=${path}`;
+    const url = new URL(`${window.backendUrl}/req.php`);
+    url.searchParams.append('url', path);
+    url.searchParams.append('auth', key);
+
+    path = url.href;
     return req(path, options);
 };
 window.reqS = reqS;

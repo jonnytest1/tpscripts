@@ -6,19 +6,32 @@ try {
 } catch (Warning $e) {
     return;
 }
+//echo "//requstesting for ".$url."\n";
+
 $qParams = getQueryParams();
 $url = $qParams["url"];
+$url = urldecode($url);
 
-if (!array_key_exists("auth", $qParams)) {
-    echo "missing authentication " . json_encode($qParams);
-    return;
+
+$authCode=null;
+foreach (getallheaders() as $name => $value) {
+    if($name == "secKey"){
+        $authCode=$value;
+        break;
+    }
 }
-$authCode=$qParams["auth"];
+if($authCode == null) {
+    if (!array_key_exists("auth", $qParams)) {
+        echo "missing authentication";
+        return;
+    }
+    $authCode=$qParams["auth"];
+}
 
 $permissionFile=file_get_contents(dirname(__FILE__)."/perm.json");
 $permissionObject=json_decode($permissionFile,True);
-if(!array_key_exists($qParams["auth"],$permissionObject)){
-    echo "unauthorized key" . json_encode($qParams);
+if(!array_key_exists($authCode,$permissionObject)){
+    echo "unauthorized key: " . $authCode;
     return;
 }	
 $permsissions=$permissionObject[$authCode];

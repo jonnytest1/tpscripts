@@ -7,6 +7,8 @@
 /// <reference path="../learning/knnIO.js" />
 /// <reference path="../Storage/localStorage.js" />
 /// <reference path="../site/swatchseries/swatchseries.to%episode%.js" />
+/// <reference path="../DOM/table.js" />
+/// <reference path="../DOM/dialog.js" />
 
 export interface RequireMap {
 
@@ -31,10 +33,12 @@ export interface RequireMap {
     'graphics/canvas': void
     'DOM/CircularMenu': CircularMenuResolv;
     'DOM/customSlider': void
+
+    'DOM/dialog': DOMDialogConstructor
     'DOM/DOMConstants': DConstants;
     'DOM/dependencyCheck': void
     'DOM/line': void
-
+    'DOM/table': DOMTableCosntructor
     'DOM/button': void
     'site/kissanime/buildModel': void
     'Storage/SessionStorage': CustomStorage

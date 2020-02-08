@@ -154,8 +154,11 @@ new EvalScript('', {
                     }
                 }
                 async deactivationFunction() {
+                    if(!this.backgroundObj) {
+                        debugger;
+                    }
                     await this.backgroundObj.deactivation(this.backgroundObj);
-
+                    console.trace('menu deactivation event');
                     this.isActive = false;
                     this.backgroundObj.remove();
                     this.activator()
@@ -235,6 +238,7 @@ new EvalScript('', {
                 async remove() {
                     if(this.backgroundObj) {
                         await this.backgroundObj.deactivation(this.backgroundObj);
+                        console.trace('menu deactivation event');
                     }
 
                     this.destroyed = true;
@@ -413,6 +417,7 @@ new EvalScript('', {
                                     document.removeEventListener('keydown', onKeyDown);
                                     window.removeEventListener('mousemove', onKeyDown);
                                     resolv(event);
+
                                 }
                             }
                             window.addEventListener('mousemove', onKeyDown);
@@ -438,7 +443,7 @@ new EvalScript('', {
                         activator: activator,
                         deactivator: deactivator,
                         scale: 6,
-                        getCenter: () => ({ ...mouse, target: document.body })
+                        getCenter: (ev) => ({ ...mouse, target: document.fullscreen ? ev.target.parentElement : document.body })
                     });
 
                     window.addEventListener('mousemove', (ev) => {

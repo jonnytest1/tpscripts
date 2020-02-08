@@ -49,6 +49,7 @@ globalThis.querydoc = querydoc;
  *  stack?:string
  *  remove:Function
  *  afterReset?:Function
+ *  requiredFrom?:Array<string>
  * }} CustomScript
  *
  * @typedef {CustomScript&{

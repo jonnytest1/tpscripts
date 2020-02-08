@@ -3,7 +3,7 @@
     "compilerOptions": {
         "allowJs": true,
         "checkJs": true,
-        "target": "esnext",
+        "target": "ESNext",
         "typeRoots": [
             "node_modules/@types",
             "customTypes/*"
@@ -11,7 +11,7 @@
         "outDir": "compiledjs/shutup",
         "lib": [
             "dom",
-            "esnext"
+            "ESNext"
         ]
     },
     "include": [

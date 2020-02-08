@@ -65,7 +65,7 @@ new EvalScript('', {
                             name: 'fullscreen',
                             mouseOver: (parent) => {
                                 const localVideo = getVideo(parent);
-                                debugger;
+                                // debugger;
                                 if(!document.fullscreen) {
                                     localVideo.previousStyle = { ...localVideo.style };
                                     localVideo.parentElement.webkitRequestFullScreen();

@@ -85,7 +85,8 @@ try {
 	}
 	$authCode=$queryPAramas["auth"];
 
-	$requestUrl = getQueryParams()["url"];
+	
+	$requestUrl = urldecode( getQueryParams()["url"]);
 	$parsedUrl = parse_url($requestUrl);
 
 	$json = $json . "\n//---------------------site start: rotate: " . $requestUrl . "  site: " . urlencode($parsedUrl["host"]) . "  -----------------------\n";
