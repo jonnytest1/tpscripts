@@ -6,13 +6,19 @@
  * @typedef DialogConstructor
  * @property {HTMLElement} [parent]
  * @property {Array<DialogContent>} [contents]
+ * @property {boolean} [addControls]
+ * @property {Array<ControlElement>} [customControls]
  *
  *
+ * @typedef {HTMLElement|{title:string,callback:()=>any,controlKey?:string}} ControlElement
+ *
+
  *
  * @typedef Dialog
  * @property {()=>DialogContent} back
  * @property {(content:DialogContent|HTMLElement)=>void} addContent
  * @property {(content:DialogContent|HTMLElement|string)=>void} setContent
+ * @property {(control:ControlElement) => void} addControl
  * @property {()=>void} reset
  * @property {()=>void} remove
  *
@@ -34,7 +40,8 @@ var dialogScript = new EvalScript('', {
              */
             constructor(options = {}) {
                 this.parent = options.parent || document.body;
-
+                this.addControls = options.addControls || false;
+                this.customControls = options.customControls || [];
                 /**
                  * @type {Array<DialogContent>}
                  */
@@ -53,31 +60,128 @@ var dialogScript = new EvalScript('', {
 
                 this.reset();
             }
+            /**
+             *
+             * @param {*} obj
+             * @returns {HTMLElement}
+            */
+            htmlify(obj) {
+                if(!(obj instanceof HTMLElement)) {
+                    const temp = obj;
+                    obj = document.createElement('td');
+                    obj.textContent = temp.title;
+                    obj.onclick = temp.callback;
+                }
+                return obj;
+            }
+
+            /**
+             *
+             * @param {ControlElement} control
+             */
+            addControl(control) {
+                this.customControls.push(control);
+
+                this.reset();
+
+            }
 
             reset() {
 
+                if(this.controlsElement) {
+                    this.controlsElement.remove();
+                }
+                if(this.overlay) {
+                    this.overlay.remove();
+                }
+
                 this.overlay = document.createElement('div');
+                this.parent.appendChild(this.overlay);
 
                 this.overlay.style.position = 'fixed';
                 this.overlay.style.left = this.overlay.style.right = this.overlay.style.top = this.overlay.style.bottom = '20px';
                 this.overlay.style.zIndex = '999999999';
                 this.overlay.style.backgroundColor = 'white';
-                // this.overlay.style.overflow = 'scroll';
 
-                this.parent.appendChild(this.overlay);
+                if(this.contents && this.contents.every(content => content.title) && this.contents.length > 0) {
+                    this.setTabBar();
+                }
+
+                this.dialogContent = document.createElement('div');
+                this.overlay.appendChild(this.dialogContent);
+                this.dialogContent.style.position = 'absolute';
+                this.dialogContent.style.bottom = this.dialogContent.style.left = this.dialogContent.style.right = this.dialogContent.style.top = '0px';
+                this.dialogContent.style.overflow = 'auto';
+
+                if(this.addControls || this.customControls.length > 0) {
+                    this.dialogContent.style.bottom = '40px';
+                    this.controlsElement = document.createElement('table');
+                    this.overlay.appendChild(this.controlsElement);
+
+                    //  this.controlsElement.textContent = 'controls';
+                    this.controlsElement.style.position = 'absolute';
+                    this.controlsElement.style.bottom = this.controlsElement.style.left = this.controlsElement.style.right = '0px';
+                    this.controlsElement.style.height = '40px';
+
+                    this.setControls();
+
+                }
 
                 this.setInner();
             }
 
-            setTabBar() {
-                const tabbar = document.createElement('table');
+            setControls() {
 
-                tabbar.style.width = '100%';
-                tabbar.style.height = '50px';
-                tabbar.style.backgroundColor = 'white';
+                const controlRow = document.createElement('tr');
+
+                if(this.addControls) {
+                    const next = document.createElement('td');
+                    next.textContent = 'next';
+                    next.style.verticalAlign = 'middle';
+                    next.style.textAlign = 'center';
+                    next.onclick = () => this.forward();
+                    controlRow.appendChild(next);
+
+                    const back = document.createElement('td');
+                    back.textContent = 'back';
+                    back.style.verticalAlign = 'middle';
+                    back.style.textAlign = 'center';
+                    back.onclick = () => this.back();
+                    controlRow.appendChild(back);
+
+                }
+                this.customControls.forEach(controlElement => {
+                    if(!(controlElement instanceof HTMLElement)) {
+                        if(controlElement.controlKey
+                            && this.contents[this.contentIndex]
+                            && this.contents[this.contentIndex].title !== controlElement.controlKey) {
+                            return;
+                        }
+                    }
+
+                    controlElement = this.htmlify(controlElement);
+                    if(controlElement.tagName !== 'TD') {
+                        const tempElement = controlElement;
+                        controlElement = document.createElement('td');
+                        controlElement.appendChild(tempElement);
+                    }
+                    controlElement.style.verticalAlign = 'middle';
+                    controlElement.style.textAlign = 'center';
+                    controlRow.appendChild(controlElement);
+                });
+
+                this.controlsElement.appendChild(controlRow);
+            }
+
+            setTabBar() {
+                this.tabbar = document.createElement('table');
+
+                this.tabbar.style.width = '100%';
+                this.tabbar.style.height = '50px';
+                this.tabbar.style.backgroundColor = 'white';
 
                 const tr = document.createElement('tr');
-                tabbar.appendChild(tr);
+                this.tabbar.appendChild(tr);
                 for(let content of this.contents) {
                     const tabitem = document.createElement('td');
                     tabitem.textContent = content.title;
@@ -89,7 +193,7 @@ var dialogScript = new EvalScript('', {
                     tr.appendChild(tabitem);
 
                 }
-                this.overlay.appendChild(tabbar);
+                this.overlay.appendChild(this.tabbar);
             }
 
             /**
@@ -103,19 +207,16 @@ var dialogScript = new EvalScript('', {
                 } else {
                     this.contentIndex = this.contents.indexOf(contentObj);
                 }
-
                 this.setInner();
             }
 
             setInner() {
-                for(let i = this.overlay.children.length - 1; i >= 0; i--) {
-                    this.overlay.children[i].remove();
+                this.current = this.contents[this.contentIndex];
+                for(let i = this.dialogContent.children.length - 1; i >= 0; i--) {
+                    this.dialogContent.children[i].remove();
                 }
-                if(this.contents.every(content => content.title) && this.contents.length > 0) {
-                    this.setTabBar();
-                }
-                if(this.contents[this.contentIndex]) {
-                    this.overlay.appendChild(this.contents[this.contentIndex].content);
+                if(this.current) {
+                    this.dialogContent.appendChild(this.current.content);
                 } else {
                     console.warn('no dialog set');
                 }
@@ -128,7 +229,7 @@ var dialogScript = new EvalScript('', {
              */
             setIndex(index) {
                 this.contentIndex = index;
-                this.setInner();
+                this.reset();
             }
 
             /**
@@ -145,12 +246,15 @@ var dialogScript = new EvalScript('', {
 
             back() {
                 this.contentIndex--;
-                this.setInner();
+                if(this.contentIndex < 0) {
+                    this.contentIndex = 0;
+                }
+                this.reset();
             }
 
             forward() {
                 this.contentIndex++;
-                this.setInner();
+                this.reset();
             }
 
             remove() {

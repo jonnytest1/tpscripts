@@ -90,6 +90,10 @@ async function req(path, options = {}) {
                     continue;
                 }
                 if(next) {
+                    if(line.includes('<anonymous>')) {
+                        requiredOrigin = 'root';
+                        break;
+                    }
                     let libLine = line.trim();
                     if(libLine.includes('(')) {
                         libLine = libLine
@@ -381,7 +385,7 @@ async function req(path, options = {}) {
     });
 }
 function preCheckInjection() {
-    if(location.origin.includes('https://github.com') && document.props.canInject) {
+    if((location.origin.includes('https://github.com')) && document.props.canInject) {
         console.log('presetting for github');
         document.props.canInject = false;
         document.props.canInjectText = false;
@@ -396,7 +400,8 @@ window.req = req;
  * @type {import('./require').reqSType};
  * @param {{
  * cache?:boolean
- * tmOnly?:boolean
+ * tmOnly?:boolean,
+ * searchParams?:Object.<string,string>
  * }} [options]
  */
 var reqS = async function reqSImpl(path, options = {}) {
@@ -408,7 +413,11 @@ var reqS = async function reqSImpl(path, options = {}) {
     const url = new URL(`${window.backendUrl}/req.php`);
     url.searchParams.append('url', path);
     url.searchParams.append('auth', key);
-
+    if(options.searchParams) {
+        for(let searchKey in options.searchParams) {
+            url.searchParams.append(searchKey, options.searchParams[searchKey]);
+        }
+    }
     path = url.href;
     return req(path, options);
 };

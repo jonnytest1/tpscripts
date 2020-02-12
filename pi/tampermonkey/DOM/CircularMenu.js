@@ -158,7 +158,7 @@ new EvalScript('', {
                         debugger;
                     }
                     await this.backgroundObj.deactivation(this.backgroundObj);
-                    console.trace('menu deactivation event');
+                    //console.trace('menu deactivation event');
                     this.isActive = false;
                     this.backgroundObj.remove();
                     this.activator()

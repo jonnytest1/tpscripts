@@ -7,6 +7,7 @@
 /// <reference path="../learning/knnIO.js" />
 /// <reference path="../Storage/localStorage.js" />
 /// <reference path="../site/swatchseries/swatchseries.to%episode%.js" />
+/// <reference path="../site/brandad/spider.js" />
 /// <reference path="../DOM/table.js" />
 /// <reference path="../DOM/dialog.js" />
 
@@ -40,6 +41,20 @@ export interface RequireMap {
     'DOM/line': void
     'DOM/table': DOMTableCosntructor
     'DOM/button': void
+
+    "site/brandad/attack": (request: RequestStorage) => Promise<Array<{
+        request: string, response: string
+    }>>,
+
+    'site/brandad/integrationtest': () => void
+    "site/brandad/main": void;
+
+    "site/brandad/requestoverview": (dialog: Dialog) => void
+    'site/brandad/result': (dialog: Dialog, result: Array<{ request: string, response: string }>) => void
+
+    'site/brandad/singlerequest': (dialog: Dialog, url: string, requestData: { [key: string]: RequestStorage }) => HTMLElement;
+    'site/brandad/spider': void;
+
     'site/kissanime/buildModel': void
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage

@@ -127,14 +127,9 @@ var dep = new EvalScript('', {
          */
         async function reloadDependents(script) {
             if(script.requiredFrom) {
-                for(let source of script.requiredFrom) {
-                    if(source === 'root' || source === 'main' || source === 'DOM/dependencyCheck') {
-                        continue;
-                    }
+                for(let source of script.requiredFrom.filter(sc => sc !== 'main' && sc !== 'root' && sc !== 'DOM/dependencyCheck')) {
                     const depScript = getSCriptsArray()
                         .find(scr => new URL(scr.src).searchParams.get('url') === source);
-                    debugger;
-
                     await resetScript(depScript);
                 }
 

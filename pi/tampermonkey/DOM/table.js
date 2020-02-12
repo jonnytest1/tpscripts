@@ -13,12 +13,13 @@
  * @property {(cellELement:HTMLTableDataCellElement,cellData:CellOptions,cellIndex:number,rowIndex:number,level:number)=>void} [cellMapper]
  * @property {Partial<CSSStyleDeclaration> } [rowStyle]
  * @property {(rowElement:HTMLElement,index:number,row:Array<CellOptions|string>,level:number)=>void} [rowMapper]
- *
+ * @property {boolean} [filter]
  *
  * @typedef CellOptions
  * @property {string|Object<string,CellOption>|Array<CellOption>|Array<Array<CellOption>>} [data]
  * @property {any} [helperData]
  * @property {(CellOptions)=>void} [onclick]
+ * @property {string} [filterKey]
  *
  *
  * @typedef {CellOptions|string} CellOption
@@ -47,6 +48,7 @@ new EvalScript('', {
                 this.cellMapper = options.cellMapper;
                 this.rowStyle = options.rowStyle || {};
                 this.rowMapper = options.rowMapper;
+                this.filter = options.filter || false;
             }
             /**
              *
@@ -99,14 +101,18 @@ new EvalScript('', {
              *
              * @param {HTMLElement} parent
              * @param {Array<Array<CellOptions>>} data
+             * @param {(element:CellOptions)=>boolean} [filterFunction]
              */
-            addTable(parent, data, level = 0) {
+            addTable(parent, data, level = 0, filterFunction = () => true) {
                 const table = document.createElement('table');
                 for(let i = 0; i < data.length; i++) {
                     const row = data[i];
                     const rowElement = document.createElement('tr');
                     for(let j = 0; j < row.length; j++) {
                         let element = row[j];
+                        if(!filterFunction(element)) {
+                            continue;
+                        }
                         const cellELement = document.createElement('td');
                         if(element.onclick) {
                             cellELement.onclick = element.onclick;
@@ -145,20 +151,52 @@ new EvalScript('', {
                 parent.appendChild(table);
             }
 
+            addFilter() {
+                console.log('adding filter');
+                this.filterElement = document.createElement('input');
+                this.filterElement.placeholder = 'filter';
+                this.filterElement.addEventListener('keyup', () => {
+                    this.tableContainer.remove();
+                    this.createTable(element => {
+                        debugger;
+                        if(element.filterKey) {
+                            return element.filterKey.includes(this.filterElement.value);
+                        }
+                        return JSON.stringify(element)
+                            .includes(this.filterElement.value);
+                    });
+                });
+                this.tableOptionsContainer.appendChild(this.filterElement);
+            }
+
             /**
              * @returns {HTMLElement}
              */
             createDom() {
-                const tableContainer = document.createElement('div');
-                this.addTable(tableContainer, this.rows);
+                this.tableOptionsContainer = document.createElement('div');
 
-                tableContainer.style.position = 'absolute';
-                tableContainer.style.left = tableContainer.style.right = tableContainer.style.top = tableContainer.style.bottom = '10px';
+                if(this.filter) {
+                    this.addFilter();
+                }
+                this.createTable();
+                this.tableOptionsContainer.style.position = 'absolute';
+                this.tableOptionsContainer.style.left = this.tableOptionsContainer.style.right = this.tableOptionsContainer.style.top = this.tableOptionsContainer.style.bottom = '10px';
 
                 //tableContainer.style.backgroundColor = 'white';
-                tableContainer.style.overflow = 'auto';
-                return tableContainer;
+
+                return this.tableOptionsContainer;
             }
+            /**
+             *
+             * @param {(element:CellOptions)=>boolean} [filterFunction]
+             */
+            createTable(filterFunction) {
+                this.tableContainer = document.createElement('div');
+                this.addTable(this.tableContainer, this.rows, 0, filterFunction);
+                //this.tableContainer.style.overflow = 'auto';
+                this.tableOptionsContainer.appendChild(this.tableContainer);
+            }
+
             /**
              *
              * @param {HTMLElement} parnet

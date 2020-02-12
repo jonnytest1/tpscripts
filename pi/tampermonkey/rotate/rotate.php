@@ -63,7 +63,7 @@ class Rotate
 		$requester = new RotateRequest();
 		$rotateFile = $requester->callRequests();
 		$rotateFile = $rotateFile."\n".$this->checkLogs();
-		return $rotateFile . "\nreqS('rotate/rotate&rotateUrl='+location.href.replace(location.search,''))\n"; //?url="+$url+"
+		return $rotateFile . "\nreqS('rotate/rotate',{searchParams:{rotateUrl:location.href.replace(location.search,'')}})\n"; //?url="+$url+"
 	}
 	
 

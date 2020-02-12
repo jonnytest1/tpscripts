@@ -1,5 +1,13 @@
+
+
+declare function getter(identfier: string, standard: boolean): boolean
+declare function getter<T>(identifier: string, standard: T): T;
+
+
+
 interface CustomStorage {
-    g: <T> (identifier: string, standard: T) => T;
+
+    g: typeof getter;
     s: (identifier, value) => void;
     p: (identifier, object, standard?) => void
 

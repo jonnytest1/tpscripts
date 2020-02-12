@@ -1,11 +1,9 @@
 <?PHP
 
-try {
-    include(__DIR__."/libs/log/logging.php");
-    include(__DIR__ . "/request.php");
-} catch (Warning $e) {
-    return;
-}
+
+include(__DIR__."/libs/log/logging.php");
+include(__DIR__ . "/request.php");
+
 //echo "//requstesting for ".$url."\n";
 
 $qParams = getQueryParams();

@@ -7,12 +7,10 @@
  * @property {CustomTime} customTime
  * @property {any} hibernateTimeout
  */
-
-new EvalScript('', {
-    /**
-     *
-     * @param {RotateVals} obj
-     */
+/**
+ * @type {EvalScript<RotateVals>}
+ */
+var rotateScript = new EvalScript('', {
     reset(obj) {
         sc.menu.removeByName('rotate');
         clearTimeout(obj.hibernateTimeout);

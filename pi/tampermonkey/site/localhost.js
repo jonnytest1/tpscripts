@@ -18,46 +18,13 @@ var ev = new EvalScript('', {
         //await reqT('multiplemenu');
         // await reqS("DOM/rectMenu")
         // await reqT("ngtest");
-        document.body.style.backgroundColor = 'orange';
-        const dialog = await reqS('DOM/dialog');
-        const table = await reqS('DOM/table');
+        document.body.style.background = 'linear-gradient(to right,orange,blue,green)';
+        // const dialog = await reqS('DOM/dialog');
+        //const table = await reqS('DOM/table');
 
-        set.open = new table({
-            rows: [
-                [
-                    {
-                        data: [
-                            [
-                                {
-                                    data: [
-                                        [
-                                            'abc', 'asd', 'asd'
-                                        ], [
-                                            'abc', 'asd', 'asd', 'asd', 'asd',
-                                            'abc', 'asd', 'asd', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds'
-                                        ]
-                                    ]
-                                }, 'hallo', 'hallo', 'hallo'
-                            ], [
-                                'abc', 'asd', 'asd'
-                            ], [
-                                'abc', 'asd', 'asd'
-                            ], [
-                                'abc', 'asd', 'asd'
-                            ]
-                        ]
-                    },
-                    'abcdef', 'hsaf', 'asfsdf'
-                ],
-                ['asdsd', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds', 'asdasd', 'asdasds'],
-                ['asdsd', 'asdasd', 'asdasds'],
-                ['asdsd', 'asdasd', 'asdasds'],
-                ['asdsd', 'asdasd', 'asdasds'],
-            ]
-        }).appendDom();
     },
     reset: (set) => {
-        set.open.remove();
+        //
     }
 });
 

@@ -18,6 +18,12 @@ class EvalScript {
      * @param {string} [url]
      */
     constructor(url, options = {}) {
+        /**
+         * just as a reference for typedef
+         * @type {EvalScript<V>}
+         */
+        this.type = null;
+
         this.url = url;
         /**@type {CustomHTMLscript}*/
         // @ts-ignore
