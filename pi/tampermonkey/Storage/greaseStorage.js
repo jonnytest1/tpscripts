@@ -4,7 +4,7 @@ function grease() {
 
 	var G = {
 		s: (identifier, element) => {
-			window['GM_setValue'](identifier, element);
+			window['GM_getValue']?window['GM_setValue'](identifier, element):localStorage[identifier]=JSON.stringify(element);
 		},
 		/**
 		* @param { String } identifier ""
@@ -12,7 +12,18 @@ function grease() {
 		* @returns {any}
 		*/
 		g: (identifier, standard = new Array(0)) => {
-			let element = window['GM_getValue'](identifier);
+			let element;
+			if(window['GM_getValue']){
+				element=window['GM_getValue'](identifier)
+			}else{
+				element=localStorage[identifier];
+				if(!element){
+					G.s(identifier, standard);
+					return standard;
+				}else{
+					return JSON.parse(element);
+				}
+			}
 			if (element === null || element === undefined) {
 				G.s(identifier, standard);
 				return standard;

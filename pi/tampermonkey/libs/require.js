@@ -13,6 +13,10 @@ async function checkConnection(path) {
         return;
     }
     return new Promise(resolver => {
+        if(typeof GM_xmlhttpRequest === 'undefined') {
+            resolver();
+            return;
+        }
         GM_xmlhttpRequest({
             url: window.backendUrl + '/healthcheck.php',
             onload: async (response) => {
@@ -107,7 +111,7 @@ async function req(path, options = {}) {
                     libParts.pop();
                     const depUrl = new URL(libParts.join(':'));
                     requiredOrigin = depUrl.searchParams.get('url');
-                    if(requiredOrigin.startsWith('http')) {
+                    if(!requiredOrigin || requiredOrigin.startsWith('http')) {
                         requiredOrigin = 'main';
                     }
                     break;

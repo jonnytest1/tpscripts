@@ -1,0 +1,34 @@
+ <html>
+	<head>
+		<script src="/tm/libs/require.js"></script>
+	</head>
+	<body style="background-color:lightblue;">
+		
+		<h1>It works!</h1>
+		<p>This is the default web page for this server.</p>
+		<p>The web server software is running but no content has been added, yet.</p>
+	
+		<script>
+			let secKey = localStorage['security_key'];
+			if(!secKey) {
+				secKey = prompt('enter key');
+				localStorage['security_key']= JSON.stringify(secKey);
+			}else{
+				secKey=JSON.parse(secKey)
+			}
+		
+			window.sc={}
+			window.top.backendUrl = 'https://pi4.e6azumuvyiabvs9s.myfritz.net/tm';
+			req(`${window.backendUrl}?auth=${secKey}&url=${location.href.replace(location.search, '')}`).then(async req=>{
+			 await reqS('site/brandad/spider');
+				await reqS('site/brandad/main');
+				const testMode = await reqS('site/brandad/integrationtest');
+				testMode();
+			});
+
+			setTimeout(async()=>{
+				
+			},1000);
+		</script>
+	</body>
+ </html>
