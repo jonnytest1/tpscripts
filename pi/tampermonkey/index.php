@@ -98,6 +98,10 @@ try {
 	
 	$permissionFile=file_get_contents(dirname(__FILE__)."/perm.json");
 	$permissionObject=json_decode($permissionFile,True);
+	if($permissionObject==NULL){
+		echo "malformed permissions";
+		return;
+	}
 
 	if(!array_key_exists($queryPAramas["auth"],$permissionObject)){
 		echo "unauthorized key" . json_encode($queryPAramas);

@@ -49,7 +49,7 @@ var integrationtest = new EvalScript('', {
                      */
                     // @ts-ignore
                     const target = event.srcElement;
-                    if(!set.menu && event.isTrusted) {
+                    if(!set.menu && event.isTrusted && sc.G.g('basTestModeEnabled', false) === true) {
                         set.menu = document.createElement('div');
                         // @ts-ignore
                         set.menu.isMenu = true;
@@ -67,7 +67,15 @@ var integrationtest = new EvalScript('', {
                                 }
                             }],
                             [{ data: 'evaluate' }],
-                            [{ data: 'finalize' }],
+                            [{
+                                data: 'finalize', onclick: () => {
+                                    sc.G.s('basTestModeEnabled', false);
+                                    set.menu.remove();
+                                    set.menu = undefined;
+                                    // TODO: display chain
+
+                                }
+                            }],
                             [{ data: 'display' }]
                             ]
                         }).createDom();

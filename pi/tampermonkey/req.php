@@ -41,7 +41,7 @@ try {
     $authorized=False;
     if(!array_key_exists(0,$permsissions)){
         log_be("INFO","unauthorized site request");
-        echo "//-------------------- unauthorized site : ".$url." -----------------------\n";
+        echo "//-------------------- unauthorized site : ".$url." no perms for key set -----------------------\n";
         return;
     }
     if($permsissions[0] == "*"){
@@ -55,7 +55,7 @@ try {
         }
     }
     if(!$authorized){
-        echo "//-------------------- unauthorized site : ".$url." -----------------------\n";
+        echo "//-------------------- unauthorized site : ".$url."  current perms ".json_encode($permsissions)." -----------------------\n";
         log_be("INFO","unauthorized site request");
         return;
     }
