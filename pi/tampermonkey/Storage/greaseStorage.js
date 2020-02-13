@@ -4,7 +4,7 @@ function grease() {
 
 	var G = {
 		s: (identifier, element) => {
-			window['GM_getValue']?window['GM_setValue'](identifier, element):localStorage[identifier]=JSON.stringify(element);
+			window['GM_getValue'] ? window['GM_setValue'](identifier, element) : localStorage[identifier] = JSON.stringify(element);
 		},
 		/**
 		* @param { String } identifier ""
@@ -13,18 +13,18 @@ function grease() {
 		*/
 		g: (identifier, standard = new Array(0)) => {
 			let element;
-			if(window['GM_getValue']){
-				element=window['GM_getValue'](identifier)
-			}else{
-				element=localStorage[identifier];
-				if(!element){
+			if(window['GM_getValue']) {
+				element = window['GM_getValue'](identifier);
+			} else {
+				element = localStorage[identifier];
+				if(!element) {
 					G.s(identifier, standard);
 					return standard;
-				}else{
+				} else {
 					return JSON.parse(element);
 				}
 			}
-			if (element === null || element === undefined) {
+			if(element === null || element === undefined) {
 				G.s(identifier, standard);
 				return standard;
 			}
@@ -49,7 +49,7 @@ function grease() {
 		},
 		l: (name, fn, value1) => {
 			function callfn(attribute, oldV, newV, remote) {
-				if (value1) {
+				if(value1) {
 					fn(value1, attribute, oldV, newV, remote);
 				}
 				else {
@@ -64,6 +64,19 @@ function grease() {
 		//}
 		toClipboard: (text, info = '') => {
 			return window['GM_setClipboard'](text, info);
+		},
+
+		/**
+	   * @param { String } identifier ""
+	   * @param { String } key ""
+	   * @param { any } value ""
+	   * @param { any } standard ""
+	   * @returns {any}
+	   */
+		setValue: (identifier, key, value, standard = {}) => {
+			let obj = G.g(identifier, standard);
+			obj[key] = value;
+			G.s(identifier, obj);
 		}
 	};
 	sc.G = G;
