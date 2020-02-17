@@ -20,7 +20,6 @@ new EvalScript('', {
                         {
                             name: 'add',
                             onclick: (btn) => {
-                                /**@type {CheckedShow} */
                                 const show = {
                                     name: btn.target.href.split('serie/')[1]
                                         .split('-')[0], ts: Date.now()
@@ -28,7 +27,6 @@ new EvalScript('', {
                                 sc.G.p(tvshows, show, []);
                             },
                             isValid: (btn) => {
-                                /**@type Array<CheckedShow> */
                                 let followedShows = sc.G.g(tvshows, []);
                                 return !followedShows.some(el => el.name === btn.href.split('serie/')[1]
                                     .split('-')[0]);
@@ -40,7 +38,7 @@ new EvalScript('', {
                                 let seriesLink = btn.target.href.split('serie/')[1]
                                     .split('-')[0];
                                 debugger;
-                                sc.G.remove(tvshows, (obj) => obj.name === seriesLink);
+                                sc.G.removeWhere(tvshows, (obj) => obj.name === seriesLink);
                             },
                             isValid: (btn) => {
                                 /**@type Array<CheckedShow> */
@@ -51,7 +49,7 @@ new EvalScript('', {
                         }
                     ], {
 
-                        });
+                    });
                 }
             }
         }

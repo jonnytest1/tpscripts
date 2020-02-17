@@ -1,5 +1,4 @@
 ///<reference path="tampermonkey/libs/math/vector-2d.js" />
-///<reference path="tampermonkey/logging.js" />
 /**
  * @typedef {HTMLButtonElement & {
  *     setPos?:(x:number|Vector2d,y?:number)=>void
@@ -78,4 +77,3 @@ onload = function elusiveButton() {
         }
     };
 };
-

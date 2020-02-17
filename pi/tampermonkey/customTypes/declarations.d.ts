@@ -3,6 +3,8 @@
 /// <reference path="../libs/log/logging.js" />
 /// <reference path="../find.js" />
 
+import { CustomStorage, GreaseStorage } from './storage';
+
 declare interface Window {
     backendUrl: string
     finished: Function
@@ -54,7 +56,7 @@ interface scI {
     menuContainer: HTMLElement;
     D: Debug;
     CD?: CustomStorage
-    G?: CustomStorage
+    G?: GreaseStorage
 
     L?: CustomStorage
     S?: CustomStorage;

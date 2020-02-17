@@ -23,9 +23,7 @@ var overview = new EvalScript('', {
                 controlKey: 'clear'
 
             });
-            /**
-             * @type {Object.<string,RequestStorage>}
-             */
+
             const forms = { ...sc.G.g('restRequests', {}), ...sc.G.g('form', {}), ...sc.G.g('otherRequests', {}) };
             /**
              * @type {TableData}

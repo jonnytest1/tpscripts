@@ -1,16 +1,19 @@
 /* global sc, handleError */
 ///<reference path="../customTypes/storage.d.ts"/>
 /**
- * @typedef {CustomStorage & {
+ * @typedef {import('../customTypes/storage').CustomStorage & {
  * filter:(identifier:string,filterFunction:(value:any)=>boolean)=>Array<any>
  * }} LocalStorage
  *
  * @type {LocalStorage}
  */
 var L = {
+    /**
+     * @param {Array} standard
+     */
     p: (identifier, object, standard = []) => {
         let ar = L.g(identifier, standard);
-        if(ar.constructor.name === 'Array') {
+        if(ar instanceof Array) {
             ar.push(object);
             L.s(identifier, ar);
         }

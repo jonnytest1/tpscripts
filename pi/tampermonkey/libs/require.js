@@ -9,6 +9,7 @@ console.warn = (warning, ...agrs) => {
 };
 
 async function checkConnection(path) {
+    // @ts-ignore
     if(!path.includes(window.top.backendUrl)) {
         return;
     }
@@ -18,6 +19,7 @@ async function checkConnection(path) {
             return;
         }
         GM_xmlhttpRequest({
+            // @ts-ignore
             url: window.backendUrl + '/healthcheck.php',
             onload: async (response) => {
                 const text = response.responseText;
@@ -139,6 +141,7 @@ async function req(path, options = {}) {
                         e.target.loaded = true;
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
+                        // @ts-ignore
                         if((e.target.source || e.target.src) === window.backendUrl + '/req.php?url=DOM/CircularMenu') {
                             //debugger;
                         }
@@ -201,6 +204,7 @@ async function req(path, options = {}) {
 
             scr.src = scr.src || scr.source;
             function evalText(text, url) {
+                // @ts-ignore
                 if(url.includes(window.backendUrl + '?url=')) {
                     window['scriptContent'] = text;
                 }
@@ -352,6 +356,7 @@ async function req(path, options = {}) {
                     first = 2;
                     errorFixScript.textContent = e.responseText;
                     // console.log(errorFixScript.textContent);
+                    // @ts-ignore
                     if(path.includes(window.backendUrl + '?url=')) {
                         window['scriptContent'] = errorFixScript.textContent;
                     }
@@ -414,6 +419,7 @@ var reqS = async function reqSImpl(path, options = {}) {
         key = prompt('enter key');
         sc.G.s('security_key', key);
     }
+    // @ts-ignore
     const url = new URL(`${window.backendUrl}/req.php`);
     url.searchParams.append('url', path);
     url.searchParams.append('auth', key);

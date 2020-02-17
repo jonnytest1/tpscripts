@@ -12,17 +12,9 @@
 
     reqS('graphics/canvas');
 
-    /**
-     * @type {CustomStorage}
-     */
     let sessionStorage = await reqS('Storage/SessionStorage');
 
     sessionStorage.s('image', {});
-
-    /**@type {httpResolv} */
-    let http;
-    reqS('http')
-        .then(ht => http = ht);
 
     let formContainer = await sc.g.a('formVerify1');
 

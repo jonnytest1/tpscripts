@@ -35,7 +35,7 @@ function grease() {
 			ar.push(value);
 			G.s(identifier, ar);
 		},
-		remove: (identifier, filterFunction) => {
+		removeWhere: (identifier, filterFunction) => {
 			let elements = G.g(identifier, []);
 			elements = elements.filter(el => !filterFunction(el));
 			G.s(identifier, elements);

@@ -79,6 +79,7 @@ try {
             return;
         }
         $requestUrl = $qParams["rotateUrl"];
+        $requestUrl=urldecode($requestUrl);
         $str = $fileLoader->preProcessFileName("rotate/rotate");
         $str = $rotate->injectUrls($str, str_replace(".js", "", $requestUrl));
     }

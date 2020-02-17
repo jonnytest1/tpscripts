@@ -15,15 +15,18 @@ let greaseCrossDomainStorage = 'crossdomainstorage';
 reqS('Storage/SessionStorage')
     .then(ss => {
         function getObject() {
+            // @ts-ignore
             if((sc.g.W().name === '' || sc.g.W().name
                 .indexOf('{') === -1)) {
                 if(sc.g.W()['name2'] === '' || sc.g.W()['name2'] === undefined || sc.g.W()['name2']
                     .indexOf('{') === -1) {
+                    // @ts-ignore
                     sc.g.W().name = JSON.stringify(sc.S.g(greaseCrossDomainStorage, {}));
                 }
             }
             let storageObject;
             try {
+                // @ts-ignore
                 storageObject = JSON.parse(sc.g.W().name);
             }
             catch(e) {
@@ -41,8 +44,10 @@ reqS('Storage/SessionStorage')
                 }
                 let storageObject = getObject();
                 storageObject[identifier] = element;
+                // @ts-ignore
                 sc.g.W().name = JSON.stringify(storageObject);
                 sc.S.s(greaseCrossDomainStorage, storageObject);
+                // @ts-ignore
                 return sc.g.W().name;
             },
             g: (identifier, standard) => {
@@ -77,6 +82,7 @@ reqS('Storage/SessionStorage')
                     let ar = CD.g(identifier, standard);
                     ar.push(object);
                     CD.s(identifier, ar);
+                    // @ts-ignore
                     return sc.g.W().name;
                 }
                 catch(err) {

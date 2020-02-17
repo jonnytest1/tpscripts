@@ -11,6 +11,9 @@
 /// <reference path="../DOM/table.js" />
 /// <reference path="../DOM/dialog.js" />
 
+import { ElementGetter } from '../customTypes/declarations';
+import { CustomStorage } from '../customTypes/storage';
+
 export interface RequireMap {
 
     'http': httpResolv

@@ -1,5 +1,6 @@
 /// <reference path="./libs/eval-script.js" />
 /// <reference path="./libs/require.js" />
+/// <reference path="./customTypes/declarations.d.ts" />
 console.log('entrypoint');
 /**@type {Document&{window?}} */
 const d = document;
@@ -18,7 +19,7 @@ for(let att in d.window) {
 let baseContainer = document.createElement('tampermonkey_base_container');
 baseContainer.canInjectText = true;
 document.body.insertBefore(baseContainer, document.body.children[0]);
-/** @type {scI} */
+/** @type {import('./customTypes/declarations').scI} */
 var sc = {
     D: {
         //created element id counter
@@ -77,7 +78,7 @@ new Promise(async (resolver) => {
     await reqS('DOM/dependencyCheck');
     console.log('loaded dependencyCheck');
 
-    /**@type {ElementGetter} */
+    /**@type {import('./customTypes/declarations').ElementGetter} */
     let find = await reqS('find');
     // eslint-disable-next-line no-unused-vars
     let overwrites = IMPORT;

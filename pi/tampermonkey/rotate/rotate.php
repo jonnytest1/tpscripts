@@ -44,12 +44,17 @@ class Rotate
 
 	function injectUrls($str, $url)
 	{
-		$index = array_search($url, $this->rotateSites) + 1;
+		$currentIndex=array_search($url, $this->rotateSites);
+		$index = $currentIndex  + 1;
 
 		$index = $index % count($this->rotateSites);
+	
 		$nextUrl = $this->rotateSites[$index];
 
-		$rotateFile = "\n//next url = " . $nextUrl . "\n";
+		$str = $str."\n//next url = " . $nextUrl . "\n";
+		$str = $str."\n//nextindex = " . $index . "\n";
+		$str = $str."\n//sites: " . json_encode($this->rotateSites) ."\n";
+		$str = $str."\n//index of ". $url." is ".$currentIndex  . "\n";
 		$str = str_replace("let NEXTURL = INJECT;", "let NEXTURL='" . $nextUrl . "';", $str);
 		$str = str_replace("let URLS = INJECT;", "let URLS =" . json_encode($this->rotateSites) . ";", $str);
 		$str = $str . "\nreqS('rotate/'+encodeURIComponent(location.href.replace(location.search,'')))";

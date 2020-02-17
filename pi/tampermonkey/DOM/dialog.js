@@ -6,6 +6,7 @@
  * @typedef DialogConstructor
  * @property {HTMLElement} [parent]
  * @property {Array<DialogContent>} [contents]
+ * @property {()=>void} [onremove]
  * @property {boolean} [addControls]
  * @property {Array<ControlElement>} [customControls]
  *
@@ -42,6 +43,7 @@ var dialogScript = new EvalScript('', {
                 this.parent = options.parent || document.body;
                 this.addControls = options.addControls || false;
                 this.customControls = options.customControls || [];
+                this.onremove = options.onremove;
                 /**
                  * @type {Array<DialogContent>}
                  */
@@ -261,6 +263,10 @@ var dialogScript = new EvalScript('', {
                 if(this.overlay) {
                     this.overlay.remove();
                     this.overlay = undefined;
+                }
+
+                if(this.onremove) {
+                    this.onremove();
                 }
             }
         };
