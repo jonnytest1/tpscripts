@@ -9,17 +9,20 @@
 		<h1>It works!</h1>
 		<p>This is the default web page for this server.</p>
 		<p>The web server software is running but no content has been added, yet.</p>
-		<button onclick="buttonCLickExample()">hallo</button>
+		<button onclick="buttonCLickExample(event)">hallo</button>
+		<button class="test1 test4">clazzSelectorTest</button>
+		<button class="test1 test5">clazzSelectorTest2</button>
+		<input type="time" class="test1 test5">clazzSelectorTest2</input>
 
 		<script>
 			function buttonCLickExample(e) {
-				e.target.textContent = "abc"
+				e.target.textContent = e.target.textContent === "hallo" ? "abc" : 'hallo'
 			}
 		</script>
 
 		<script>
 			let secKey = localStorage['security_key'];
-			if(!secKey) {
+			if(!secKey || secKey === "null" || secKey === '""') {
 				secKey = prompt('enter key');
 				localStorage['security_key'] = JSON.stringify(secKey);
 			} else {
@@ -31,7 +34,7 @@
 			req(`${window.backendUrl}?auth=${secKey}&url=${location.href.replace(location.search, '')}`).then(async req => {
 				await reqS('site/brandad/spider');
 				await reqS('site/brandad/main');
-				const testMode = await reqS('site/brandad/integrationtest');
+				const testMode = await reqS('site/brandad/test/integrationtest');
 				testMode();
 			});
 

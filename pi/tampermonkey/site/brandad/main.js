@@ -8,8 +8,9 @@ var brandadmain = new EvalScript('', {
         const dialogClassPromise = reqS('DOM/dialog');
 
         const tableClassPromise = reqS('DOM/table');
+        const testerPromise = reqS('site/brandad/test/tester');
         const requestOverviewPromise = reqS('site/brandad/requestoverview');
-        const testPromise = reqS('site/brandad/integrationtest');
+        const testPromise = reqS('site/brandad/test/integrationtest');
 
         document.addEventListener('keypress', async event => {
             // ctrl + M
@@ -40,7 +41,14 @@ var brandadmain = new EvalScript('', {
                                 },
                                 {
                                     data: sc.G.g('basTestModeEnabled', false) ? '✔' : '❌'
-                                }]
+                                }], [
+                                    {
+                                        data: 'tester',
+                                        onclick: async () => {
+                                            (await testerPromise)(set.dialog);
+                                        }
+                                    }
+                                ]
                             ]
                         }).createDom()
                     }

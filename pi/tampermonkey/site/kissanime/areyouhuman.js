@@ -266,7 +266,12 @@
 
     /**@type { HTMLCollectionOf<HTMLTagImageElement> } */
     let images = sc.g('img', formContainer);
-    if(images.length > 15) {
+    if(images.length > 20) {
+        [...images].forEach(image => {
+            image.style.width = image.style.height = '100px';
+            image.parentElement.style.padding = '0px';
+            image.parentElement.style.width = '100px';
+        });
         debugger;
         new Notification('too many images');
         sessionStorage.s('autoselect', false);

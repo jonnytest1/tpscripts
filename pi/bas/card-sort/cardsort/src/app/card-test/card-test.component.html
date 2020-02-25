@@ -1,0 +1,17 @@
+<mat-card [class.isAddon]="card.isAddon" class="isAddon">
+  <mat-card-title>
+    <div *ngIf="!editTitle else editMode" (click)="editTitle=!editTitle">{{card.title}}</div>
+    <ng-template #editMode>
+      <mat-form-field class="example-full-width">
+        <input matInput [placeholder]="card.title" [(value)]="card.title">
+      </mat-form-field>
+    </ng-template>
+  </mat-card-title>
+  <mat-card-content (click)="editTitle=false">
+    <div cdkDropList [cdkDropListData]="card.children" [id]="card.index" [class]="'innerList'"
+      (cdkDropListDropped)="drop($event)" [cdkDropListConnectedTo]="connected">
+      <app-inner-card cdkDrag [cdkDragData]="child" *ngFor="let child of (card.children||[])" [title]="child.title">
+      </app-inner-card>
+    </div>
+  </mat-card-content>
+</mat-card>

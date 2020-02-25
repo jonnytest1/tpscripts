@@ -1,9 +1,14 @@
-/// <reference path="../../customTypes/index.d.ts" />
+/// <reference path="../../../customTypes/index.d.ts" />
 /**
  * @typedef TestingRouteEvent
  * @property {string} selector
+ * @property {string} id
+ * @property {string} className
+ * @property {string} tagName
  * @property {string} text
- * @property {"click"|"input"} mode
+ * @property {string} test
+ * @property {"click"|"input"|'evaluate'} mode
+ * @property {string} url
  */
 
 /**
@@ -14,6 +19,7 @@ var integrationtest = new EvalScript('', {
         (async () => {
 
             const tableClass = await reqS('DOM/table');
+            const selectorPromise = reqS('libs/dom/selector');
             const dialogPromise = reqS('DOM/dialog');
 
             /**
@@ -36,7 +42,11 @@ var integrationtest = new EvalScript('', {
                 }
                 return false;
             }
-
+            /**
+             *
+             * @param {HTMLElement} target
+             * @param {*} event
+             */
             function createMenu(target, event) {
                 set.menu = document.createElement('div');
                 // @ts-ignore
@@ -48,14 +58,25 @@ var integrationtest = new EvalScript('', {
                             clickEvent(target);
                         }
                     }],
-                    [{ data: 'evaluate' }],
                     [{
-                        data: 'finalize', onclick: () => {
-                            sc.G.s('basTestModeEnabled', false);
+                        data: 'evaluate',
+                        onclick: async () => {
+                            let value = prompt('evaluator ? (el) => ');
+                            const fnc = new Function('el', 'return ' + value);
+                            //console.log(fnc(target));
+                            addTestEvent(await createTestEvent(target, 'evaluate', fnc));
                             set.menu.remove();
                             set.menu = undefined;
-                            // TODO: display chain
+
+                        }
+                    }],
+                    [{
+                        data: 'finalize',
+                        onclick: () => {
+                            sc.G.s('basTestModeEnabled', false);
+
                             displayTestRoute(() => {
+                                sc.G.p('basFinshedTests', { name: prompt('test name', ''), steps: sc.G.g('basTestingRoute', []) });
                                 sc.G.s('basTestingRoute', []);
                             });
                             sc.G.s('basTestModeEnabled', false);
@@ -77,10 +98,13 @@ var integrationtest = new EvalScript('', {
                      */
                     // @ts-ignore
                     const castedTarget = target;
-                    buttons.push([{
-                        data: 'setValue',
-                        onclick: () => setValue(castedTarget)
-                    }]);
+                    if(castedTarget.type !== 'submit') {
+                        buttons.push([{
+                            data: 'setValue',
+                            onclick: () => setValue(castedTarget)
+                        }]);
+                    }
+
                 }
                 const table = new tableClass({
                     rows: buttons
@@ -123,33 +147,54 @@ var integrationtest = new EvalScript('', {
                     }, true);
                 }
 
+            }
+
+            /**
+             *
+             * @param {MouseEvent} event
+             */
+            function handleClick(event) {
                 /**
-                *
-                * @param {MouseEvent} event
-                */
-                function handleClick(event) {
-                    /**
-                     * @type {HTMLElement}
-                     */
-                    // @ts-ignore
-                    const target = event.srcElement;
-                    if(!set.menu && event.isTrusted && sc.G.g('basTestModeEnabled', false) === true && !hasParent(target, el => el.passThrough === true)) {
-                        createMenu(target, event);
-                    }
-                    console.log(event);
-
+                 * @type {HTMLElement}
+                 */
+                // @ts-ignore
+                const target = event.srcElement;
+                if(!set.menu && event.isTrusted && sc.G.g('basTestModeEnabled', false) === true && !hasParent(target, el => el.passThrough === true)) {
+                    createMenu(target, event);
                 }
+                console.log(event);
 
+            }
+
+            /**
+             *
+             * @param {HTMLElement} element
+             * @param {"click"|"input"|'evaluate' } mode
+             * @param {Function} [test]
+             * @returns {Promise<TestingRouteEvent>}
+             */
+            async function createTestEvent(element, mode, test) {
+                const selector = (await selectorPromise)(element);
+                return {
+                    mode,
+                    text: element.textContent || element.innerText,
+                    test: `${test}`,
+                    id: element.id,
+                    className: element.className,
+                    tagName: element.tagName,
+                    selector,
+                    url: location.href
+                };
             }
 
             /**
              *
              * @param {HTMLElement} target
              */
-            function clickEvent(target) {
-                const selector = getSelector(target);
+            async function clickEvent(target) {
+
                 //console.log('adding ' + target.innerText + '  ' + selector);
-                addTestEvent({ selector, text: target.textContent || target.innerText, mode: 'click' });
+                addTestEvent(await createTestEvent(target, 'click'));
                 set.menu.remove();
                 set.menu = undefined;
                 target.click();
@@ -160,7 +205,7 @@ var integrationtest = new EvalScript('', {
              *
              * @param {HTMLInputElement} target
              */
-            function setValue(target) {
+            async function setValue(target) {
 
                 /**
                  * @type {string|number}
@@ -170,8 +215,7 @@ var integrationtest = new EvalScript('', {
                 if(target.type === 'number') {
                     value = Number(value);
                 }
-                const selector = getSelector(target);
-                addTestEvent({ selector, text: `${value}`, mode: 'input' });
+                addTestEvent(await createTestEvent(target, 'input', () => `${value}`));
                 set.menu.remove();
                 set.menu = undefined;
 
@@ -218,18 +262,6 @@ var integrationtest = new EvalScript('', {
                 tableElement.onclick = e => {
                     dialog.remove();
                 };
-            }
-
-            /**
-             * @returns {string}
-             * @param {HTMLElement} target
-             */
-            function getSelector(target) {
-                if(target.id) {
-                    return '#' + target.id;
-                }
-                return 'todo';
-
             }
 
             resolv(testMode);

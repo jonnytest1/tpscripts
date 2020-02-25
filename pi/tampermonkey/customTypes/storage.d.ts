@@ -1,5 +1,5 @@
 
-///<reference path="../site/brandad/integrationtest.js" />
+///<reference path="../site/brandad/test/integrationtest.js" />
 ///<reference path="../rotate/https%3A%2F%2Fwww1.swatchseries.to%2Ftvschedule.js" />
 
 declare function getter(identfier: string, standard: boolean): boolean
@@ -24,6 +24,8 @@ interface CustomStorage {
 export interface GreaseStorageArrayTypes {
 
     'basTestingRoute': TestingRouteEvent
+
+    'basFinshedTests': { name: string, steps: Array<TestingRouteEvent> }
 
     'followedtvshows': CheckedShow
 

@@ -42,7 +42,7 @@ var auto = new EvalScript('', {
                     .then(/**@param {HTMLVideoElement} video*/video => {
                         video.parentElement.requestFullscreen();
                         options.autoInterval = setInterval(() => {
-                            if(video.currentTime > video.duration - 1) {
+                            if(video.currentTime > video.duration - 1 && video.duration > 100) {
                                 location.href = nextAr[1] + '#autoplay=true';
                             }
                         }, 1000);

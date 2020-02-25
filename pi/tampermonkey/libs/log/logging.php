@@ -15,17 +15,19 @@
 
     function dbLog($parsed){
         $db = new DataBase("tpscript");
-        $newId= $db->sql("INSERT INTO log (timestamp,severity,application,message) VALUES (TIMESTAMP(?) ,? ,? ,?)","ssss",array(
+        $newId= $db->sql("INSERT INTO log (timestamp,severity,application,message,ip) VALUES (TIMESTAMP(?) ,? ,? ,?,?)","sssss",array(
             $parsed["timestamp"],
             $parsed["Severity"],
             $parsed["application"],
-            $parsed["message"]
+            $parsed["message"],
+            $parsed["ip"]
         ));
 
         unset($parsed["timestamp"]);
         unset($parsed["Severity"]);
         unset($parsed["application"]);
         unset($parsed["message"]);
+        unset($parsed["ip"]);
 
 
         if(sizeof($parsed) > 0){

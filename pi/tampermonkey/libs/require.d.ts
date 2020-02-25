@@ -24,6 +24,8 @@ export interface RequireMap {
 
 
     'learning/tfIO': any
+
+    'libs/dom/selector': (element: HTMLElement) => string
     'libs/eval-script': void
     'libs/log-level': void
 
@@ -49,7 +51,7 @@ export interface RequireMap {
         request: string, response: string
     }>>,
 
-    'site/brandad/integrationtest': () => void
+
     "site/brandad/main": void;
 
     "site/brandad/requestoverview": (dialog: Dialog) => void
@@ -58,6 +60,8 @@ export interface RequireMap {
     'site/brandad/singlerequest': (dialog: Dialog, url: string, requestData: { [key: string]: RequestStorage }) => HTMLElement;
     'site/brandad/spider': void;
 
+    'site/brandad/test/integrationtest': () => void
+    'site/brandad/test/tester': (dialog: Dialog) => void
     'site/kissanime/buildModel': void
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage

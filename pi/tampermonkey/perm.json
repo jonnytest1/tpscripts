@@ -1,15 +1,16 @@
 {
-    "6dz6DZdu4amC1soPXke1bI7qHZMoHf3IVt8daZFMku4n2MrmI06Cw2qtucXJEzuw": [
-        "*"
-    ],
-    "eMBEAc4ogkZW3xxXQyyR21FOxBIH77QKc1YcMdXowKzLMrcoLHXZUoXBd7rCNLxV": [
-        "site/$.js"
-    ],
-	"QKj7adhgbdooisydNuGbIt8ARXlX8HXJghDZoSH8TaUx4il34tGj6UVzeFCmDVMD":[
+	"6dz6DZdu4amC1soPXke1bI7qHZMoHf3IVt8daZFMku4n2MrmI06Cw2qtucXJEzuw": [
+		"*"
+	],
+	"eMBEAc4ogkZW3xxXQyyR21FOxBIH77QKc1YcMdXowKzLMrcoLHXZUoXBd7rCNLxV": [
+		"site/$.js"
+	],
+	"QKj7adhgbdooisydNuGbIt8ARXlX8HXJghDZoSH8TaUx4il34tGj6UVzeFCmDVMD": [
 		"site/brandad/main.js",
 		"site/brandad/spider.js",
 		"site/brandad/requestoverview.js",
-		"site/brandad/integrationtest.js",
+		"site/brandad/test/integrationtest.js",
+		"site/brandad/test/tester.js",
 		"site/brandad/singlerequest.js",
 		"site/brandad/attack.js",
 		"site/brandad/result.js",

@@ -118,6 +118,7 @@ EvalScript.type = new EvalScript('', {
                             isValid: () => videoElement.paused,
                             mouseOver: () => {
                                 videoElement.play();
+                                videoElement.focus();
                             }
                         }, {
                             name: 'pause',
@@ -125,6 +126,7 @@ EvalScript.type = new EvalScript('', {
                             mouseOver: (parent) => {
                                 const localVideo = getVideo(parent);
                                 localVideo.pause();
+                                localVideo.focus();
                             }
                         }, {
                             name: 'fullscreen',

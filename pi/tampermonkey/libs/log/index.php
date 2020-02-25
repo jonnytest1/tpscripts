@@ -3,11 +3,18 @@
     include(dirname(__FILE__) . '/logging.php');
 
     $body=file_get_contents("php://input");
-    $decoded=base64_decode($body);
     
-    $parsed=json_decode($decoded,true);
+    $decoded=base64_decode($body);
 
-   
+    $parsed=json_decode($decoded,true);
+    
+    $headers=getallheaders();
+    if(key_exists("HTTP_X_FORWARDED_FOR",$headers)){
+        $parsed["ip"]=$headers['HTTP_X_FORWARDED_FOR'];
+    }else if(key_exists("REMOTE_ADDR",$_SERVER)){
+        $parsed["ip"]=$_SERVER['REMOTE_ADDR'];
+    }
+
     if(!key_exists("timestamp",$parsed)){
         $now=new DateTime();
         $parsed["timestamp"]=$now->format('Y-m-d H:i:s'); 

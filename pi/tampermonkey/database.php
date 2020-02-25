@@ -47,11 +47,10 @@ class DataBase
     if (!is_array($params)) {
       $params = array($params);
     }
-
-
     mysqli_report(MYSQLI_REPORT_STRICT);
     $statement = $this->link->prepare($sql);
     if ($statement == FALSE) {
+      echo "missing statment";
       throw new SQLPrepareStamentExcetion($this->link);
     }
     if (sizeof(explode("?", $sql)) > 1) {
@@ -59,20 +58,27 @@ class DataBase
       $statement->bind_param($paramTypes, ...$params);
     }
 
-
+    
     $statement->execute();
     if ($this->link->error != NULL) {
+      //echo "sql err ".$this->link->error;
       throw new SQLPrepareStamentExcetion($this->link);
     }
     if (substr($sql, 0, 6) == "SELECT") {
+      //echo "stmt get result";
       $result = $statement->get_result();
+      //echo "stmt got result\n";
       if ($result == FALSE) {
+        //echo "result false";
         echo json_encode($result) . " error " . $this->link->errno;
       }
       $response = array();
       for ($i = 0; $i < $result->num_rows; $i++) {
-        $response[] = $result->fetch_array(MYSQLI_NUM);
+        //echo "adding to result\n";
+        $element=$result->fetch_array(MYSQLI_NUM);
+        $response[] = $element;
       }
+      //echo "added all results\n";
     } else if (substr($sql, 0, 6) == "INSERT") {
       $response = $statement->insert_id;
     } else if (substr($sql, 0, 6) == "UPDATE") {
@@ -85,10 +91,9 @@ class DataBase
       $statement->close();
       throw new InvalidSQLTypeException($this->link);
     }
+    //echo "closing statment\n";
     $statement->close();
-
-
-
+    //echo "closed statment ".$sql."  \n";
 
     return $response;
   }

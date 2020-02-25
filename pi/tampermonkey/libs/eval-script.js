@@ -4,6 +4,10 @@
  */
 class EvalScript {
     /**
+     * @type {{[key:string]:any}}
+     */
+    static persistedAttributes = {};
+    /**
      * @typedef {Partial<(V) & { evalScript?:EvalScript}>} EvalScriptRunOptions
      */
 
@@ -13,6 +17,7 @@ class EvalScript {
      * @property {(obj:EvalScriptRunOptions)=>boolean|void} [reset]
      * @property {(resolver:<T>(obj:T)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
      * @property {()=>void} [afterReset]
+     * @property {()=>Array<string>} [persist]
      *
      * @param {EvalScriptOptions<?>} options
      * @param {string} [url]
@@ -39,8 +44,9 @@ class EvalScript {
         this.callback = options.run;
         this.resetFunction = options.reset;
         this.afterReset = options.afterReset;
+        this.persist = options.persist;
         /**@type {Partial<V & {evalScript?:any}>} */
-        this.options = {};
+        this.options = EvalScript.persistedAttributes[this.getUrl()] || {};
         this.options.evalScript = this;
         this.onload = null;
         this.loaded = false;
@@ -55,8 +61,8 @@ class EvalScript {
             if(document.currentScript) {
                 // @ts-ignore
                 document.currentScript[propName] = this[propName];
+
             } else if(document.props.evalScripts[this.url]) {
-                // @ts-ignore
                 document.props.evalScripts[this.url][propName] = this[propName];
             }
         }

@@ -34,7 +34,7 @@ var b = new EvalScript('', {
         }
         await reqS('site/brandad/spider');
         await reqS('site/brandad/main');
-        const testMode = await reqS('site/brandad/integrationtest');
+        const testMode = await reqS('site/brandad/test/integrationtest');
         testMode();
 
     }, reset: (data) => {

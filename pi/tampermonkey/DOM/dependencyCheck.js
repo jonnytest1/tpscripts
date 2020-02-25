@@ -35,11 +35,9 @@ var dep = new EvalScript('', {
          *
          */
         function getSCriptsArray() {
-            const evalScripts = Object.entries(document.props.evalScripts);
+            const evalScripts = Object.values(document.props.evalScripts);
             if(evalScripts.length > 0) {
-                return [...evalScripts.map(obj => {
-                    return obj[1];
-                }), scriptify(url)];
+                return [...evalScripts, scriptify(url)];
             }
             /**@type {Array<CustomScript>} */
             let sources = [scriptify(url), ...document.body.getElementsByTagName('script')].filter(scr => {
@@ -160,6 +158,15 @@ var dep = new EvalScript('', {
                     let scriptUrl = script.src;
                     script.remove();
                     scriptContents[script.src] = undefined;
+                    if(script.persist) {
+                        EvalScript.persistedAttributes[script.src] = { ...EvalScript.persistedAttributes[script.src] };
+                        script.persist()
+                            .forEach(attributeName => {
+                                EvalScript.persistedAttributes[script.src][attributeName] = script.options[attributeName];
+                            });
+
+                    }
+
                     delete document.props.evalScripts[script.src];
                     await req(scriptUrl, { cache: false, requiredFrom: script.requiredFrom });
                     if(afterRefresh) {

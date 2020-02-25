@@ -29,14 +29,14 @@ async function getLogs() {
         tr.addEl(el.timestamp);
         tr.addEl(el.application);
         tr.addEl(el.severity);
-        tr.addEl(el.message);
+        tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
 
         if(count % 2 === 0) {
             tr.style.backgroundColor = '#adff2fa3';
         }
 
         if(count < newCount) {
-            tr.style.backgroundColor = '#5df25db8';;
+            tr.style.backgroundColor = '#5df25db8';
         }
         count++;
         let enabled = false;
@@ -48,7 +48,7 @@ async function getLogs() {
                 const remainingAtts = [];
 
                 for(let key in el) {
-                    if(key !== 'application' && key !== 'severity' && key !== 'message' && key !== 'timestamp') {
+                    if(key !== 'application' && key !== 'severity' && (key !== 'message' || el[key].length > 1000) && key !== 'timestamp') {
                         remainingAtts.push({ key, value: el[key] });
                     }
 

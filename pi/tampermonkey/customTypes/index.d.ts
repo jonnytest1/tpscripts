@@ -11,3 +11,17 @@
 
 
 /// <reference path="../BASE.js" />
+
+
+
+
+interface EvalSSCripts {
+    [key: string]: any)
+}
+
+interface Document {
+    props: {
+        evalScripts: EvalSSCripts
+    }
+}
+
