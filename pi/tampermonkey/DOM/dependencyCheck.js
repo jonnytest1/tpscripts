@@ -25,8 +25,14 @@ var dep = new EvalScript('', {
 
             return script.src.includes('localhost') || script.src.includes('pi4.e6azumuvyiabvs9s.myfritz.net');
         }
-        /**@param {string} urlString */
+        /**
+         * @param {string} urlString
+         * @returns {CustomScript}
+         *
+        */
+
         function scriptify(urlString) {
+            // @ts-ignore
             return { src: urlString, remove: () => { return; } };
         }
 

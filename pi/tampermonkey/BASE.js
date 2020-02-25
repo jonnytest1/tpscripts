@@ -50,9 +50,9 @@ globalThis.querydoc = querydoc;
  *  stack?:string
  *  remove:Function
  *  afterReset?:Function
- *  persist:?()=>Array<string>
+ *  persist?:()=>Array<string>
  *  requiredFrom?:Array<string>,
- *  options:any
+ *  options?:any
  * }} CustomScript
  *
  * @typedef {CustomScript&{
@@ -67,6 +67,7 @@ globalThis.querydoc = querydoc;
 */
 new Promise(async (resolver) => {
     //console.log('canInject returned ' + baseContainer.canInject);
+    // tslint:disable-next-line:variable-name
     let Storage_greaseStorage = IMPORT;
 
     await reqS('libs/eval-script');

@@ -16,7 +16,7 @@
 
 
 interface EvalSSCripts {
-    [key: string]: any)
+    [key: string]: any
 }
 
 interface Document {
@@ -24,4 +24,6 @@ interface Document {
         evalScripts: EvalSSCripts
     }
 }
+
+declare const IMPORT: any
 
