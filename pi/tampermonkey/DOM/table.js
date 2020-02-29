@@ -20,6 +20,7 @@
  * @property {any} [helperData]
  * @property {(CellOptions)=>void} [onclick]
  * @property {string} [filterKey]
+ * @property {boolean} [preformatted]
  *
  *
  * @typedef {CellOptions|string} CellOption
@@ -27,9 +28,13 @@
  * @typedef {Array<Array<CellOption|Array<CellOption>>>} TableData
  * @typedef {Array<CellOptions>} TableRowData
  */
-
-new EvalScript('', {
+/**
+ * @type {EvalScript<{tableContainer:Array<{element:HTMLElement,options:TableConstructorOptions}>}>}
+ */
+var table = new EvalScript('', {
     run: async (resolver, setter) => {
+
+        setter.tableContainer = setter.tableContainer || [];
 
         var tableClass = class Table {
 
@@ -38,6 +43,7 @@ new EvalScript('', {
              * @param {TableConstructorOptions} [options]
              */
             constructor(options = {}) {
+                this.options = options;
                 /**
                  * @type {Array<Array<CellOptions>>}
                  */
@@ -104,7 +110,7 @@ new EvalScript('', {
              * @param {(element:CellOptions)=>boolean} [filterFunction]
              */
             addTable(parent, data, level = 0, filterFunction = () => true) {
-                const table = document.createElement('table');
+                const tableElement = document.createElement('table');
                 for(let i = 0; i < data.length; i++) {
                     const row = data[i];
                     const rowElement = document.createElement('tr');
@@ -118,7 +124,13 @@ new EvalScript('', {
                             cellELement.onclick = element.onclick;
                         }
                         if(typeof element.data === 'string') {
-                            cellELement.textContent = element.data;
+                            if(element.preformatted) {
+                                const pre = document.createElement('pre');
+                                pre.textContent = element.data;
+                                cellELement.appendChild(pre);
+                            } else {
+                                cellELement.textContent = element.data;
+                            }
                         } else if(element.data instanceof Array) {
                             if(!(element.data[0] instanceof Array)) {
                                 // @ts-ignore
@@ -144,11 +156,11 @@ new EvalScript('', {
                         this.rowMapper(rowElement, i, row, level);
 
                     }
-                    table.appendChild(rowElement);
-                    table.style.width = '100%';
-                    table.style.height = '100%';
+                    tableElement.appendChild(rowElement);
+                    tableElement.style.width = '100%';
+                    tableElement.style.height = '100%';
                 }
-                parent.appendChild(table);
+                parent.appendChild(tableElement);
             }
 
             addFilter() {
@@ -173,6 +185,7 @@ new EvalScript('', {
              * @returns {HTMLElement}
              */
             createDom() {
+
                 this.tableOptionsContainer = document.createElement('div');
 
                 if(this.filter) {
@@ -183,7 +196,7 @@ new EvalScript('', {
                 this.tableOptionsContainer.style.left = this.tableOptionsContainer.style.right = this.tableOptionsContainer.style.top = this.tableOptionsContainer.style.bottom = '10px';
 
                 //tableContainer.style.backgroundColor = 'white';
-
+                setter.tableContainer = [...setter.tableContainer, { options: this.options, element: this.tableOptionsContainer }];
                 return this.tableOptionsContainer;
             }
             /**
@@ -202,11 +215,22 @@ new EvalScript('', {
              * @param {HTMLElement} parnet
              */
             appendDom(parnet = document.body) {
-                const table = this.createDom();
-                parnet.appendChild(table);
-                return table;
+                const tableElement = this.createDom();
+                parnet.appendChild(tableElement);
+                return tableElement;
             }
         };
+        (setter.tableContainer || []).forEach(previousTable => {
+            const element = previousTable.element;
+            if(element.parentElement) {
+                console.log('recreating table');
+                const newTable = new tableClass(previousTable.options).createDom();
+                element.parentElement.insertBefore(newTable, element);
+                element.remove();
+            }
+        });
+
         resolver(tableClass);
-    }
+    },
+    persist: () => ['tableContainer'],
 });

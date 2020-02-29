@@ -8,6 +8,7 @@
  * @property {string} text
  * @property {string} test
  * @property {"click"|"input"|'evaluate'} mode
+   @property {number} timestamp
  * @property {string} url
  */
 
@@ -183,7 +184,8 @@ var integrationtest = new EvalScript('', {
                     className: element.className,
                     tagName: element.tagName,
                     selector,
-                    url: location.href
+                    url: location.href,
+                    timestamp: Date.now()
                 };
             }
 
@@ -221,20 +223,53 @@ var integrationtest = new EvalScript('', {
 
             }
             /**
+             *
+             * @param {Array<TestingRouteEvent>} testRoute
+             * @returns {string}
+             */
+            function convertToIntegartionTest(testRoute) {
+                let testString = '!| script | selenium driver fixture |\n| login mit Admin |\n';
+                for(let event of testRoute) {
+                    switch(event.mode) {
+                        case 'click':
+                            testString += `| klicke auf | ${event.text} |\n`;
+                            break;
+                        case 'evaluate':
+                            testString += `| prüfe sichtbar aktiv |\n`;
+                            break;
+                        default:
+                            testString += `missing deserialize\n${JSON.stringify(event)}`;
+
+                    }
+                }
+                testString += `| logout |`;
+                return testString;
+            }
+
+            /**
              * @param {()=>void} removeListener
              */
             async function displayTestRoute(removeListener) {
                 set.menu.remove();
                 set.menu = undefined;
+                const testRoute = sc.G.g('basTestingRoute', []);
                 /**
                  * @type { TableData}
                  */
-                const tableData = sc.G.g('basTestingRoute', [])
+                const tableData = testRoute
                     .map(/**@param {TestingRouteEvent} testEvent*/ /**@param {TestingRouteEvent} testEvent*/ testEvent => {
                         return [{
                             data: Object.entries(testEvent)
+                                .map(entry => entry
+                                    .map(value => `${value}`)
+                                )
                         }];
                     });
+                tableData.push(['integrationtestscript', {
+                    data: convertToIntegartionTest(testRoute),
+                    preformatted: true
+
+                }]);
                 const tableElement = new tableClass({
                     rows: tableData,
                     cellMapper: (cell, obj, i, row, level) => {
