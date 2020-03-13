@@ -1,11 +1,25 @@
-<div cdkDropListGroup>
-  <div *ngFor="let i of t">
-    <div cdkDropList [cdkDropListData]="displayItems[i]" [id]="'list'+i" [class]="'examplelist listindex'+i"
-      (cdkDropListDropped)="drop($event)" [cdkDropListConnectedTo]="connectedLists()">
-      <ng-container *ngFor="let group of displayItems[i];let j=index">
-        <app-card-test cdkDrag [cdkDragData]="group" [card]="group" [connected]="connectedChildLists()">
-        </app-card-test>
-      </ng-container>
+<div class="container">
+  <div></div>
+  <div class="leafContainer">
+    <div class="dropListLeafContainer" cdkDropList [cdkDropListConnectedTo]="connectedChildLists" [id]="'leavesPicker'"
+      [cdkDropListData]="leaves" (cdkDropListDropped)="drop($event)">
+      <app-inner-card *ngFor="let leaf of leaves" cdkDrag [cdkDragData]="leaf" [title]="leaf.title">
+      </app-inner-card>
     </div>
   </div>
+
+
+  <div class="cardContainer">
+    <div *ngFor="let i of t">
+      <div cdkDropList [cdkDropListData]="displayItems[i]" [id]="'list'+i" [class]="'examplelist listindex'+i"
+        (cdkDropListDropped)="drop($event)" [cdkDropListConnectedTo]="connectedLists">
+        <ng-container *ngFor="let group of displayItems[i];let j=index">
+          <app-card-test cdkDrag [cdkDragData]="group" [card]="group" [connected]="connectedChildLists"
+            (dropped)="dropped($event)" [cdkDragDisabled]="group.isAddon" [class]="group.isAddon?'addon':''">
+          </app-card-test>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
 </div>

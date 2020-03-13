@@ -49,7 +49,8 @@ EvalScript.type = new EvalScript('', {
 
         let setActive = false;
         function setBackgroundActive() {
-            if(setActive) {
+
+            if(setActive || true === true) {
                 return;
             }
             setActive = true;

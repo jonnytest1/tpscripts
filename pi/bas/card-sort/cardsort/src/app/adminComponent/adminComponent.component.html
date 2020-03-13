@@ -1,0 +1,10 @@
+<div class="container">
+  <mat-form-field appearance="fill">
+    <mat-label>Leaf Name</mat-label>
+    <input #leafInput matInput placeholder="leaf">
+  </mat-form-field>
+  <button mat-button (click)="addLeaf(leafInput)">Add Leaf</button>
+</div>
+
+
+<div *ngFor="let leaf of ($leafs|async)">{{leaf.name}}</div>

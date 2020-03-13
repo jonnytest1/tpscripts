@@ -17,6 +17,7 @@ function logInfo(message, error) {
 }
 /** @global */
 function logKibana(level, message, error) {
+  error = { ...error };
   let jsonMessage = message;
   if(!jsonMessage && error) {
     jsonMessage = error.message;
@@ -26,16 +27,21 @@ function logKibana(level, message, error) {
   }
   let jsonData = {
     Severity: level,
-    // "javascript": prepareScript(),
     application: 'clientJS',
     message: jsonMessage
   };
+
+  debugger;
   if(error) {
     jsonData.error_message = error.message;
     jsonData.error_stacktrace = error.stack;
+    delete error.message;
+    delete error.stack;
+    jsonData = { ...jsonData, ...error };
   }
   GM_xmlhttpRequest({
     method: 'POST',
+    // @ts-ignore
     url: `${document.window.backendUrl}/libs/log/index.php`,
     headers: {
       'Content-Type': 'text/plain'

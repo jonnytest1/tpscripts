@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CardTestComponent } from './card-test/card-test.component';
 import { SortComponent } from './sort/sort.component';
+import { AdminComponent } from './adminComponent/adminComponent.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path: '',
     component: SortComponent
+  },
+  {
+    path: 'admin',
+    component: AdminComponent
   }
 
 ];

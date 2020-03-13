@@ -36,9 +36,11 @@ new EvalScript('', {
         //debugger;
         return false;
       }
+      return false;
       let refTExt = '<reference path="customTypes/index.d.ts" />';
       let brText = '<br />';
       if(response.includes('console.log("entrypoint");') && response.includes('tampermonkey_base_container')) {
+        console.log();
         return (response.split(brText).length > 2 && htmlErrorCheck && response.split(refTExt).length === 1);
       } else {
         const ret = response && htmlErrorCheck &&
@@ -112,10 +114,11 @@ new EvalScript('', {
               let responseText = response.responseText;
               if(response.status !== 403 && shouldLogResponse(responseText, htmlErrorCheck)) {
                 console.log(curlCommand);
-                logKibana('INFO', curlCommand);
                 const log = {
                   message: responseText.split('\n')[0],
-                  stack: `${response.responseText}\nCause: \n${curlCommand}\n\n${stack}`,
+                  stack: `${stack}`,
+                  curlcommand: curlCommand,
+                  response: response.responseText,
                   name: ''
                 };
                 handleError(log);

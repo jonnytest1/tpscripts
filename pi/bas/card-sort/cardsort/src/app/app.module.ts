@@ -8,16 +8,19 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InnerCardComponent } from './inner-card/inner-card.component';
 import { MatInputModule } from '@angular/material/input';
 import { SortComponent } from './sort/sort.component';
-
+import { MatListModule } from '@angular/material/list';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-
-
+import { AdminComponent } from './adminComponent/adminComponent.component';
+import { StoreModule } from '@ngrx/store';
+import { MatButtonModule } from '@angular/material/button';
+import { reducer } from './store/reducer';
 @NgModule({
    declarations: [
       AppComponent,
       CardTestComponent,
       InnerCardComponent,
-      SortComponent
+      SortComponent,
+      AdminComponent
    ],
    imports: [
       BrowserModule,
@@ -25,7 +28,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       BrowserAnimationsModule,
       MatCardModule,
       MatInputModule,
-      DragDropModule
+      DragDropModule,
+      MatListModule,
+      MatButtonModule,
+      StoreModule.forRoot({ root: reducer })
    ],
    providers: [],
    bootstrap: [
