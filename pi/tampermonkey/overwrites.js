@@ -1,5 +1,5 @@
 /* global evalError */
-
+/// <reference path="./customTypes/index.d.ts"/>
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
 	let originalSetTimeout = setTimeout;
@@ -25,16 +25,38 @@ function overwrites() {
 		}, time, ...args);
 	};
 
+	const urlWhitelist = [
+		'https://www.twitch.tv',
+		'https://app.gotomeeting.com'
+	];
+
+	const urlBlacklist = [
+		'https://vibtodo.com'
+	];
+
 	let originalOpen = open;
 	// @ts-ignore
 	open = (url, target, featureFocus, ...args) => {
+
 		if(target === true) {
 			location.href = url;
 			return window;
 		}
+		let urlOrigin;
+		try {
+			urlOrigin = new URL(url).origin;
+		} catch(e) {
+			// nvm
+		}
+		debugger;
+		if(urlWhitelist.includes(location.origin) || urlWhitelist.some(whitelistUrl => urlOrigin === whitelistUrl)) {
+			return originalOpen(url, target, featureFocus, ...args);
+		}
+
 		if(featureFocus === true) {
 			return originalOpen(url, target, featureFocus, ...args);
-		} else {
+		} else if(url.startsWith('http')) {
+			debugger;
 			// @ts-ignore
 			let win = window.GM_openInTab(url, { active: false, insert: false }); //active ~focused insert: append at end or after the current tab
 			win.name = window.name;
@@ -42,6 +64,17 @@ function overwrites() {
 				alert('didnt open tab :o');
 			}
 			return win;
+		} else {
+			if(urlBlacklist.includes(location.origin) || urlBlacklist.some(blacklistURl => urlOrigin === blacklistURl)) {
+				return null;
+			}
+			const not = new Notification(`blocked ${urlOrigin} on ${location.origin} `);
+			not.onclick = () => {
+				debugger;
+			};
+			// return originalOpen(url, target, featureFocus, ...args);
+			throw `blocked ${urlOrigin} on ${location.origin} `;
+
 		}
 	};
 

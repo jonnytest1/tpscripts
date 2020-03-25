@@ -9,7 +9,6 @@
 
 /// <reference path="../learning/tensorflow.js" />
 
-
 /// <reference path="../BASE.js" />
 
 

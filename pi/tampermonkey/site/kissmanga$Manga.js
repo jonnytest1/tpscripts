@@ -3,15 +3,16 @@ new EvalScript('', {
     run: async (res, set) => {
         const visitedColor = 'rgb(45, 115, 151)';
         const unvisitedColor = 'rgb(114, 206, 254)';
-        const ls = await reqS('Storage/localStorage');
-        const seenKey = 'kissmangaSeenMangas' + location.pathname.split('Manga/')[1];
+
+        const seenKey = 'kissmangaSeenMangas';
+        const mangaName = location.pathname.split('Manga/')[1];
         function openLatestUnread() {
             /**
              * @type {NodeListOf<HTMLAnchorElement>}
              */
             const mangas = document.querySelectorAll('.listing tr a');
 
-            const seen = ls.g(seenKey, []);
+            const seen = sc.G.g(seenKey, {})[mangaName] || [];
             /**
              * @type {HTMLAnchorElement}
              */
@@ -20,7 +21,8 @@ new EvalScript('', {
                 debugger;
                 const color = getComputedStyle(manga).color;
 
-                if(color === visitedColor || manga.className === 'chapterVisited' || seen.includes(new URL(manga.href).pathname)) {
+                if(color === visitedColor || manga.className === 'chapterVisited' || seen.includes(new URL(manga.href).pathname)
+                    || (seen.length === 0 && latestNotSeen)) {
                     if(latestNotSeen) {
                         location.href = latestNotSeen.href;
                     } else {
@@ -45,7 +47,7 @@ new EvalScript('', {
             })
         );
         if(location.search.includes('id')) {
-            ls.p(seenKey, location.pathname);
+            sc.G.p(seenKey, location.pathname, { mapKey: mangaName });
             sc.menu.addToMenu({
                 name: 'next',
                 mouseOver: (parnet, btn) => {

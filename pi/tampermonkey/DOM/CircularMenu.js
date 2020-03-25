@@ -467,6 +467,6 @@ new EvalScript('', {
         sc.menu.remove();
     },
     afterReset: async () => {
-        await req(window.backendUrl + '/req.php?url=test/php/testing', { cache: false });
+        //await req(window.backendUrl + '/req.php?url=test/php/testing', { cache: false });
     }
 });

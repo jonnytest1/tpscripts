@@ -36,7 +36,7 @@ export interface GreaseStorageArrayTypes {
 type GreaseStorageArrayTypesFull<T> = { [P in keyof T]: Array<T[P]>; };
 type GreaseArrayTypes = GreaseStorageArrayTypesFull<GreaseStorageArrayTypes>
 
-export interface GreaseStorageType extends GreaseArrayTypes {
+export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObjectArrayTypes {
     'basTestModeEnabled': boolean,
 
     'LogLevel': { general: "INFO" }
@@ -48,6 +48,13 @@ export interface GreaseStorageType extends GreaseArrayTypes {
     'form': { [key: string]: RequestStorage }
     'otherRequests': { [key: string]: RequestStorage }
 
+
+
+}
+
+interface GreaseStorageObjectArrayTypes {
+    'kissmangaSeenMangas': { [key: string]: Array<string> }
+
 }
 
 
@@ -58,8 +65,18 @@ interface greaseSetter {
 interface greaseGetter {
     <K extends keyof GreaseStorageType>(identifier: K, value: GreaseStorageType[K]): GreaseStorageType[K];
 }
+
+
+interface greasePushMapOptions<K> extends greasePushOptions<K> {
+    mapKey?: string
+}
+export interface greasePushOptions<K> {
+    default?: K,
+}
+
 interface greasePush {
-    <K extends keyof GreaseArrayTypes>(identifier: K, value: GreaseArrayTypes[K][0], standard?: GreaseArrayTypes[K]): void;
+    <K extends keyof GreaseArrayTypes>(identifier: K, value: GreaseArrayTypes[K][0], options?: greasePushOptions<GreaseArrayTypes[K]>): void;
+    <K extends keyof GreaseStorageObjectArrayTypes>(identifier: K, value: GreaseStorageObjectArrayTypes[K][''][0], options?: greasePushMapOptions<GreaseStorageObjectArrayTypes[K]>): void;
 }
 
 interface greaseFilter {

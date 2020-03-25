@@ -30,10 +30,25 @@ function grease() {
 			}
 			return element;
 		},
-		p: (identifier, value, standard = []) => {
-			let ar = G.g(identifier, standard);
+		/**
+		 * @param {import("../customTypes/storage").greasePushMapOptions} options
+		 */
+		p: (identifier, value, options = {}) => {
+			options.default = options.default || [];
+			if(options.mapKey) {
+				options.default = {};
+			}
+			let storageObj = G.g(identifier, options.default);
+			let ar = storageObj;
+			if(options.mapKey) {
+				if(ar[options.mapKey] === undefined) {
+					ar[options.mapKey] = [];
+				}
+				ar = ar[options.mapKey];
+
+			}
 			ar.push(value);
-			G.s(identifier, ar);
+			G.s(identifier, storageObj);
 		},
 		removeWhere: (identifier, filterFunction) => {
 			let elements = G.g(identifier, []);

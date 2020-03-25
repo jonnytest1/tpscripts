@@ -17,8 +17,8 @@ EvalScript.type = new EvalScript('', {
 
         function getBackgroundElement() {
             /**
-                       * @type {Array<{ct:number,el:HTMLElement|Element}>}
-                       */
+             * @type {Array<{ct:number,el:HTMLElement|Element}>}
+             */
             let els = [];
             for(let i = 0; i < window.innerHeight; i += 20) {
                 for(let j = 0; j < window.innerWidth; j += 20) {
@@ -131,7 +131,7 @@ EvalScript.type = new EvalScript('', {
                             }
                         }, {
                             name: 'fullscreen',
-                            mouseOver: (parent) => {
+                            mouseOver: parent => {
                                 const localVideo = getVideo(parent);
                                 // debugger;
                                 if(!document.fullscreen) {
@@ -156,7 +156,7 @@ EvalScript.type = new EvalScript('', {
                         }, {
                             name: 'speed',
                             children: [{
-                                creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
+                                creationFunction: (parent, _, _1, _2, _3, _4, center, angle) => {
                                     let localVideo = getVideo(parent);
                                     stdSpeed = LS.g('video_speed', 1);
                                     let object = new CustomSlider(parent, center, value => {
@@ -181,7 +181,7 @@ EvalScript.type = new EvalScript('', {
                             children: [{
                                 creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
                                     let localVideo = getVideo(parent);
-                                    let object = new CustomSlider(parent, center, (precent) => {
+                                    let object = new CustomSlider(parent, center, precent => {
                                         if(localVideo.muted) {
                                             localVideo.muted = false;
                                         }
@@ -209,7 +209,7 @@ EvalScript.type = new EvalScript('', {
                             }
 
                             const sliderPosition = new Vector2d(center.x, center.y).add(new Vector2d(20, 0).rotated(angle));
-                            let object = new CustomSlider(parent, sliderPosition, (percent) => {
+                            let object = new CustomSlider(parent, sliderPosition, percent => {
                                 const current = duration * (percent / 100);
                                 localVideo.currentTime = current;
                             }, localVideo.currentTime * 100 / duration, {
