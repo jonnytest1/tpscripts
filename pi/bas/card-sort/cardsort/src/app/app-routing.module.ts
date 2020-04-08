@@ -3,8 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { CardTestComponent } from './card-test/card-test.component';
 import { SortComponent } from './sort/sort.component';
 import { AdminComponent } from './adminComponent/adminComponent.component';
+import { TestRoutes } from '../teststuff/test.route';
 
 const routes: Routes = [
+  ...TestRoutes,
   {
     path: 'card-test',
     component: CardTestComponent

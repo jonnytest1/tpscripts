@@ -14,6 +14,7 @@ import { AdminComponent } from './adminComponent/adminComponent.component';
 import { StoreModule } from '@ngrx/store';
 import { MatButtonModule } from '@angular/material/button';
 import { reducer } from './store/reducer';
+import { TestModule } from '../teststuff/test.module';
 @NgModule({
    declarations: [
       AppComponent,
@@ -23,6 +24,7 @@ import { reducer } from './store/reducer';
       AdminComponent
    ],
    imports: [
+      TestModule,
       BrowserModule,
       AppRoutingModule,
       BrowserAnimationsModule,

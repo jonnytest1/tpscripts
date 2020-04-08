@@ -1,0 +1,18 @@
+test
+
+<button (click)="setWorking()">switch</button>
+
+
+<!-- <div *ngIf="getString()">
+  <div>
+    {{ log() }}
+  </div>
+</div> -->
+
+<app-conditional [condition]="getString()" [height]="50">
+  <ng-template>
+    <div>
+      {{ getString().toUpperCase() }}
+    </div>
+  </ng-template>
+</app-conditional>

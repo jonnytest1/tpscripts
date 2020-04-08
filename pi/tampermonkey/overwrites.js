@@ -2,6 +2,18 @@
 /// <reference path="./customTypes/index.d.ts"/>
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
+
+
+	const urlWhitelist = [
+		'https://www.twitch.tv',
+		'https://app.gotomeeting.com',
+		'https://global.gotomeeting.com/'
+	];
+
+	if(urlWhitelist.includes(location.origin)) {
+		return;
+	}
+
 	let originalSetTimeout = setTimeout;
 	// @ts-ignore
 	setTimeout = (fnc, ...args) => {
@@ -25,18 +37,16 @@ function overwrites() {
 		}, time, ...args);
 	};
 
-	const urlWhitelist = [
-		'https://www.twitch.tv',
-		'https://app.gotomeeting.com'
-	];
-
 	const urlBlacklist = [
-		'https://vibtodo.com'
+		'https://vibtodo.com',
+		'https://vid-to-do.com'
 	];
 
 	let originalOpen = open;
 	// @ts-ignore
 	open = (url, target, featureFocus, ...args) => {
+
+		debugger;
 
 		if(target === true) {
 			location.href = url;

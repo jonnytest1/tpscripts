@@ -74,6 +74,4 @@ export function generateExampleJSon() {
 
     return json;
 
-
-
 }

@@ -1,0 +1,7 @@
+<ng-container *ngIf="condition;else fallback">
+  <ng-container *ngTemplateOutlet="detailRef"></ng-container>
+</ng-container>
+
+<ng-template #fallback>
+  <div [style.height]="height?height+'px':undefined" style="background-color: gray;"></div>
+</ng-template>

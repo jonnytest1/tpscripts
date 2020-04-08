@@ -5,14 +5,15 @@ new EvalScript('', {
         const unvisitedColor = 'rgb(114, 206, 254)';
 
         const seenKey = 'kissmangaSeenMangas';
-        const mangaName = location.pathname.split('Manga/')[1];
+        const mangaName = location.pathname.split('Manga/')[1]
+            .split('/')[0];
         function openLatestUnread() {
             /**
              * @type {NodeListOf<HTMLAnchorElement>}
              */
             const mangas = document.querySelectorAll('.listing tr a');
 
-            const seen = sc.G.g(seenKey, {})[mangaName] || [];
+            const seen = sc.G.filter(seenKey, sc.G.filterDaysFunction(21), { mapKey: mangaName });
             /**
              * @type {HTMLAnchorElement}
              */
@@ -21,7 +22,7 @@ new EvalScript('', {
                 debugger;
                 const color = getComputedStyle(manga).color;
 
-                if(color === visitedColor || manga.className === 'chapterVisited' || seen.includes(new URL(manga.href).pathname)
+                if(color === visitedColor || manga.className === 'chapterVisited' || seen.some(seenLink => seenLink.value === new URL(manga.href).pathname)
                     || (seen.length === 0 && latestNotSeen)) {
                     if(latestNotSeen) {
                         location.href = latestNotSeen.href;
@@ -47,7 +48,10 @@ new EvalScript('', {
             })
         );
         if(location.search.includes('id')) {
-            sc.G.p(seenKey, location.pathname, { mapKey: mangaName });
+            sc.G.p(seenKey, {
+                timestamp: Date.now(),
+                value: location.pathname
+            }, { mapKey: mangaName });
             sc.menu.addToMenu({
                 name: 'next',
                 mouseOver: (parnet, btn) => {

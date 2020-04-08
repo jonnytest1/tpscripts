@@ -52,8 +52,15 @@ export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObject
 
 }
 
+export interface TimedObject<T> {
+
+    timestamp: number;
+
+    value: T
+}
+
 interface GreaseStorageObjectArrayTypes {
-    'kissmangaSeenMangas': { [key: string]: Array<string> }
+    'kissmangaSeenMangas': { [key: string]: Array<TimedObject<string>> }
 
 }
 
@@ -79,8 +86,18 @@ interface greasePush {
     <K extends keyof GreaseStorageObjectArrayTypes>(identifier: K, value: GreaseStorageObjectArrayTypes[K][''][0], options?: greasePushMapOptions<GreaseStorageObjectArrayTypes[K]>): void;
 }
 
-interface greaseFilter {
+export interface greaseFilterOptions {
+    mapKey?: string
+}
+
+export interface greaseFilter {
     <K extends keyof GreaseArrayTypes>(identifier: K, filterFunction: (element: GreaseArrayTypes[K][0]) => boolean): GreaseArrayTypes[K];
+    <K extends keyof GreaseStorageObjectArrayTypes>(identifier: K, filterFunction: (element: GreaseStorageObjectArrayTypes[K][''][0]) => boolean, options?: greaseFilterOptions): GreaseStorageObjectArrayTypes[K][''];
+}
+
+
+export interface filterFunction {
+    (days: number): (element: TimedObject<any>) => boolean
 }
 
 export interface GreaseStorage {
@@ -89,5 +106,8 @@ export interface GreaseStorage {
     p: greasePush;
 
     filter: greaseFilter
-    removeWhere: greaseFilter
+    removeWhere: greaseFilter,
+
+    filterDaysFunction: filterFunction
+
 }

@@ -56,11 +56,24 @@ function grease() {
 			G.s(identifier, elements);
 			return elements;
 		},
-		filter: (identifier, filterFunction) => {
+		/**
+		 * @type {import("../customTypes/storage").greaseFilter}
+		 * @param {import("../customTypes/storage").greaseFilterOptions} options
+		 */
+		filter: (identifier, filterFunction, options = {}) => {
 			let elements = G.g(identifier, []);
-			elements = elements.filter(filterFunction);
+			let array = elements;
+			if(options.mapKey) {
+				if(!elements[options.mapKey]) {
+					elements[options.mapKey] = [];
+				}
+				array = elements[options.mapKey].filter(filterFunction);
+			} else {
+				array = elements.filter(filterFunction);
+			}
+
 			G.s(identifier, elements);
-			return elements;
+			return array;
 		},
 		l: (name, fn, value1) => {
 			function callfn(attribute, oldV, newV, remote) {
@@ -80,14 +93,20 @@ function grease() {
 		toClipboard: (text, info = '') => {
 			return window['GM_setClipboard'](text, info);
 		},
+		/**
+		 * @type {import("../customTypes/storage").filterFunction}
+		 */
+		filterDaysFunction: (days) => {
+			return el => el.timestamp < Date.now() - (1000 * 60 * 60 * 24 * days);
+		},
 
 		/**
-	   * @param { String } identifier ""
-	   * @param { String } key ""
-	   * @param { any } value ""
-	   * @param { any } standard ""
-	   * @returns {any}
-	   */
+	    * @param { String } identifier ""
+	    * @param { String } key ""
+	    * @param { any } value ""
+	    * @param { any } standard ""
+	    * @returns {any}
+	    */
 		setValue: (identifier, key, value, standard = {}) => {
 			let obj = G.g(identifier, standard);
 			obj[key] = value;
