@@ -10,7 +10,7 @@ const classifier = require('./classifier');
 
 const dbName = 'knnAnimeTest';
 
-classifier.getClassifier(dbName)
+classifier.init(dbName)
     .then(startWebServer);
 
 function startWebServer() {
@@ -24,6 +24,11 @@ function startWebServer() {
         next();
     });
     app.get('/dbtest', databaseTest);
+    app.post('/trainrandomnumbers', async (req, res) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        classifier.randomNumbers(req.body);
+        res.send('done');
+    });
 
     app.post('/eval', evaluateImage);
     app.post('/add', addExample);
@@ -39,6 +44,7 @@ async function databaseTest(req, res) {
 /**@type {import("express").RequestHandler} */
 async function evaluateImage(request, response) {
     const evaluation = await classifier.evaluate(request.body);
+    console.log('image evauluated to ' + evaluation);
     response.send(evaluation);
 }
 

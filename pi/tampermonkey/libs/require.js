@@ -1,4 +1,5 @@
 /// <reference path="./require.d.ts" />
+//# sourceURL=http://privatescriptserver/libs/require.js
 console.log('LOADING REQUIRE');
 let prevWarn = console.warn;
 let first = 0;
@@ -208,7 +209,6 @@ async function req(path, options = {}) {
                 if(url.includes(window.backendUrl + '?url=')) {
                     window['scriptContent'] = text;
                 }
-                debugger;
                 /**@type {CustomEvalScript } */
                 const customEvalScript = {
                     src: url,
@@ -429,7 +429,15 @@ var reqS = async function reqSImpl(path, options = {}) {
         }
     }
     path = url.href;
-    return req(path, options);
+    let previousEvalScript;
+    if(typeof EvalScript !== 'undefined' && EvalScript.current) {
+        previousEvalScript = EvalScript.current;
+    }
+    const reuired = await req(path, options);
+    if(previousEvalScript) {
+        EvalScript.current = previousEvalScript;
+    }
+    return reuired;
 };
 window.reqS = reqS;
 

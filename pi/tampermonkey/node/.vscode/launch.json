@@ -16,7 +16,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Kiss Image Server",
             "program": "${workspaceFolder}\\index.js",
             "autoAttachChildProcesses": true,
             "restart": true,
@@ -24,7 +24,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch NodeTS",
+            "name": "Launch NodeTS Time ",
             "program": "D:\\vm\\dockervm\\storage\\tpscripts\\pi\\bas\\time\\src\\init.ts",
             "autoAttachChildProcesses": true,
             "restart": true,

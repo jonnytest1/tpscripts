@@ -18,6 +18,7 @@
 * @property {String} [name]
 * @property {Function} [onclick]
 * @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseOver]
+* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseLeave]
 * @property {(target)=>boolean} [isValid]
 * @property {CreateElement} [creationFunction]
 * @property {String} [enabledColor]
@@ -101,6 +102,10 @@ new EvalScript('', {
                 if(props.children) {
                     props.children = props.children.map(parseMElement);
                 }
+                if(!props.lib && EvalScript.current) {
+                    props.lib = EvalScript.current.getUrl();
+                    console.log(`setting ${props.lib} as lib for ${props.name}`);
+                }
                 return props;
 
             }
@@ -159,6 +164,7 @@ new EvalScript('', {
                     }
                     await this.backgroundObj.deactivation(this.backgroundObj);
                     //console.trace('menu deactivation event');
+                    this.leave(this.elements);
                     this.isActive = false;
                     this.backgroundObj.remove();
                     this.activator()
@@ -205,6 +211,7 @@ new EvalScript('', {
                     let alphaFilter = this.set(crIN(parent, '', () => el.click(), undefined, (btn) => {
                         this.isActive = false;
                         btn.remove();
+                        this.leave(this.elements);
                         this.activator()
                             .then(ev => this.onActivate.call(this, ev));
                     }, undefined, {
@@ -234,13 +241,28 @@ new EvalScript('', {
                         return option.isValid(this.center.target);
                     }
                 }
+                /**
+                 *
+                 * @param {Array<MenuElementItem>} els
+                 */
+                leave(els) {
+                    console.log('leave');
+                    els.forEach(element => {
+                        if(element.mouseLeave) {
+                            element.mouseLeave(this.backgroundObj, element.element);
+                        }
+                        if(element.children) {
+                            this.leave(element.children);
+                        }
+                    });
+                }
 
                 async remove() {
                     if(this.backgroundObj) {
                         await this.backgroundObj.deactivation(this.backgroundObj);
                         console.trace('menu deactivation event');
                     }
-
+                    this.leave(this.elements);
                     this.destroyed = true;
                     this.isActive = false;
                     if(this.backgroundObj) {
@@ -380,8 +402,18 @@ new EvalScript('', {
                                     buttonInstance.menu.setButtons.call(buttonInstance.menu, btn.menuOption.children, btn.degree, 90, 100 + (35 * btn.menuOption.children.length), btn.center);
                                 }
                             },
-                            /** @param { CircularMenuHTMLButton } btn */
-                            (btn) => btn.style.backgroundColor = (btn.menuOption.normalColor || 'white')
+
+                            /**
+                             * mouseLeave
+                             * @param { CircularMenuHTMLButton } btn */
+                            (btn) => {
+                                btn.style.backgroundColor = (btn.menuOption.normalColor || 'white');
+                                if(btn.menuOption.mouseLeave) {
+                                    if(btn.menuOption.mouseLeave(btn.parentElement, btn) === false) {
+                                        return;
+                                    }
+                                }
+                            }
                             , {
                                 target: center.target,
                                 style: {

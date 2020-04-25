@@ -46,10 +46,10 @@ buildModelScript.isAsync = true;
     classifierReady.style.position = 'fixed';
     document.body.appendChild(classifierReady);
 
-    await reqS('learning/tensorflow');
+    //await reqS('learning/tensorflow');
     await reqS('time');
     await reqS('graphics/canvas');
-    const knnIO = await reqS('learning/knnIO');
+    let knnIO;// = await reqS('learning/knnIO');
 
     /*knnIO('knnAnime')
                     .load()
@@ -74,24 +74,26 @@ buildModelScript.isAsync = true;
 
     let classifier;
 
-    Promise.all([
-        getClassifier()
-            .then(c => {
-                classifier = c;
-                classifierReady.textContent = 'clasifier laoded';
-            })
-            .catch(e => {
-                classifierReady.textContent = 'failed loading';
-            }),
-        new CustomTime().evaluateDuration(getPreviousTrainingData, t => console.log(`fetching data took ${t} ms`))
-            .then(d => {
-                data = d;
-                dataReady.textContent = 'loaded data';
-            })
-    ])
-        .then((promises) => {
-            txt.textContent = `got ${data.data.length} datapoints`;
-        });
+    /* Promise.all([
+         getClassifier()
+             .then(c => {
+                 classifier = c;
+                 classifierReady.textContent = 'clasifier laoded';
+             })
+             .catch(e => {
+                 classifierReady.textContent = 'failed loading';
+             }),
+
+     ])
+         .then((promises) => {
+             txt.textContent = `got ${data.data.length} datapoints`;
+         });*/
+
+    /*new CustomTime().evaluateDuration(getPreviousTrainingData, t => console.log(`fetching data took ${t} ms`))
+        .then(d => {
+            data = d;
+            dataReady.textContent = 'loaded data';
+        });*/
 
     /**
     * @typedef TagConfirmation
@@ -147,7 +149,7 @@ buildModelScript.isAsync = true;
     });
     sc.menu.addToMenu({
         name: 'trainN',
-        isValid: () => classifier,
+        isValid: () => classifier || true,
         mouseOver: () => {
             txt.textContent = 'traingin';
             setTimeout(() => trainNumbers(classifier, cWrapper, data)
@@ -180,7 +182,7 @@ buildModelScript.isAsync = true;
     });
     sc.menu.addToMenu({
         name: 'evalN',
-        isValid: () => classifier,
+        isValid: () => classifier || true,
         mouseOver: () => {
             testNumbers(classifier, cWrapper, data)
                 .then((acc) => {
@@ -201,37 +203,60 @@ buildModelScript.isAsync = true;
 async function testNumbers(classifier, cWrapper, data) {
     return new Promise(async (resolver) => {
         let correct = 0;
-        for(let ind = 0; ind < 50; ind++) {
-            document.querySelector('#text').textContent = `${ind}/50`;
-            const rData = generateRAndomData(cWrapper, data);
-            const activation = classifier.mobilenet.infer(rData.iD, 'conv_preds');
-            // Get the most likely class and confidences from the classifier module.
-            const result = await classifier.predictClass(activation);
+        if(document.Testcontainer) {
+            document.Testcontainer.remove();
+            document.Testcontainer = undefined;
+        }
 
-            let results = [];
-            for(let i in result.confidences) {
-                results.push({ i: i, percent: result.confidences[i] });
+        document.Testcontainer = document.createElement('container');
+        document.Testcontainer.appendChild(document.createElement('br'));
+        document.body.appendChild(document.Testcontainer);
+
+        for(let ind = 0; ind < 4; ind++) {
+            document.querySelector('#text').textContent = `${ind}/50`;
+
+            const canvas = document.createElement('canvas');
+            const cW = new CanvasWrapper(canvas);
+            document.Testcontainer.appendChild(canvas);
+
+            const div = document.createElement('div');
+
+            document.Testcontainer.appendChild(div);
+            document.Testcontainer.appendChild(document.createElement('br'));
+            const rData = noiseWithNumber(cW, data);
+            let dataArray = [];
+            for(let j of rData.imageData.data) {
+                dataArray.push(j);
             }
-            results.sort((a, b) => b.percent - a.percent);
-            let bestones = '';
-            let found = 0;
-            let prev = correct;
-            for(let i = 0; i < 5; i++) {
-                if(results[i].i === rData.tag.id + '') {
-                    correct++;
+            // length 102399
+            const result = await fetch('http://localhost:8080/eval', {
+                method: 'POST',
+                body: JSON.stringify(dataArray),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            /**
+             * @type {import('../../node/classifier').evalResponse} */
+            const pred = await result.json();
+            let bestones = '<table style="margin-left:50px;">';
+            let first = true;
+            for(let p of pred.sort((a, b) => b.prob - a.prob)) {
+                if(!isNaN(+p.tag)) {
+                    if(first) {
+                        bestones += `<tr><td style="color:green">${p.tag}</td><td>${Math.round(p.prob * 100) / 100}</td></tr>`;
+                        first = false;
+                    } else {
+                        bestones += `<tr><td>${p.tag}</td><td>${Math.round(p.prob * 100) / 100}</td></tr>`;
+                    }
                 }
             }
-            if(prev === correct) {
-                const context = cWrapper.canvas.getContext('2d');
-                context.putImageData(rData.iD, 0, 0);
 
-                //await new Promise((res) => setTimeout(res, 1000));
-
-            }
-
+            div.innerHTML = bestones;
         }
         document.querySelector('#text').textContent = `percent : ${correct / 50}`;
-
+        resolver();
     });
 
 }
@@ -299,26 +324,42 @@ async function test(classifier, cWrapper, data) {
 async function trainNumbers(classifier, cWrapper, data) {
     return new Promise((res) => {
         const amount = 600;
-        (function trainer(index = 0) {
+        const batchSize = 100;
+        (async function trainer(index = 0) {
             if(index > amount) {
                 document.querySelector('#text').textContent = 'done';
                 res();
                 return;
             }
             document.querySelector('#text').textContent = `${index}/${amount}`;
-            const rData = generateRAndomData(cWrapper, data);
-            classifier.addExampleClass(rData.tag.id, rData.iD);
+            const dataAr = [];
+            for(let i = 0; i < batchSize; i++) {
+                const dataEl = noiseWithNumber(cWrapper, data, false);
+                await new Promise(res => {
+                    setTimeout(res, 1);
+                });
+                dataAr.push({ tag: dataEl.tag, image: [...dataEl.imageData.data] });
+            }
 
-            setTimeout(trainer, 1, index + 1);
+            await fetch('http://localhost:8080/trainrandomnumbers', {
+                body: JSON.stringify(dataAr),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            //classifier.addExampleClass(rData.tag.id, rData.iD);
+
+            setTimeout(trainer, 1, index + batchSize);
         })();
     });
-
 }
 /**
  * @param {TrainingData} data
  * @param {CanvasWrapper } cWrapper
  */
-function generateRAndomData(cWrapper, data) {
+function noiseWithNumber(cWrapper, data, downscaled = true) {
 
     const canvas = cWrapper.canvas;
     var ctx = canvas.getContext('2d');
@@ -336,7 +377,45 @@ function generateRAndomData(cWrapper, data) {
     const number = Math.floor(Math.random() * 10);
     const color = CSS_COLOR_NAMES[Math.floor(Math.random() * CSS_COLOR_NAMES.length)];
 
-    const tag = data.tagList.find(tg => tg.tag === number + '');
+    const tag = number + '';
+    canvas.width = canvas.height = 160;
+    cWrapper.randomize();
+    ctx.fillStyle = color;
+    ctx.font = '64px Tahoma';
+    const xT = 10 + (Math.random() * 100);
+    const yT = 50 + (Math.random() * 100);
+    // console.log(xT, yT, color);
+    ctx.fillText(number + '', xT, yT);
+
+    let imageData = ctx.getImageData(0, 0, 160, 160);
+
+    //const iD = cWrapper.draw(grayScaleData, true);
+    return { imageData, tag };
+}
+
+/**
+ * @param {TrainingData} data
+ * @param {CanvasWrapper } cWrapper
+ */
+function generateRAndomData(cWrapper, data, downscaled = true) {
+
+    const canvas = cWrapper.canvas;
+    var ctx = canvas.getContext('2d');
+    var CSS_COLOR_NAMES = ['AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque', 'Black', 'BlanchedAlmond', 'Blue', 'BlueViolet', 'Brown', 'BurlyWood',
+        'CadetBlue', 'Chartreuse', 'Chocolate', 'Coral', 'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan', 'DarkBlue', 'DarkCyan', 'DarkGoldenRod', 'DarkGray', 'DarkGrey', 'DarkGreen',
+        'DarkKhaki', 'DarkMagenta', 'DarkOliveGreen', 'Darkorange', 'DarkOrchid', 'DarkRed', 'DarkSalmon', 'DarkSeaGreen', 'DarkSlateBlue', 'DarkSlateGray', 'DarkSlateGrey', 'DarkTurquoise',
+        'DarkViolet', 'DeepPink', 'DeepSkyBlue', 'DimGray', 'DimGrey', 'DodgerBlue', 'FireBrick', 'FloralWhite', 'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite', 'Gold', 'GoldenRod',
+        'Gray', 'Grey', 'Green', 'GreenYellow', 'HoneyDew', 'HotPink', 'IndianRed', 'Indigo', 'Ivory', 'Khaki', 'Lavender', 'LavenderBlush', 'LawnGreen', 'LemonChiffon', 'LightBlue',
+        'LightCoral', 'LightCyan', 'LightGoldenRodYellow', 'LightGray', 'LightGrey', 'LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue', 'LightSlateGray',
+        'LightSlateGrey', 'LightSteelBlue', 'LightYellow', 'Lime', 'LimeGreen', 'Linen', 'Magenta', 'Maroon', 'MediumAquaMarine', 'MediumBlue', 'MediumOrchid', 'MediumPurple',
+        'MediumSeaGreen', 'MediumSlateBlue', 'MediumSpringGreen', 'MediumTurquoise', 'MediumVioletRed', 'MidnightBlue', 'MintCream', 'MistyRose', 'Moccasin', 'NavajoWhite', 'Navy',
+        'OldLace', 'Olive', 'OliveDrab', 'Orange', 'OrangeRed', 'Orchid', 'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise', 'PaleVioletRed', 'PapayaWhip', 'PeachPuff', 'Peru', 'Pink', 'Plum',
+        'PowderBlue', 'Purple', 'Red', 'RosyBrown', 'RoyalBlue', 'SaddleBrown', 'Salmon', 'SandyBrown', 'SeaGreen', 'SeaShell', 'Sienna', 'Silver', 'SkyBlue', 'SlateBlue', 'SlateGray', 'SlateGrey',
+        'Snow', 'SpringGreen', 'SteelBlue', 'Tan', 'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White', 'WhiteSmoke', 'Yellow', 'YellowGreen'];
+    const number = Math.floor(Math.random() * 10);
+    const color = CSS_COLOR_NAMES[Math.floor(Math.random() * CSS_COLOR_NAMES.length)];
+
+    const tag = number + '';
     canvas.width = canvas.height = 160;
     cWrapper.randomize();
     ctx.fillStyle = color;
@@ -349,27 +428,32 @@ function generateRAndomData(cWrapper, data) {
     let imageData = ctx.getImageData(0, 0, 160, 160);
     let dataArray = [];
     let scaleSize = 2;
-    for(let j = 0; j < imageData.height - scaleSize; j += scaleSize) {
-        for(let i = 0; i < imageData.width - scaleSize; i += scaleSize) {
-            let sum = 0;
-            let amount = 0;
-            for(let x = 0; x < scaleSize; x++) {
-                for(let y = 0; y < scaleSize; y++) {
-                    let index = ((i + x) * 4) * imageData.width + ((j + y) * 4);
-                    let red = imageData.data[index];
-                    let green = imageData.data[index + 1];
-                    let blue = imageData.data[index + 2];
-                    if(blue !== undefined && red !== undefined && green !== undefined) {
-                        amount++;
-                        sum += (red + green + blue) / 3;
+
+    if(downscaled) {
+        for(let j = 0; j < imageData.height - scaleSize; j += scaleSize) {
+            for(let i = 0; i < imageData.width - scaleSize; i += scaleSize) {
+                let sum = 0;
+                let amount = 0;
+                for(let x = 0; x < scaleSize; x++) {
+                    for(let y = 0; y < scaleSize; y++) {
+                        let index = ((i + x) * 4) * imageData.width + ((j + y) * 4);
+                        let red = imageData.data[index];
+                        let green = imageData.data[index + 1];
+                        let blue = imageData.data[index + 2];
+                        if(blue !== undefined && red !== undefined && green !== undefined) {
+                            amount++;
+                            sum += (red + green + blue) / 3;
+
+                        }
 
                     }
-
                 }
-            }
-            dataArray.push(Math.round(sum / amount) / 255);
+                dataArray.push(Math.round(sum / amount) / 255);
 
+            }
         }
+    } else {
+        dataArray = [...imageData.data];
     }
     const grayScaleData = dataArray;
     const iD = cWrapper.draw(grayScaleData, true);
@@ -453,6 +537,7 @@ async function getPreviousTrainingData() {
         } else {
             fetchFromDB();
         }
+
         async function fetchFromDB() {
             debugger;
             let tags = await getTags();

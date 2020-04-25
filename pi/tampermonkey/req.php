@@ -7,8 +7,8 @@ include(__DIR__ . "/request.php");
 //echo "//requstesting for ".$url."\n";
 
 $qParams = getQueryParams();
-$url = $qParams["url"];
-$url = urldecode($url);
+$requestUrl = $qParams["url"];
+$requestUrlDecoded = urldecode($requestUrl);
 
 
 $authCode=null;
@@ -34,7 +34,7 @@ if(!array_key_exists($authCode,$permissionObject)){
 }	
 $permsissions=$permissionObject[$authCode];
 
-$url = $url . ".js";
+$url = $requestUrlDecoded . ".js";
 
 try {
 
@@ -66,6 +66,7 @@ try {
         $url = str_replace("%25", "%", $url);
         $str = file_get_contents($url);
     }
+    $str="//# sourceURL=http://privatescriptserver.de/".$requestUrlDecoded."\n".$str;
     if (strpos($url, "rotate/rotate") > -1) {
         include(dirname(__FILE__) . '/rotate/rotate.php');
         include(dirname(__FILE__) . '/fileLoader.php');

@@ -24,7 +24,7 @@
     }
     if(!key_exists("application",$parsed)){
         http_response_code(400);
-        echo "// missing key application in ".json_encode($parsed)."\n";
+        echo "// missing key application in ".json_encode($parsed)."original ".$body." \n";
         return;
     }
 

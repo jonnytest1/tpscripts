@@ -25,7 +25,12 @@ new EvalScript('', {
                 if(color === visitedColor || manga.className === 'chapterVisited' || seen.some(seenLink => seenLink.value === new URL(manga.href).pathname)
                     || (seen.length === 0 && latestNotSeen)) {
                     if(latestNotSeen) {
-                        location.href = latestNotSeen.href;
+                        if(location.search.includes('open=latest')) {
+                            location.href = latestNotSeen.href;
+                        } else {
+                            console.log('would open' + latestNotSeen.href);
+                        }
+
                     } else {
                         manga.style.backgroundColor = 'red';
                     }
@@ -67,12 +72,28 @@ new EvalScript('', {
                         //
                     }
                 },
-                lib: set.evalScript.getUrl()
+                // lib: set.evalScript.getUrl()
+            });
+            sc.menu.addToMenu({
+                name: 'previous',
+                mouseOver: (parnet, btn) => {
+                    try {
+                        /**@type {HTMLElement} */
+                        const nextButton = document.querySelector('.btnPrevious');
+                        if(!nextButton) {
+                            btn.style.backgroundColor = 'red';
+                        } else {
+                            nextButton.click();
+                        }
+                    } catch(err) {
+                        //
+                    }
+                },
+                // lib: set.evalScript.getUrl()
             });
         } else {
-            if(location.search.includes('open=latest')) {
-                openLatestUnread();
-            }
+            openLatestUnread();
+
         }
     }
 });

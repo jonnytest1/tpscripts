@@ -131,6 +131,7 @@
         }
 
         //debugger;
+        // length 102399
         image.imageData = dataArray;
         fetch('http://localhost:8080/eval', {
             method: 'POST',
@@ -150,7 +151,7 @@
                 const tagMatches2 = [];
 
                 let bestones = '<table style="margin-left:50px;">';
-                for(let p of pred) {
+                for(let p of pred.filter(pred => pred.prob > 0.1)) {
                     bestones += `<tr><td>${p.tag}</td><td>${Math.round(p.prob * 100) / 100}</td></tr>`;
                     if(tagArrays[0].tagArray.includes(p.tag)) {
                         tagMatches1.push(p);
@@ -278,7 +279,13 @@
     } else {
         sessionStorage.s('autoselect', true);
     }
-    [...images].forEach(
+    let imageArray = [...images];
+    const debugOnlyFirst = false;
+    if(debugOnlyFirst) {
+        imageArray = [imageArray[0]];
+    }
+
+    imageArray.forEach(
         /**@param  i */
         i => {
             i.onload = onImageLoad;

@@ -1,0 +1,24 @@
+{
+    "name": "timekeeping",
+    "version": "1.0.1",
+    "description": "node",
+    "main": "src/init.ts",
+    "dependencies": {
+        "dotenv": "^8.2.0",
+        "express": "",
+        "express-form-data": "^2.0.12",
+        "ldap": "^0.7.1",
+        "mariadb": "",
+        "typescript": ""
+    },
+    "devDependencies": {
+        "@types/express": "",
+        "ts-node": "",
+        "tslint": ""
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}

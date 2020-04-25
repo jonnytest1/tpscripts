@@ -91,6 +91,7 @@ EvalScript.type = new EvalScript('', {
              * @param {HTMLElement} parent
              * @returns {HTMLVideoElement & {
              *  previousStyle:CSSStyleDeclaration
+             *  skipLoop:any
              *  parentElement:{webkitRequestFullScreen:Function}
              * }}
              */
@@ -136,6 +137,7 @@ EvalScript.type = new EvalScript('', {
                                 // debugger;
                                 if(!document.fullscreen) {
                                     localVideo.previousStyle = { ...localVideo.style };
+                                    localVideo.focus();
                                     localVideo.parentElement.webkitRequestFullScreen();
                                     setTimeout(() => {
                                         localVideo.style.width = '100%';
@@ -199,27 +201,55 @@ EvalScript.type = new EvalScript('', {
 
                 sc.menu.addToMenu({
                     name: 'pos',
-                    children: [{
-                        creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
-                            let localVideo = getVideo(parent);
-                            let scale = 5;
-                            let duration = localVideo.duration;
-                            if(isNaN(duration)) {
-                                duration = 0;
+                    children: [
+                        {
+                            name: 'forward',
+                            mouseOver: (parent) => {
+                                const video = getVideo(parent);
+                                video.skipLoop = setInterval(() => {
+                                    video.currentTime += 5;
+                                }, 400);
+                            }, mouseLeave: (parent) => {
+                                const video = getVideo(parent);
+                                if(video.skipLoop) {
+                                    clearInterval(video.skipLoop);
+                                }
                             }
+                        },
+                        {
+                            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle) => {
+                                let localVideo = getVideo(parent);
+                                let scale = 5;
+                                let duration = localVideo.duration;
+                                if(isNaN(duration)) {
+                                    duration = 0;
+                                }
 
-                            const sliderPosition = new Vector2d(center.x, center.y).add(new Vector2d(20, 0).rotated(angle));
-                            let object = new CustomSlider(parent, sliderPosition, percent => {
-                                const current = duration * (percent / 100);
-                                localVideo.currentTime = current;
-                            }, localVideo.currentTime * 100 / duration, {
-                                scale: scale,
-                                skipInit: true,
-                                viewRotation: angle + 90,
-                            });
-                            return object.container;
-                        }
-                    }]
+                                const sliderPosition = new Vector2d(center.x, center.y).add(new Vector2d(20, 0).rotated(angle));
+                                let object = new CustomSlider(parent, sliderPosition, percent => {
+                                    const current = duration * (percent / 100);
+                                    localVideo.currentTime = current;
+                                }, localVideo.currentTime * 100 / duration, {
+                                    scale: scale,
+                                    skipInit: true,
+                                    viewRotation: angle + 90,
+                                });
+                                return object.container;
+                            }
+                        }, {
+                            name: 'backwards',
+                            mouseOver: (parent) => {
+                                const video = getVideo(parent);
+                                video.skipLoop = setInterval(() => {
+                                    video.currentTime -= 5;
+                                }, 400);
+                            }, mouseLeave: (parent) => {
+                                const video = getVideo(parent);
+                                if(video.skipLoop) {
+                                    clearInterval(video.skipLoop);
+                                }
+                            }
+                        }]
                 });
             }
         }

@@ -7,6 +7,11 @@ class EvalScript {
      * @type {{[key:string]:any}}
      */
     static persistedAttributes = {};
+
+    /**
+     * @type {EvalScript<any>}
+     */
+    static current;
     /**
      * @typedef {Partial<(V) & { evalScript?:EvalScript}>} EvalScriptRunOptions
      */
@@ -48,6 +53,7 @@ class EvalScript {
         /**@type {Partial<V & {evalScript?:any}>} */
         this.options = EvalScript.persistedAttributes[this.getUrl()] || {};
         this.options.evalScript = this;
+        EvalScript.current = this;
         this.onload = null;
         this.loaded = false;
         ///**@type {Array<keyof import('./require').RequireMap>} */

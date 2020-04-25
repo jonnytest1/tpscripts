@@ -21,6 +21,8 @@ interface EvalSSCripts {
 interface Document {
     props: {
         evalScripts: EvalSSCripts
+        canInject: boolean
+        canInjectText: boolean
     }
 }
 

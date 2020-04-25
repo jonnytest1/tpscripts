@@ -68,8 +68,10 @@ function grease() {
 					elements[options.mapKey] = [];
 				}
 				array = elements[options.mapKey].filter(filterFunction);
+				elements[options.mapKey] = array;
 			} else {
 				array = elements.filter(filterFunction);
+				elements = array;
 			}
 
 			G.s(identifier, elements);
@@ -97,7 +99,7 @@ function grease() {
 		 * @type {import("../customTypes/storage").filterFunction}
 		 */
 		filterDaysFunction: (days) => {
-			return el => el.timestamp < Date.now() - (1000 * 60 * 60 * 24 * days);
+			return el => el.timestamp > Date.now() - (1000 * 60 * 60 * 24 * days);
 		},
 
 		/**

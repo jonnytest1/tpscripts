@@ -43,7 +43,7 @@ async function sqlquery(queryString, params = [], db = 'knnAnimeTest') {
  * @param {String} [db]
  * @returns {Promise<Array<T>>}
  */
-async function selectQuery(queryString, params = [], db = 'knnAnimeTest') {
+async function selectQuery(queryString, params = []) {
     return query(connection => connection.query(queryString, params));
 }
 
@@ -65,15 +65,68 @@ async function getWeights(name) {
 }
 
 /**
- * @returns {Promise<Array<{imagedata:string,tag_id:number,tag_name:string}>>}
+ * @returns {Promise<{maxId:number,data:Array<{imagedata:string,tag_id:number,tag_name:string,image_id:number}>}>}
  */
-async function getExamples() {
-    return selectQuery(`
+async function getExamples(minImageID = -1) {
+    /* return selectQuery(`
     SELECT kissanime_tags.tag_id,kissanime_tags.tag_name ,kissanime_images.imagedata
     FROM kissanime_images_tag
     JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
     JOIN kissanime_images ON kissanime_images_tag.image=kissanime_images.image_id
-    WHERE kissanime_images_tag.correct= 1`);
+    WHERE kissanime_images_tag.correct= 1
+    ORDER BY
+    `); */
+
+    /**
+     * @type {Array<{image_id:number,imagedata:string}>}
+     */
+    const images = await selectQuery(`SELECT kissanime_images.image_id,kissanime_images.imagedata
+        FROM kissanime_images
+        WHERE kissanime_images.image_id > ?
+        ORDER BY kissanime_images.image_id ASC
+        LIMIT 30`, [minImageID]
+    );
+
+    let maxId = -1;
+    images.forEach(element => {
+        if(element.image_id > maxId) {
+            maxId = element.image_id;
+        }
+    });
+
+    if(images.length === 0) {
+        throw 'no more';
+    }
+
+    const tags = await selectQuery(
+        `SELECT kissanime_images_tag.image,kissanime_tags.tag_id,kissanime_tags.tag_name
+        FROM kissanime_images_tag
+        JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
+        WHERE kissanime_images_tag.image IN (${images.map(i => '?').join(',')})
+    `, images.map(img => img.image_id));
+
+    const mapped = images.map(img => {
+        const imgTags = tags.filter(tag => tag.image === img.image_id);
+        return imgTags.map(tag => ({ ...tag, ...img }));
+    })
+        .reduce((ar1, ar2) => {
+            return [...ar1, ...ar2];
+        }, []);
+
+    return { maxId, data: mapped };
+
+}
+
+async function getTagCount() {
+
+    const tagCouint = await sqlquery(`
+    SELECT COUNT(*) AS ct
+    FROM kissanime_images_tag
+    JOIN kissanime_tags ON kissanime_images_tag.tag = kissanime_tags.tag_id
+    WHERE kissanime_images_tag.correct =1
+    `);
+
+    return tagCouint[0].ct;
 }
 
 /**
@@ -146,7 +199,7 @@ async function save(classifier) {
                 params.push(JSON.stringify(Array.from(data)));
             }
             index++;
-            if(index % 10 === 0) {
+            if(index % 2 === 0) {
                 console.log('saving');
                 await connection.query(sql.substring(0, sql.length - 2), params);
                 sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
@@ -195,5 +248,5 @@ async function test() {
 
 }
 module.exports = {
-    getWeights, addExample, getTags, save, test, getExamples
+    getWeights, addExample, getTags, save, test, getExamples, getTagCount
 };

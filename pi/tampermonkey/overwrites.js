@@ -3,11 +3,11 @@
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
 
-
 	const urlWhitelist = [
 		'https://www.twitch.tv',
 		'https://app.gotomeeting.com',
-		'https://global.gotomeeting.com/'
+		'https://global.gotomeeting.com/',
+		'https://www.codingame.com'
 	];
 
 	if(urlWhitelist.includes(location.origin)) {
@@ -39,7 +39,8 @@ function overwrites() {
 
 	const urlBlacklist = [
 		'https://vibtodo.com',
-		'https://vid-to-do.com'
+		'https://vid-to-do.com',
+		'https://kissmanga.com/'
 	];
 
 	let originalOpen = open;
