@@ -14,7 +14,8 @@ var ev = new EvalScript('', {
         //await reqS("learning/tensorflow");
         // await reqS('DOM/customSlider');
         //await reqT("video")
-        await reqS('site/kissanime/buildModel');
+        await reqS('site/kissanime/testModel');
+        //await reqS('site/kissanime/buildModel');
         //await reqT('multiplemenu');
         // await reqS("DOM/rectMenu")
         // await reqT("ngtest");

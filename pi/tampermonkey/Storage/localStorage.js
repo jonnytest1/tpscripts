@@ -1,7 +1,7 @@
 /* global sc, handleError */
-///<reference path="../customTypes/storage.d.ts"/>
+///<reference path="storage.d.ts"/>
 /**
- * @typedef {import('../customTypes/storage').CustomStorage & {
+ * @typedef {import('storage').CustomStorage & {
  * filter:(identifier:string,filterFunction:(value:any)=>boolean)=>Array<any>
  * }} LocalStorage
  *

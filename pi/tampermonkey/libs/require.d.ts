@@ -8,11 +8,14 @@
 /// <reference path="../Storage/localStorage.js" />
 /// <reference path="../site/swatchseries/swatchseries.to%episode%.js" />
 /// <reference path="../site/brandad/spider.js" />
+/// <reference path="../DOM/button.js" />
 /// <reference path="../DOM/table.js" />
 /// <reference path="../DOM/dialog.js" />
+/// <reference path="../DOM/progress-overlay.js" />
+/// <reference path="../libs/indexeddb.js" />
 
 import { ElementGetter } from '../customTypes/declarations';
-import { CustomStorage } from '../customTypes/storage';
+import { CustomStorage, StorageBase } from '../Storage/storage';
 
 export interface RequireMap {
 
@@ -27,6 +30,8 @@ export interface RequireMap {
 
     'libs/dom/selector': (element: HTMLElement) => string
     'libs/eval-script': void
+
+    'libs/indexeddb': indexedDB
     'libs/log-level': void
 
     'libs/log/logging': void
@@ -43,9 +48,11 @@ export interface RequireMap {
     'DOM/dialog': DOMDialogConstructor
     'DOM/DOMConstants': DConstants;
     'DOM/dependencyCheck': void
+
+    'DOM/progress-overlay': (callback: (optinos: ProgressOverlayOptions) => Promise<number> | number, optinos?: ProgressOverlayOptions) => ProgressOverlayOptions
     'DOM/line': void
     'DOM/table': DOMTableCosntructor
-    'DOM/button': void
+    'DOM/button': ButtonRes
 
     "site/brandad/attack": (request: RequestStorage) => Promise<Array<{
         request: string, response: string
@@ -63,9 +70,17 @@ export interface RequireMap {
     'site/brandad/test/integrationtest': () => void
     'site/brandad/test/tester': (dialog: Dialog) => void
     'site/kissanime/buildModel': void
+    'site/kissanime/data-to-browser-db': () => Promise<any>
+    'site/kissanime/testModel': void
+
+
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage
     'Storage/localStorage': LocalStorage
+
+    "Storage/greaseBase": StorageBase
+    'Storage/storageimpl': void
+
 
     'test/php/testing': void
     'time': CustomTimeClass
@@ -76,4 +91,47 @@ export interface RequireMap {
 
 export interface reqSType {
     <K extends keyof RequireMap>(path: K, options?: any): Promise<RequireMap[K]>;
+
+
+    <
+        K extends keyof RequireMap,
+        T extends keyof RequireMap>(path: [
+            K,
+            T
+        ], options?: any):
+        Promise<[
+            RequireMap[K],
+            RequireMap[T]
+        ]>;
+    //
+    <
+        K extends keyof RequireMap,
+        U extends keyof RequireMap,
+        T extends keyof RequireMap>(path: [
+            K,
+            T,
+            U
+        ], options?: any):
+        Promise<[
+            RequireMap[K],
+            RequireMap[T],
+            RequireMap[U]
+        ]>;
+    //
+    <
+        K extends keyof RequireMap,
+        T extends keyof RequireMap,
+        S extends keyof RequireMap,
+        U extends keyof RequireMap>(path: [
+            K,
+            T,
+            S,
+            U
+        ], options?: any):
+        Promise<[
+            RequireMap[K],
+            RequireMap[T],
+            RequireMap[S],
+            RequireMap[U]
+        ]>;
 }

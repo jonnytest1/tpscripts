@@ -24,7 +24,7 @@ new EvalScript('', {
                                     name: btn.target.href.split('serie/')[1]
                                         .split('-')[0], ts: Date.now()
                                 };
-                                sc.G.p(tvshows, show, []);
+                                sc.G.p(tvshows, show);
                             },
                             isValid: (btn) => {
                                 let followedShows = sc.G.g(tvshows, []);
@@ -33,7 +33,7 @@ new EvalScript('', {
                             }
                         }, {
                             name: 'remove',
-                            enabledColor: 'red',
+                            enabledColor: 'Red',
                             onclick: (btn) => {
                                 let seriesLink = btn.target.href.split('serie/')[1]
                                     .split('-')[0];

@@ -113,6 +113,8 @@ EvalScript.type = new EvalScript('', {
 
                 sc.menu.addToMenu({
                     name: 'video',
+                    rotation: 0,
+                    normalColor: 'Aqua',
                     isValid: () => true,
                     children: [
                         {
@@ -206,8 +208,9 @@ EvalScript.type = new EvalScript('', {
                             name: 'forward',
                             mouseOver: (parent) => {
                                 const video = getVideo(parent);
+                                let increment = 5;
                                 video.skipLoop = setInterval(() => {
-                                    video.currentTime += 5;
+                                    video.currentTime += increment++;
                                 }, 400);
                             }, mouseLeave: (parent) => {
                                 const video = getVideo(parent);
@@ -221,6 +224,7 @@ EvalScript.type = new EvalScript('', {
                                 let localVideo = getVideo(parent);
                                 let scale = 5;
                                 let duration = localVideo.duration;
+
                                 if(isNaN(duration)) {
                                     duration = 0;
                                 }
@@ -240,8 +244,9 @@ EvalScript.type = new EvalScript('', {
                             name: 'backwards',
                             mouseOver: (parent) => {
                                 const video = getVideo(parent);
+                                let increment = 5;
                                 video.skipLoop = setInterval(() => {
-                                    video.currentTime -= 5;
+                                    video.currentTime -= increment++;
                                 }, 400);
                             }, mouseLeave: (parent) => {
                                 const video = getVideo(parent);

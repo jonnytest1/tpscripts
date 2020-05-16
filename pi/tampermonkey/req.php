@@ -66,7 +66,9 @@ try {
         $url = str_replace("%25", "%", $url);
         $str = file_get_contents($url);
     }
-    $str="//# sourceURL=http://privatescriptserver.de/".$requestUrlDecoded."\n".$str;
+    if(!array_key_exists("fileOnly", $qParams)){
+        $str="//# sourceURL=http://privatescriptserver.de/".$requestUrlDecoded."\n".$str;
+    }
     if (strpos($url, "rotate/rotate") > -1) {
         include(dirname(__FILE__) . '/rotate/rotate.php');
         include(dirname(__FILE__) . '/fileLoader.php');

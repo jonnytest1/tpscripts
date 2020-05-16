@@ -6,22 +6,30 @@ interface model {
     compile: (...args) => void
     predict: (t: TensorObject) => TensorObject;
 
-    fit:(x:TensorObject,y:TensorObject,fitOptions?:fitOptions)=>Promise<fitHistory>;// returns History
+    fit: (x: TensorObject, y: TensorObject, fitOptions?: fitOptions) => Promise<fitHistory>;// returns History
     add: (layer: Layers) => void
 }
-interface fitReport{
-    acc:Array<number>,
-    loss:Array<number>
+interface fitReport {
+    acc: Array<number>,
+    loss: Array<number>
 }
-interface fitHistory{
-    epoch:Array<number>
-    params:any
-    history:fitReport
+interface fitHistory {
+    epoch: Array<number>
+    params: any
+    history: fitReport
 }
 
-interface fitOptions{
-    epochs?:number
-    batchSize?:number
+interface fitOptions {
+    epochs?: number
+    batchSize?: number
+
+    callbacks?: {
+        onEpochEnd?: Function
+        onBatchBegin?: Function
+        onBatchEnd?: Function
+    }
+
+    validationSplit?: number
 }
 
 interface TensorObject {
@@ -30,25 +38,25 @@ interface TensorObject {
     shape: Array<number>
     reshape: (shape: Array<number>) => TensorObject
     dataSync: () => Array<number>
-	clone: () => TensorObject
-    data:()=>Promise<Array<number>>
+    clone: () => TensorObject
+    data: () => Promise<Array<number>>
 }
 interface TensorInterface {
-    (arr:  number |
+    (arr: number |
         Array<number> |
-         Array<Array<number>>|
-         Array<Array<Array<number>>>|
-         Array<Array<Array<Array<number>>>>, shape?: Array<number>): TensorObject;
-    
+        Array<Array<number>> |
+        Array<Array<Array<number>>> |
+        Array<Array<Array<Array<number>>>>, shape?: Array<number>): TensorObject;
+
 }
 
-interface LayerOptions{
-    inputShape:any
-    units:number
+interface LayerOptions {
+    inputShape: Array<number>
+    units: number
 }
-interface Layer{
-    type:String
-    options:LayerOptions
+interface Layer {
+    type: String
+    options: LayerOptions
 }
 interface Layers {
     conv2d: (...args) => Layers
@@ -62,6 +70,8 @@ interface Layers {
 
 interface Train {
     sgd: (lr: number) => Train
+
+    adam: () => Train
 }
 interface Browser {
     fromPixels: (canvas: HTMLCanvasElement) => TensorObject

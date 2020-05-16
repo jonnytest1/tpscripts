@@ -57,7 +57,7 @@ var rotateScript = new EvalScript('', {
                     return {
                         name: displayURL,
                         mouseOver: () => {
-                            location.href = URL;
+                            navigate(URL);
                         }
                     };
                 })
@@ -65,7 +65,7 @@ var rotateScript = new EvalScript('', {
 
         sc.menu.addToMenu({
             name: 'next',
-            mouseOver: () => location.href = NEXTURL
+            mouseOver: () => navigate(NEXTURL)
         }, el => el.find(l => l.name === 'rotate'));
 
         set.customTime = new CustomTime();
@@ -74,7 +74,7 @@ var rotateScript = new EvalScript('', {
             set.customTime.waitFor({
                 duration: (1000 * 60 * 60) / URLS.length,
                 callback: () => {
-                    location.href = NEXTURL;
+                    navigate(NEXTURL);
                 },
                 onStep: (percent) => {
                     if(rotationSlider) {

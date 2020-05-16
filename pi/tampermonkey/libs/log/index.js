@@ -26,7 +26,8 @@ async function getLogs() {
 
     let count = 0;
     appendRows(table, logs, (el, tr) => {
-        tr.addEl(el.timestamp);
+        tr.addEl(new Date(el.timestamp + 'Z').toLocaleString()
+            .replace(', ', '\n'));
         tr.addEl(el.application);
         tr.addEl(el.severity);
         tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
@@ -34,7 +35,6 @@ async function getLogs() {
         if(count % 2 === 0) {
             tr.style.backgroundColor = '#adff2fa3';
         }
-
         if(count < newCount) {
             tr.style.backgroundColor = '#5df25db8';
         }
@@ -51,19 +51,16 @@ async function getLogs() {
                     if(key !== 'application' && key !== 'severity' && (key !== 'message' || el[key].length > 1000) && key !== 'timestamp') {
                         remainingAtts.push({ key, value: el[key] });
                     }
-
                 }
                 appendRows(attributesTable, remainingAtts, (atts, attRow) => {
                     attRow.addEl(atts.key);
                     attRow.addEl(atts.value);
                 });
-
                 tr.after(attributesTable);
             } else {
                 attributesTable.remove();
             }
             enabled = !enabled;
-
         });
     });
 }
@@ -82,17 +79,29 @@ function appendRows(table, array, fnc) {
          */
         // @ts-ignore
         const tr = document.createElement('tr');
-
         tr.addEl = (text) => {
+            text = `${text}`;
             const td = document.createElement('td');
-            td.textContent = text;
+            debugger;
+            const textParts = text.split('\n');
+            textParts.forEach((subText, i) => {
+                const textEl = document.createElement('span');
+                textEl.textContent = subText;
+                td.appendChild(textEl);
+                textEl.style.whiteSpace = 'nowrap';
+                textEl.style.textAlign = 'center';
+                if(i < textParts.length - 1) {
+                    const br = document.createElement('br');
+                    td.appendChild(br);
+                } else {
+                    textEl.style.display = 'block';
+                }
+            });
             tr.appendChild(td);
         };
         fnc(el, tr);
         table.appendChild(tr);
-
     });
-
 }
 
 getLogs();

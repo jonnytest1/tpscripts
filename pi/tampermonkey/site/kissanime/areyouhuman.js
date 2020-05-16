@@ -91,6 +91,9 @@
      *   matches:Array<import('../../node/classifier').TagEvaluation> }} chosenMatch
      */
     function selectMatch(chosenMatch) {
+        if(debugStuff) {
+            return;
+        }
         const imageData = chosenMatch.image.imageData;
         const tagArrays = tags
             .map(tag => tag.tagArray);
@@ -110,7 +113,6 @@
     }
 
     function onImageLoad(event) {
-
         let tagArrays = tags;
         if(tagArrays.some(t => !t.tagArray)) {
             setTimeout(onImageLoad, 200, event);
@@ -267,7 +269,7 @@
 
     /**@type { HTMLCollectionOf<HTMLTagImageElement> } */
     let images = sc.g('img', formContainer);
-    if(images.length > 24) {
+    if(images.length > 24 && location.search.includes('eval=true')) {
         [...images].forEach(image => {
             image.style.width = image.style.height = '100px';
             image.parentElement.style.padding = '0px';
@@ -280,8 +282,8 @@
         sessionStorage.s('autoselect', true);
     }
     let imageArray = [...images];
-    const debugOnlyFirst = false;
-    if(debugOnlyFirst) {
+    const debugStuff = false;
+    if(debugStuff) {
         imageArray = [imageArray[0]];
     }
 

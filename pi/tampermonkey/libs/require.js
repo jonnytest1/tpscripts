@@ -143,9 +143,9 @@ async function req(path, options = {}) {
                         e.target.args = e.args;
                         //console.log("resolving for " + (e.target.source || e.target.src) + (e.isAsync ? " async" : ""));
                         // @ts-ignore
-                        if((e.target.source || e.target.src) === window.backendUrl + '/req.php?url=DOM/CircularMenu') {
-                            //debugger;
-                        }
+                        //if((e.target.source || e.target.src).includes('data-to')) {
+                        //debugger;
+                        //}
                         resolver(e.args);
                     } else {
                         //console.log('target already loaded ' + (e.target.source || e.target.src));
@@ -414,11 +414,20 @@ window.req = req;
  * }} [options]
  */
 var reqS = async function reqSImpl(path, options = {}) {
-    let key = sc.G.g('security_key', '');
-    if(!key) {
-        key = prompt('enter key');
-        sc.G.s('security_key', key);
+    if(sc.G && sc.G.g) {
+        let key = sc.G.g('security_key', '');
+        if(!key) {
+            key = prompt('enter key');
+            sc.G.s('security_key', key);
+        }
     }
+
+    if(path instanceof Array) {
+        return Promise.all(path.map(async p => {
+            return reqS(p, options);
+        }));
+    }
+
     // @ts-ignore
     const url = new URL(`${window.backendUrl}/req.php`);
     url.searchParams.append('url', path);

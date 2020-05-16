@@ -1,5 +1,18 @@
 /// <reference path="../customTypes/index.d.ts" />
 
+/**
+ * @typedef ButtonOptions
+ * @property {HTMLElement} [parent]
+ * @property {()=>any} [onclick]
+ * @property {string} text
+ * @property {OptionalStyle} [styles]
+ */
+
+/**
+ * @typedef ButtonRes
+ * @property {typeof crIN} crIN
+ * @property {typeof crBE} crBE
+ */
 new EvalScript('', {
     reset: () => { return; },
     run: async (resolver) => {
@@ -56,7 +69,13 @@ new EvalScript('', {
                             for(let j in style) {
                                 if(style[j].constructor.name === 'Object') {
                                     for(let k in style[j]) {
-                                        if(typeof style[j][k] === 'number' && (k === 'width' || k === 'left')) {
+                                        if(typeof style[j][k] === 'number' && (
+                                            k === 'width'
+                                            || k === 'left'
+                                            || k === 'height'
+                                            || k === 'bottom'
+                                            || k === 'borderRadius'
+                                            || k === 'right')) {
                                             style[j][k] += 'px';
                                         }
                                         btn[j][k] = style[j][k];
@@ -208,8 +227,8 @@ new EvalScript('', {
 
             /**
              * creates a button in element
-             * @param {HTMLElement} element
-             * @param {*} txt
+             * @param {HTMLElement|ButtonOptions} element
+             * @param {string} txt
              * @param {*} fncclick
              * @param {*} fncmouseEnter
              * @param {*} fncMouseLeave
@@ -217,6 +236,14 @@ new EvalScript('', {
              * @param {*} style
              */
             static crIN(element = document.body, txt, fncclick, fncmouseEnter, fncMouseLeave, fncopen, style) {
+                if(!(element instanceof HTMLElement)) {
+                    fncclick = element.onclick;
+                    txt = element.text;
+                    style = { style: element.styles };
+
+                    element = element.parent || document.body;
+                }
+
                 let btn = Button.btn(txt, fncclick, fncmouseEnter, fncMouseLeave, fncopen, style);
                 element.appendChild(btn);
                 return btn;

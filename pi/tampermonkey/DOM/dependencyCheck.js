@@ -22,7 +22,6 @@ var dep = new EvalScript('', {
         /**@param {CustomScript} script */
         function shouldCheck(script) {
             script.src = script.src || script.source;
-
             return script.src.includes('localhost') || script.src.includes('pi4.e6azumuvyiabvs9s.myfritz.net');
         }
         /**
@@ -159,30 +158,7 @@ var dep = new EvalScript('', {
                     }
                 }
                 let afterRefresh = script.afterReset;
-                if(refresh) {
-                    console.log(`REFRESHING ${script.src}`);
-                    let scriptUrl = script.src;
-                    script.remove();
-                    scriptContents[script.src] = undefined;
-                    if(script.persist) {
-                        EvalScript.persistedAttributes[script.src] = { ...EvalScript.persistedAttributes[script.src] };
-                        script.persist()
-                            .forEach(attributeName => {
-                                EvalScript.persistedAttributes[script.src][attributeName] = script.options[attributeName];
-                            });
-
-                    }
-
-                    delete document.props.evalScripts[script.src];
-                    await req(scriptUrl, { cache: false, requiredFrom: script.requiredFrom });
-                    if(afterRefresh) {
-                        try {
-                            afterRefresh();
-                        } catch(e) {
-                            handleError(e);
-                        }
-                    }
-                }
+                await doRefresh(script, refresh, afterRefresh);
                 reloadDependents(script);
 
             } else {
@@ -190,7 +166,34 @@ var dep = new EvalScript('', {
                     location.reload();
                 }
             }
+        }
 
+        async function doRefresh(script, refresh, afterRefresh) {
+            if(refresh) {
+                console.log(`REFRESHING ${script.src}`);
+                let scriptUrl = script.src;
+                script.remove();
+                scriptContents[script.src] = undefined;
+                if(script.persist) {
+                    EvalScript.persistedAttributes[script.src] = { ...EvalScript.persistedAttributes[script.src] };
+                    script.persist()
+                        .forEach(attributeName => {
+                            EvalScript.persistedAttributes[script.src][attributeName] = script.options[attributeName];
+                        });
+                }
+                delete document.props.evalScripts[script.src];
+                const newRequire = await req(scriptUrl, { cache: false, requiredFrom: script.requiredFrom });
+                if(afterRefresh) {
+                    try {
+                        if(afterRefresh() && typeof script.args === 'function' && typeof newRequire === 'function' && script.options.params) {
+                            newRequire(...script.options.params);
+                        }
+                    }
+                    catch(e) {
+                        handleError(e);
+                    }
+                }
+            }
         }
     },
     reset: (obj) => {

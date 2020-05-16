@@ -1,9 +1,6 @@
-/* global IMPORT */
-// eslint-disable-next-line no-unused-vars
 /// <reference path="../customTypes/index.d.ts" />
 /// <reference path="../notification.js" />
 /// <reference path="../http.js" />
-
 (async function kissmanga() {
     let http = await reqS('http');
 

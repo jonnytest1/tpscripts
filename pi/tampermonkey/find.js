@@ -105,14 +105,15 @@ elementGEtter.a = async function get(identification, parent, tag, finder = eleme
         function waitTillDefined(id) {
             let obj = finder(id, parent);
             if(obj instanceof NodeList && tag) {
-                for(let o of obj) {
+                obj.forEach(o => {
+                    // @ts-ignore
                     if(o.tagName === tag) {
                         obj = o;
                     }
-                }
+                });
             }
             if(obj) {
-                console.log('found for ' + id);
+                //console.log('found for ' + id);
                 resolve(obj);
                 return;
             }

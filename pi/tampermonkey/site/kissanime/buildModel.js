@@ -4,6 +4,7 @@
 /// <reference path="../../customTypes/tensorflow.d.ts" />
 /// <reference path="../../http.js" />
 /// <reference path="../../graphics/canvas.js" />
+
 /**
  * @typedef tag
  * @property {String} tag
@@ -46,7 +47,7 @@ buildModelScript.isAsync = true;
     classifierReady.style.position = 'fixed';
     document.body.appendChild(classifierReady);
 
-    //await reqS('learning/tensorflow');
+    await reqS('learning/tensorflow');
     await reqS('time');
     await reqS('graphics/canvas');
     let knnIO;// = await reqS('learning/knnIO');
@@ -193,7 +194,7 @@ buildModelScript.isAsync = true;
     console.log('added menu');
     finished(classifier, true, buildModelScript);
 })();
-
+var testContainer;
 /**
  *
  * @param {*} classifier
@@ -203,27 +204,27 @@ buildModelScript.isAsync = true;
 async function testNumbers(classifier, cWrapper, data) {
     return new Promise(async (resolver) => {
         let correct = 0;
-        if(document.Testcontainer) {
-            document.Testcontainer.remove();
-            document.Testcontainer = undefined;
+        if(testContainer) {
+            testContainer.remove();
+            testContainer = undefined;
         }
 
-        document.Testcontainer = document.createElement('container');
-        document.Testcontainer.appendChild(document.createElement('br'));
-        document.body.appendChild(document.Testcontainer);
+        testContainer = document.createElement('container');
+        testContainer.appendChild(document.createElement('br'));
+        document.body.appendChild(testContainer);
 
         for(let ind = 0; ind < 4; ind++) {
             document.querySelector('#text').textContent = `${ind}/50`;
 
             const canvas = document.createElement('canvas');
             const cW = new CanvasWrapper(canvas);
-            document.Testcontainer.appendChild(canvas);
+            testContainer.appendChild(canvas);
 
             const div = document.createElement('div');
 
-            document.Testcontainer.appendChild(div);
-            document.Testcontainer.appendChild(document.createElement('br'));
-            const rData = noiseWithNumber(cW, data);
+            testContainer.appendChild(div);
+            testContainer.appendChild(document.createElement('br'));
+            const rData = cW.noiseWithNumber();
             let dataArray = [];
             for(let j of rData.imageData.data) {
                 dataArray.push(j);
@@ -334,11 +335,9 @@ async function trainNumbers(classifier, cWrapper, data) {
             document.querySelector('#text').textContent = `${index}/${amount}`;
             const dataAr = [];
             for(let i = 0; i < batchSize; i++) {
-                const dataEl = noiseWithNumber(cWrapper, data, false);
-                await new Promise(res => {
-                    setTimeout(res, 1);
-                });
-                dataAr.push({ tag: dataEl.tag, image: [...dataEl.imageData.data] });
+                const dataEl = cWrapper.noiseWithNumber();
+                await Promise.delayed();
+                dataAr.push({ tag: dataEl.number, image: [...dataEl.imageData.data] });
             }
 
             await fetch('http://localhost:8080/trainrandomnumbers', {
@@ -354,43 +353,6 @@ async function trainNumbers(classifier, cWrapper, data) {
             setTimeout(trainer, 1, index + batchSize);
         })();
     });
-}
-/**
- * @param {TrainingData} data
- * @param {CanvasWrapper } cWrapper
- */
-function noiseWithNumber(cWrapper, data, downscaled = true) {
-
-    const canvas = cWrapper.canvas;
-    var ctx = canvas.getContext('2d');
-    var CSS_COLOR_NAMES = ['AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque', 'Black', 'BlanchedAlmond', 'Blue', 'BlueViolet', 'Brown', 'BurlyWood',
-        'CadetBlue', 'Chartreuse', 'Chocolate', 'Coral', 'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan', 'DarkBlue', 'DarkCyan', 'DarkGoldenRod', 'DarkGray', 'DarkGrey', 'DarkGreen',
-        'DarkKhaki', 'DarkMagenta', 'DarkOliveGreen', 'Darkorange', 'DarkOrchid', 'DarkRed', 'DarkSalmon', 'DarkSeaGreen', 'DarkSlateBlue', 'DarkSlateGray', 'DarkSlateGrey', 'DarkTurquoise',
-        'DarkViolet', 'DeepPink', 'DeepSkyBlue', 'DimGray', 'DimGrey', 'DodgerBlue', 'FireBrick', 'FloralWhite', 'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite', 'Gold', 'GoldenRod',
-        'Gray', 'Grey', 'Green', 'GreenYellow', 'HoneyDew', 'HotPink', 'IndianRed', 'Indigo', 'Ivory', 'Khaki', 'Lavender', 'LavenderBlush', 'LawnGreen', 'LemonChiffon', 'LightBlue',
-        'LightCoral', 'LightCyan', 'LightGoldenRodYellow', 'LightGray', 'LightGrey', 'LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue', 'LightSlateGray',
-        'LightSlateGrey', 'LightSteelBlue', 'LightYellow', 'Lime', 'LimeGreen', 'Linen', 'Magenta', 'Maroon', 'MediumAquaMarine', 'MediumBlue', 'MediumOrchid', 'MediumPurple',
-        'MediumSeaGreen', 'MediumSlateBlue', 'MediumSpringGreen', 'MediumTurquoise', 'MediumVioletRed', 'MidnightBlue', 'MintCream', 'MistyRose', 'Moccasin', 'NavajoWhite', 'Navy',
-        'OldLace', 'Olive', 'OliveDrab', 'Orange', 'OrangeRed', 'Orchid', 'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise', 'PaleVioletRed', 'PapayaWhip', 'PeachPuff', 'Peru', 'Pink', 'Plum',
-        'PowderBlue', 'Purple', 'Red', 'RosyBrown', 'RoyalBlue', 'SaddleBrown', 'Salmon', 'SandyBrown', 'SeaGreen', 'SeaShell', 'Sienna', 'Silver', 'SkyBlue', 'SlateBlue', 'SlateGray', 'SlateGrey',
-        'Snow', 'SpringGreen', 'SteelBlue', 'Tan', 'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White', 'WhiteSmoke', 'Yellow', 'YellowGreen'];
-    const number = Math.floor(Math.random() * 10);
-    const color = CSS_COLOR_NAMES[Math.floor(Math.random() * CSS_COLOR_NAMES.length)];
-
-    const tag = number + '';
-    canvas.width = canvas.height = 160;
-    cWrapper.randomize();
-    ctx.fillStyle = color;
-    ctx.font = '64px Tahoma';
-    const xT = 10 + (Math.random() * 100);
-    const yT = 50 + (Math.random() * 100);
-    // console.log(xT, yT, color);
-    ctx.fillText(number + '', xT, yT);
-
-    let imageData = ctx.getImageData(0, 0, 160, 160);
-
-    //const iD = cWrapper.draw(grayScaleData, true);
-    return { imageData, tag };
 }
 
 /**
@@ -503,127 +465,4 @@ async function getTags() {
     let parsedTags = tags.map(a => ({ tag: a[1], id: a[0] }));
     //parsedTags = parsedTags.filter(t => !isNaN(+t.tag));
     return parsedTags;
-}
-
-/**
- * @returns {Promise<TrainingData>}
- */
-async function getPreviousTrainingData() {
-    return new Promise((resolver) => {
-        if(true) {
-            var dbPromise = indexedDB.open('test-db4', 1);
-            dbPromise.onsuccess = (e) => {
-                try {
-                    /**
-                             * @type {IDBDatabase}
-                             */
-                    // @ts-ignore
-                    const database = e.target.result;
-                    const transaction = database.transaction(['ka'], 'readonly');
-                    transaction.onerror = fetchFromDB;
-                    const store = transaction.objectStore('ka');
-                    const request = store.get('data');
-                    request.onsuccess = (ev) => {
-                        resolver(JSON.parse(request.result));
-                    };
-                    request.onerror = fetchFromDB;
-                } catch(error) {
-                    fetchFromDB();
-                }
-            };
-            dbPromise.onerror = () => {
-                fetchFromDB();
-            };
-        } else {
-            fetchFromDB();
-        }
-
-        async function fetchFromDB() {
-            debugger;
-            let tags = await getTags();
-            /**@type {Array<ImageElement>} */
-            let outputs = [];
-            let highest = -1;
-            let imgs = [];
-            do {
-                imgs = await (await reqS('http')).http('GET', `${backendUrl}/site/kissanime/getImages.php?minID=${highest}`);
-                for(let image of imgs) {
-                    let id = image[0] - 1;
-                    if(id > highest) {
-                        highest = id;
-                    }
-                    //--------------unflatten---------------------
-                    /**@type {Array<number>} */
-                    let imgData = JSON.parse(`[${image[4].replace(/"/g, '')}]`);
-                    let imgSize;
-                    imgSize = Math.sqrt(imgData.length);
-                    /**@type {ImageTensorArray} */
-                    let result = [];
-                    //size downscaled
-                    /*for (let i = 0; i < img_size; i++) {
-                        for (let j = 0; j < img_size; j++) {
-                            let index = (i) * img_size + (j);
-                            if (!result[i]) {
-                                result[i] = [];
-                            }
-                            result[i][j] = img_data[index];
-                        }
-                    }*/
-                    //size mobilenet
-                    /*for (let i = 0; i < 224; i++) {
-                        for (let j = 0; j < 224; j++) {
-                            let index = (j * 4) * img_size + (i * 4);
-                            if (!result[i]) {
-                                result[i] = [];
-                            }
-                            result[i][j] = [img_data[index], img_data[index], img_data[index]];
-                        }
-                    }*/
-                    //
-                    result = imgData;
-                    //--------------add tags---------------------
-                    /**@type {Array<Number>} */
-                    let yArray = new Array(tags.length).fill(0);
-                    let tagNames = [];
-                    for(let i = 1; i < 4; i++) {
-                        tagNames.push(image[i]);
-                        let index = tags.findIndex(el => el.tag === image[i]);
-                        if(index !== -1) {
-                            yArray[index] = 1;
-                        }
-                    }
-                    outputs.push({ imageData: result, tags: tags, tagNames });
-                }
-            } while(imgs.length === 21);
-            const newLocal = { tagList: tags, data: outputs };
-            var saveDB = indexedDB.open('test-db4', 1);
-            saveDB.onsuccess = (e) => {
-                /**
-                         * @type {IDBDatabase}
-                         */
-                // @ts-ignore
-                const database = e.target.result;
-                const transaction = database.transaction(['ka'], 'readwrite');
-                const store = transaction.objectStore('ka');
-                store.put(JSON.stringify(newLocal), 'data');
-            };
-            saveDB.onupgradeneeded = (e) => {
-                /**
-                 * @type {IDBDatabase}
-                 */
-                // @ts-ignore
-                const database = e.target.result;
-                //  const transaction = database.transaction('ka', 'readwrite');
-                const store = database.createObjectStore('ka');
-                store.createIndex('key', 'key', { unique: true });
-                store.createIndex('value', 'value', { unique: false });
-                const insertRequest = store.put(JSON.stringify(newLocal), 'data');
-                insertRequest.onsuccess = () => {
-                    console.log('added DAta');
-                };
-            };
-            resolver(newLocal);
-        }
-    });
-
 }

@@ -57,7 +57,7 @@ class Rotate
 		$str = $str."\n//index of ". $url." is ".$currentIndex  . "\n";
 		$str = str_replace("let NEXTURL = INJECT;", "let NEXTURL='" . $nextUrl . "';", $str);
 		$str = str_replace("let URLS = INJECT;", "let URLS =" . json_encode($this->rotateSites) . ";", $str);
-		$str = $str . "\nreqS('rotate/'+encodeURIComponent(location.href.replace(location.search,'')))";
+		$str = $str . "\nreqS('rotate/'+encodeURIComponent(location.href.replace(location.search,'').replace('#','')))";
 
 		return $str;
 	}

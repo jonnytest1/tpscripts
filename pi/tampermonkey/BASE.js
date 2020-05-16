@@ -1,6 +1,7 @@
 /// <reference path="./libs/eval-script.js" />
 /// <reference path="./libs/require.js" />
 /// <reference path="./customTypes/declarations.d.ts" />
+/// <reference path="./Storage/storage.d.ts" />
 console.log('entrypoint');
 /**@type {Document&{window?}} */
 const d = document;
@@ -66,11 +67,14 @@ globalThis.querydoc = querydoc;
  *  @typedef {HTMLOrSVGScriptElement & CustomScript } CustomHTMLscript
 */
 new Promise(async (resolver) => {
+
     //console.log('canInject returned ' + baseContainer.canInject);
-    // tslint:disable-next-line:variable-name
-    let Storage_greaseStorage = IMPORT;
 
     await reqS('libs/eval-script');
+
+    await reqS('Storage/storageimpl');
+
+    sc.G = new StorageImplementation(await reqS('Storage/greaseBase'));
 
     await reqS('libs/log-level');
 
@@ -79,7 +83,7 @@ new Promise(async (resolver) => {
     await reqS('notification');
 
     await reqS('DOM/dependencyCheck');
-    console.log('loaded dependencyCheck');
+    //console.log('loaded dependencyCheck');
 
     /**@type {import('./customTypes/declarations').ElementGetter} */
     let find = await reqS('find');

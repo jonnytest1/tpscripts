@@ -12,7 +12,7 @@ new EvalScript('', {
                 try {
                     if(sc.G) {
                         const logLevels = sc.G.g('LogLevel', { general: 'INFO' });
-                        orginalLog(...args);
+                        orginalLog(...args, new Error('logStack').stack.replace(/Error: /, '\n\t'));
                     }
 
                 } catch(e) {

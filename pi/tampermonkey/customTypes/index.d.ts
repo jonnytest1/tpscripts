@@ -6,9 +6,10 @@
 
 /// <reference path="./physics.d.ts" /> 
 /// <reference path="./GM.d.ts" />
+/// <reference path="./colors.d.ts" />
 
 /// <reference path="../learning/tensorflow.js" />
-
+/// <reference path="./overwrites.d.ts" />
 /// <reference path="../BASE.js" />
 
 

@@ -23,7 +23,7 @@ var tester = new EvalScript('', {
                         }
                     }, {
                         data: 'replay', onclick: () => {
-
+                            //
                         }
                     }])
             }).createDom();

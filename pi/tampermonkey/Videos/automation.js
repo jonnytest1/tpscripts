@@ -12,7 +12,7 @@ var auto = new EvalScript('', {
                 const link = allLinks.shift();
                 sc.CD.s('links', allLinks);
                 sc.CD.p('exclude', link.link);
-                location.href = link.link;
+                navigate(link.link);
             }
 
             /**
@@ -25,7 +25,7 @@ var auto = new EvalScript('', {
                     name: 'next',
                     mouseOver: (parent, button) => {
                         if(nextAr) {
-                            location.href = nextAr[1] + '#autoplay=true';
+                            navigate(nextAr[1] + '#autoplay=true');
                         } else {
                             button.style.backgroundColor = 'red';
                         }
@@ -43,7 +43,7 @@ var auto = new EvalScript('', {
                         video.parentElement.requestFullscreen();
                         options.autoInterval = setInterval(() => {
                             if(video.currentTime > video.duration - 1 && video.duration > 100) {
-                                location.href = nextAr[1] + '#autoplay=true';
+                                navigate(nextAr[1] + '#autoplay=true');
                             }
                         }, 1000);
                     });

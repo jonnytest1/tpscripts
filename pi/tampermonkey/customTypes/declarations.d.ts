@@ -3,25 +3,28 @@
 /// <reference path="../libs/log/logging.js" />
 /// <reference path="../find.js" />
 
-import { CustomStorage, GreaseStorage } from './storage';
+import { CustomStorage } from '../Storage/storage';
+import { GreaseStorage } from '../Storage/greasestorage';
 
-declare interface Window {
-    backendUrl: string
-    finished: Function
+declare global {
 
-    req: Function;
+    interface Window {
+        sc: scI
 
-    reqS: import('../libs/require').reqSType
-    reqT: Function
+        backendUrl: string
+        finished: Function
 
-    handleError: Function
+        req: Function;
 
-    evalError: Function
-    logKibana: Function
+        reqS: import('../libs/require').reqSType
+        reqT: Function
 
-    sc: scI
+        handleError: Function
+
+        evalError: Function
+        logKibana: Function
+    }
 }
-declare var window: Window;
 
 interface HTMLChildren extends HTMLElement {
     children: HTMLCollectionOf<HTMLChildren>
@@ -70,9 +73,9 @@ declare let backendUrl: string
 //declare let reqS: Function
 //declare let sc: scI;
 declare let IMPORT: any
-/*declare global {
-    let handleError: Function
+declare global {
+    //let handleError: Function
     let scriptContent: String
     let backendUrl: string
     let sc: scI
-}*/
+}

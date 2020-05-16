@@ -1,5 +1,222 @@
 const mariadb = require('mariadb');
+/// <reference path="./classifier" />
 let count = 0;
+
+class Database {
+
+    /**
+     * @param {import('./classifier').CustomClassifier} classifier
+     * @returns {Promise<Array<{modelkey:string,modelvalue:string}>>}
+     */
+    async getWeights(classifier) {
+        const table = this.toDBName(classifier);
+        try {
+            /**@type {Array} */
+            const rows = await sqlquery(`SELECT * FROM ${table}`);
+            return rows.filter(row => row.modelkey !== 'name' && row.modelkey !== 'timestamp');
+        } catch(e) {
+            if(e.code === 'ER_NO_SUCH_TABLE') {
+                console.error('table doesnt exist');
+                return [];
+            }
+            throw e;
+        }
+    }
+    /**
+     *
+     * @param {import('./classifier').CustomClassifier} classifier
+     */
+    toDBName(classifier) {
+        if(!classifier.name) {
+            throw 'missing classifier name';
+        }
+        return 'knn_classfier_weights_' + classifier.name;
+    }
+
+    /**
+     *
+    * @param {import('./classifier').CustomClassifier} classifier
+    */
+    async save(classifier) {
+        const tableName = this.toDBName(classifier);
+
+        await query(async pool => {
+            const connection = await pool.getConnection();
+            try {
+                await connection.query(`LOCK TABLE ${tableName} WRITE`);
+            } catch(e) {
+                if(e.code === 'ER_NO_SUCH_TABLE') {
+                    await connection.query(`CREATE TABLE \`${tableName}\` (
+                        \`modelkey\` VARCHAR(50) NOT NULL DEFAULT 'null',
+                        \`modelvalue\` LONGTEXT NULL,
+                        PRIMARY KEY (\`modelkey\`)
+                    )
+                    COLLATE='latin1_swedish_ci'
+                    ENGINE=InnoDB
+                    ;`);
+                    await connection.query(`LOCK TABLE ${tableName} WRITE`);
+                }
+            }
+            console.log('locked table');
+            await connection.query(`DELETE FROM \`${tableName}\``);
+
+            let dataset = classifier.getClassifierDataset();
+            let sql = `INSERT INTO ${tableName} ( modelkey,modelvalue) VALUES `;
+            let params = [];
+
+            let index = 1;
+            for(let key of Object.keys(dataset)) {
+                if(key !== 'timestamp' && key !== 'name') {
+                    sql += ' ( ? , ? ) ,';
+                    let data = dataset[key].dataSync();
+                    params.push(key);
+                    params.push(JSON.stringify(Array.from(data)));
+                }
+                index++;
+                if(index % 2 === 0) {
+                    console.log(`saving keys ${params[0]}`);
+                    await connection.query(sql.substring(0, sql.length - 2), params);
+                    sql = `INSERT INTO ${tableName} ( modelkey,modelvalue) VALUES `;
+                    params = [];
+                    index = 1;
+                }
+            }
+            if(params.length > 0) {
+                await connection.query(sql.substring(0, sql.length - 2), params);
+            }
+
+            await this.setMetaAttributes(connection, classifier);
+            await connection.query('UNLOCK TABLES');
+            console.log('UNLOCKed table');
+            await connection.commit();
+            connection.release();
+            await connection.end();
+            console.log('released');
+        });
+
+    }
+
+    async getTags(dbName) {
+
+        const tagsResponse = await query(c => c.query('SELECT * FROM kissanime_tags ORDER BY tag_id'));
+
+        const tags = [];
+
+        for(let tag of tagsResponse) {
+            tags.push(tag);
+        }
+        return tags;
+    }
+
+    async test() {
+        return sqlquery('INSERT INTO `test` ( b ) VALUES ( 234 )');
+    }
+
+    /**
+     *
+     * @param {{
+     *   tags:Array<string>,
+     *   chosen:boolean,
+     *   image:Array<number>
+     * }} example
+     * @param {import('./classifier').CustomClassifier} classifier
+     */
+    async addExample(example, classifier) {
+        await query(async pool => {
+            const connection = await pool.getConnection();
+            const imageResponse = await connection.query('INSERT INTO kissanime_images (imagedata) VALUES (?)', [JSON.stringify(example.image)]);
+            const imageId = imageResponse.insertId;
+
+            for(let tag of example.tags) {
+                let tagId = await addTag(connection, tag, classifier);
+                const tagImageResponse = await connection.query('INSERT INTO kissanime_images_tag (image,tag,correct) VALUES (?,?,?)', [imageId, tagId, example.chosen]);
+            }
+        });
+    }
+
+    async getTagCount() {
+
+        const tagCouint = await sqlquery(`
+        SELECT COUNT(*) AS ct
+        FROM kissanime_images_tag
+        JOIN kissanime_tags ON kissanime_images_tag.tag = kissanime_tags.tag_id
+        WHERE kissanime_images_tag.correct =1
+        `);
+
+        return tagCouint[0].ct;
+    }
+
+    /**
+     * @returns {Promise<{maxId:number,highestId:number,data:Array<{imagedata:string,tags:Array<{
+            image:number
+            tag_id:number
+            tag_name:string}>,image_id:number}>}>}
+     * @throws {"no more"}
+     */
+    async getExamples(minImageID = -1) {
+        if(minImageID === undefined || minImageID === null) {
+            throw new Error('minimageid wrong');
+        }
+        const highestResult = await selectQuery(`SELECT MAX(kissanime_images.image_id) as highest FROM kissanime_images`);
+        const highestId = highestResult[0].highest;
+        /**
+        * @type {Array<{image_id:number,imagedata:string,tags:Array<string>}>}
+        */
+        const images = await selectQuery(`SELECT kissanime_images.image_id,kissanime_images.imagedata
+        FROM kissanime_images
+        WHERE kissanime_images.image_id > ?
+        ORDER BY kissanime_images.image_id ASC
+        LIMIT 30`, [minImageID]
+        );
+
+        let maxId = -1;
+        images.forEach(element => {
+            if(element.image_id > maxId) {
+                maxId = element.image_id;
+            }
+        });
+
+        if(images.length === 0) {
+            throw 'no more';
+        }
+
+        const tags = await selectQuery(
+            `SELECT kissanime_images_tag.image,kissanime_tags.tag_id,kissanime_tags.tag_name
+        FROM kissanime_images_tag
+        JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
+        WHERE kissanime_images_tag.image IN (${images.map(i => '?')
+                .join(',')})
+    `, images.map(img => img.image_id));
+
+        const imagesWithTags = images.map(img => ({ imagedata: img.imagedata, image_id: img.image_id, tags: [] }));
+
+        tags.forEach(tag => {
+            const imageRef = imagesWithTags.find(image => tag.image === image.image_id);
+            imageRef.tags.push(tag);
+        });
+
+        return { maxId, data: imagesWithTags.filter(img => img.tags.length), highestId };
+
+    }
+    /**
+     *
+     * @param {*} connection
+     * @param {import('./classifier').CustomClassifier} classifier
+     */
+    async setMetaAttributes(connection, classifier) {
+
+        const tableName = this.toDBName(classifier);
+
+        let sql = `INSERT INTO ${tableName} ( modelkey,modelvalue) VALUES ( ? , ? ) , ( ? , ? )`;
+        const params = [
+            'timestamp', new Date().toISOString(),
+            'name', classifier.name
+        ];
+        await connection.query(sql, params);
+    }
+
+}
+
 /**
  * @template T
  * @param {(con:import('mariadb').Pool)=>T} callback
@@ -7,7 +224,6 @@ let count = 0;
  */
 async function query(callback) {
     try {
-
         const db = process.env.DB_NAME;
         const port = +process.env.DB_PORT;
         const user = process.env.DB_USER;
@@ -22,8 +238,9 @@ async function query(callback) {
         return result;
     } catch(e) {
         console.error(e);
-        process.exit();
+        throw new Error(e);
     }
+
 }
 
 /**
@@ -40,7 +257,6 @@ async function sqlquery(queryString, params = [], db = 'knnAnimeTest') {
  * @template T
  * @param {String} queryString
  * @param {Array<any>} [params]
- * @param {String} [db]
  * @returns {Promise<Array<T>>}
  */
 async function selectQuery(queryString, params = []) {
@@ -54,102 +270,6 @@ async function selectQuery(queryString, params = []) {
  *
  */
 
-/**
- * @param {string} name
- * @returns {Promise<Array<{modelkey:string,modelvalue:string}>>}
- */
-async function getWeights(name) {
-    /**@type {Array} */
-    const rows = await sqlquery(`SELECT * FROM ${name}`);
-    return rows.filter(row => row.modelkey !== 'name' && row.modelkey !== 'timestamp');
-}
-
-/**
- * @returns {Promise<{maxId:number,data:Array<{imagedata:string,tag_id:number,tag_name:string,image_id:number}>}>}
- */
-async function getExamples(minImageID = -1) {
-    /* return selectQuery(`
-    SELECT kissanime_tags.tag_id,kissanime_tags.tag_name ,kissanime_images.imagedata
-    FROM kissanime_images_tag
-    JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
-    JOIN kissanime_images ON kissanime_images_tag.image=kissanime_images.image_id
-    WHERE kissanime_images_tag.correct= 1
-    ORDER BY
-    `); */
-
-    /**
-     * @type {Array<{image_id:number,imagedata:string}>}
-     */
-    const images = await selectQuery(`SELECT kissanime_images.image_id,kissanime_images.imagedata
-        FROM kissanime_images
-        WHERE kissanime_images.image_id > ?
-        ORDER BY kissanime_images.image_id ASC
-        LIMIT 30`, [minImageID]
-    );
-
-    let maxId = -1;
-    images.forEach(element => {
-        if(element.image_id > maxId) {
-            maxId = element.image_id;
-        }
-    });
-
-    if(images.length === 0) {
-        throw 'no more';
-    }
-
-    const tags = await selectQuery(
-        `SELECT kissanime_images_tag.image,kissanime_tags.tag_id,kissanime_tags.tag_name
-        FROM kissanime_images_tag
-        JOIN kissanime_tags ON kissanime_tags.tag_id=kissanime_images_tag.tag
-        WHERE kissanime_images_tag.image IN (${images.map(i => '?').join(',')})
-    `, images.map(img => img.image_id));
-
-    const mapped = images.map(img => {
-        const imgTags = tags.filter(tag => tag.image === img.image_id);
-        return imgTags.map(tag => ({ ...tag, ...img }));
-    })
-        .reduce((ar1, ar2) => {
-            return [...ar1, ...ar2];
-        }, []);
-
-    return { maxId, data: mapped };
-
-}
-
-async function getTagCount() {
-
-    const tagCouint = await sqlquery(`
-    SELECT COUNT(*) AS ct
-    FROM kissanime_images_tag
-    JOIN kissanime_tags ON kissanime_images_tag.tag = kissanime_tags.tag_id
-    WHERE kissanime_images_tag.correct =1
-    `);
-
-    return tagCouint[0].ct;
-}
-
-/**
- *
- * @param {{
- *   tags:Array<string>,
- *   chosen:boolean,
- *   image:Array<number>
- * }} example
- * @param {import('./classifier').CustomClassifier} classifier
- */
-async function addExample(example, classifier) {
-    await query(async pool => {
-        const connection = await pool.getConnection();
-        const imageResponse = await connection.query('INSERT INTO kissanime_images (imagedata) VALUES (?)', [JSON.stringify(example.image)]);
-        const imageId = imageResponse.insertId;
-
-        for(let tag of example.tags) {
-            let tagId = await addTag(connection, tag, classifier);
-            const tagImageResponse = await connection.query('INSERT INTO kissanime_images_tag (image,tag,correct) VALUES (?,?,?)', [imageId, tagId, example.chosen]);
-        }
-    });
-}
 /**
  *
  * @param {string} tag
@@ -175,78 +295,7 @@ async function addTag(connection, tag, classifier) {
             });
     });
 }
-/**
- *
-* @param {import('./classifier').CustomClassifier} classifier
- */
-async function save(classifier) {
-    await query(async pool => {
-        const connection = await pool.getConnection();
-        await connection.query('LOCK TABLE ' + 'knnAnime' + ' WRITE');
-        console.log('locked table');
-        await connection.query('DELETE FROM ' + 'knnAnime');
 
-        let dataset = classifier.getClassifierDataset();
-        let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
-        let params = [];
-
-        let index = 1;
-        for(let key of Object.keys(dataset)) {
-            if(key !== 'timestamp' && key !== 'name') {
-                sql += ' ( ? , ? ) ,';
-                let data = dataset[key].dataSync();
-                params.push(key);
-                params.push(JSON.stringify(Array.from(data)));
-            }
-            index++;
-            if(index % 2 === 0) {
-                console.log('saving');
-                await connection.query(sql.substring(0, sql.length - 2), params);
-                sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ';
-                params = [];
-                index = 1;
-            }
-        }
-        if(params.length > 0) {
-            await connection.query(sql.substring(0, sql.length - 2), params);
-        }
-
-        await setMetaAttributes(connection);
-        await connection.query('UNLOCK TABLES');
-        console.log('UNLOCKed table');
-        await connection.commit();
-        connection.release();
-        await connection.end();
-        console.log('released');
-    });
-
-}
-
-async function setMetaAttributes(connection) {
-    let sql = 'INSERT INTO ' + 'knnAnime' + ' ( modelkey,modelvalue) VALUES ( ? , ? ) , ( ? , ? )';
-    const params = [
-        'timestamp', new Date().toISOString(),
-        'name', 'knnAnime'
-    ];
-    await connection.query(sql, params);
-}
-
-async function getTags(dbName) {
-
-    const tagsResponse = await query(c => c.query('SELECT * FROM kissanime_tags ORDER BY tag_id'));
-
-    const tags = [];
-
-    for(let tag of tagsResponse) {
-        tags.push(tag);
-    }
-    return tags;
-}
-
-async function test() {
-    return sqlquery('INSERT INTO `test` ( b ) VALUES ( 234 )');
-
-}
-module.exports = {
-    getWeights, addExample, getTags, save, test, getExamples, getTagCount
-};
+module.exports = new Database();/* {
+    ,:
+};*/

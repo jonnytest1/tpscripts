@@ -13,20 +13,19 @@ new EvalScript('', {
              */
             const mangas = document.querySelectorAll('.listing tr a');
 
-            const seen = sc.G.filter(seenKey, sc.G.filterDaysFunction(21), { mapKey: mangaName });
+            const seen = sc.G.filter(seenKey, StorageImplementation.filterDaysFunction(21, { keepLatest: true }), { mapKey: mangaName });
             /**
              * @type {HTMLAnchorElement}
              */
             let latestNotSeen;
             for(const manga of [...mangas]) {
-                debugger;
                 const color = getComputedStyle(manga).color;
 
                 if(color === visitedColor || manga.className === 'chapterVisited' || seen.some(seenLink => seenLink.value === new URL(manga.href).pathname)
                     || (seen.length === 0 && latestNotSeen)) {
                     if(latestNotSeen) {
                         if(location.search.includes('open=latest')) {
-                            location.href = latestNotSeen.href;
+                            navigate(latestNotSeen.href);
                         } else {
                             console.log('would open' + latestNotSeen.href);
                         }
@@ -59,12 +58,16 @@ new EvalScript('', {
             }, { mapKey: mangaName });
             sc.menu.addToMenu({
                 name: 'next',
+                rotation: 0,
                 mouseOver: (parnet, btn) => {
                     try {
                         /**@type {HTMLElement} */
                         const nextButton = document.querySelector('.btnNext');
                         if(!nextButton) {
                             btn.style.backgroundColor = 'red';
+                            setTimeout(() => {
+                                window.close();
+                            }, 1000);
                         } else {
                             nextButton.click();
                         }

@@ -7,6 +7,7 @@ require('dotenv')
 console.log('loading reqire');
 const express = require('express');
 const classifier = require('./classifier');
+const database = require('./database');
 
 const dbName = 'knnAnimeTest';
 
@@ -32,6 +33,16 @@ function startWebServer() {
 
     app.post('/eval', evaluateImage);
     app.post('/add', addExample);
+
+    app.get('/examples', async (req, res) => {
+        try {
+
+            const data = await database.getExamples(+req.query.min);
+            res.send(data);
+        } catch(e) {
+            res.send({ data: [] });
+        }
+    });
     console.log('registered server');
 }
 
@@ -44,7 +55,7 @@ async function databaseTest(req, res) {
 /**@type {import("express").RequestHandler} */
 async function evaluateImage(request, response) {
     const evaluation = await classifier.evaluate(request.body);
-    console.log('image evauluated to ' + evaluation);
+    console.log('image evauluated to ' + JSON.stringify(evaluation));
     response.send(evaluation);
 }
 

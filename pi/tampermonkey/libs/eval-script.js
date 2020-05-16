@@ -21,8 +21,9 @@ class EvalScript {
      * @typedef EvalScriptOptions
      * @property {(obj:EvalScriptRunOptions)=>boolean|void} [reset]
      * @property {(resolver:<T>(obj:T)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
-     * @property {()=>void} [afterReset]
+     * @property {()=>void|true|Promise<true|void>} [afterReset]
      * @property {()=>Array<string>} [persist]
+     * @property {boolean} [async]
      *
      * @param {EvalScriptOptions<?>} options
      * @param {string} [url]
@@ -45,12 +46,15 @@ class EvalScript {
                 }
                 this.reset.call(this);
             };
+            if(options.async) {
+                this.script.isAsync = true;
+            }
         }
         this.callback = options.run;
         this.resetFunction = options.reset;
         this.afterReset = options.afterReset;
         this.persist = options.persist;
-        /**@type {Partial<V & {evalScript?:any}>} */
+        /**@type {Partial<V & {evalScript?:any, params?:Array<any>}>} */
         this.options = EvalScript.persistedAttributes[this.getUrl()] || {};
         this.options.evalScript = this;
         EvalScript.current = this;
@@ -92,35 +96,34 @@ class EvalScript {
     }
 
     async run() {
-        const result = await new Promise(
-            async resolver => {
-                let resolvedLibs = {};
-                /*if (this.libraries.length > 0) {
-                    const libs = await Promise.all(this.libraries.map(async lib => {
-                        //map also returns index which is incompatible with optionsl boolean param
-                        return reqS(lib);
-                    }));
-                    for (let lib of libs) {
-                        for (let fnc in lib) {
-                            if (fnc !== 'context') {
-                                resolvedLibs[fnc] = lib[fnc];
-                            }
+        const result = await new Promise(async resolver => {
+            let resolvedLibs = {};
+            /*if (this.libraries.length > 0) {
+                const libs = await Promise.all(this.libraries.map(async lib => {
+                    //map also returns index which is incompatible with optionsl boolean param
+                    return reqS(lib);
+                }));
+                for (let lib of libs) {
+                    for (let fnc in lib) {
+                        if (fnc !== 'context') {
+                            resolvedLibs[fnc] = lib[fnc];
                         }
                     }
-                }*/
-                if(this.callback) {
-                    if(!await this.callback.call(window, resolver, this.options)) {
-                        setTimeout(() => {
-                            this.finish(undefined);
-                            resolver({ notAsync: true });
-                        }, 0);
-                    } else {
-                        this.script.isAsync = true;
-                    }
-                } else {
-                    resolver();
                 }
-            }).catch(e => { debugger; });
+            }*/
+            if(this.callback) {
+                if(!await this.callback.call(window, resolver, this.options)) {
+                    setTimeout(() => {
+                        this.finish(undefined);
+                        resolver({ notAsync: true });
+                    }, 0);
+                } else {
+                    this.script.isAsync = true;
+                }
+            } else {
+                resolver();
+            }
+        }).catch(e => { debugger; });
         if(!result || !result.notAsync) {
             this.finish(result, true);
 
@@ -137,10 +140,20 @@ class EvalScript {
         }
         this.loaded = true;
         if(arg) {
+            if(typeof arg === 'function') {
+                arg = new Proxy(arg, {
+                    apply: (target, thisArg, argumentsList) => {
+                        this.options.params = argumentsList;
+                        // @ts-ignore
+                        return target(argumentsList[0], argumentsList[1]);
+                    }
+                });
+            }
             arg.context = this;
         } else {
             arg = { context: this };
         }
+
         finished(arg, async, this.script);
     }
 

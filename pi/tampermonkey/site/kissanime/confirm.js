@@ -38,7 +38,7 @@
                 const nextImg = document.querySelector('#btnNext');
                 if(nextImg) {
                     const nextLink = nextImg.closest('a');
-                    location.href = nextLink.href;
+                    navigate(nextLink.href);
                 }
             }
         });

@@ -1,6 +1,7 @@
 /* global sc,handleError */
 /// <reference path="../DOM/line.js" />
 /// <reference path="../DOM/button.js" />
+/// <reference path="../customTypes/index.d.ts" />
 
 /**
 *
@@ -21,9 +22,10 @@
 * @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseLeave]
 * @property {(target)=>boolean} [isValid]
 * @property {CreateElement} [creationFunction]
-* @property {String} [enabledColor]
-* @property {string} [normalColor]
+* @property {Colors} [enabledColor]
+* @property {Colors} [normalColor]
 * @property {CircularMenuHTMLButton} [element]
+* @property {number} [rotation]
 * @property {Line} [line]
 * @property {string} [lib]
 */
@@ -104,7 +106,7 @@ new EvalScript('', {
                 }
                 if(!props.lib && EvalScript.current) {
                     props.lib = EvalScript.current.getUrl();
-                    console.log(`setting ${props.lib} as lib for ${props.name}`);
+                    // console.log(`setting ${props.lib} as lib for ${props.name}`);
                 }
                 return props;
 
@@ -159,14 +161,14 @@ new EvalScript('', {
                     }
                 }
                 async deactivationFunction() {
-                    if(!this.backgroundObj) {
-                        debugger;
+                    if(this.backgroundObj) {
+                        await this.backgroundObj.deactivation(this.backgroundObj);
                     }
-                    await this.backgroundObj.deactivation(this.backgroundObj);
-                    //console.trace('menu deactivation event');
                     this.leave(this.elements);
                     this.isActive = false;
-                    this.backgroundObj.remove();
+                    if(this.backgroundObj) {
+                        this.backgroundObj.remove();
+                    }
                     this.activator()
                         .then(ev => this.onActivate.call(this, ev));
                 }
@@ -176,6 +178,7 @@ new EvalScript('', {
                         this.parent.addEventListener('mouseenter', (ev) => {
                             resolv(ev);
                         });
+
                     });
                 }
                 async timedDeactivation(button) {
@@ -209,6 +212,8 @@ new EvalScript('', {
                     }
                     const scaledRadius = radius * this.scale;
                     let alphaFilter = this.set(crIN(parent, '', () => el.click(), undefined, (btn) => {
+
+                        return;
                         this.isActive = false;
                         btn.remove();
                         this.leave(this.elements);
@@ -316,6 +321,8 @@ new EvalScript('', {
                         }
                         this.backgroundObj = this.getBackgroundObject(this.center, radius);
                         this.setButtons(filteredOptions, 0, 360, radius, this.center);
+                    } else {
+                        console.log('no elements');
                     }
                 }
                 /**
@@ -354,8 +361,22 @@ new EvalScript('', {
                     }
 
                     let innerRadius = distance * 0.4;
+
+                    let rotationArray = [];
                     for(let i = 0; i < buttonArray.length; i++) {
                         let angle = ((startAngle - availableAngle / 2) + (degree * i));
+                        rotationArray[i] = angle;
+                    }
+                    let rotationOffset = 0;
+                    for(let i = 0; i < buttonArray.length; i++) {
+                        if(buttonArray[i].rotation !== undefined) {
+                            rotationOffset = buttonArray[i].rotation - rotationArray[i];
+                            break;
+                        }
+                    }
+
+                    for(let i = 0; i < buttonArray.length; i++) {
+                        let angle = rotationArray[i] + rotationOffset;
                         let posX = (Math.cos(angle * (Math.PI / 180)) * innerRadius);
                         let posY = (Math.sin(angle * (Math.PI / 180)) * innerRadius);
 

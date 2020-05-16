@@ -134,7 +134,7 @@ async function setlink() {
     else {
         console.log('no links for this episode');
         try {
-            location.href = sc.g.C('npbutton button-next')[0].href;
+            navigate(sc.g.C('npbutton button-next')[0].href);
         }
         catch(error) {
             //

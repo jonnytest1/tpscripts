@@ -8,14 +8,28 @@ declare interface Window {
     crBE: Function
 }
 
-type OptionalStyle = Partial<CSSStyleDeclaration | {
-    width: number | string | null,
-    left: number | string | null
+
+interface StyleNumbers {
+
+    'width'
+    'height',
+    bottom,
+    right,
+    borderRadius
+}
+
+
+type OptionalStyle = Partial<Omit<CSSStyleDeclaration, keyof StyleNumbers> & {
+    [P in keyof StyleNumbers]: number | string
 }>
 
 
-//declare var window: DOMWindow;
-declare let crIN: <T>(parent: HTMLElement, text: String, fncclick?: Function, fncmouseEnter?: Function, fncMouseLeave?: (btn: HTMLElement) => any, fncopen?: string,
-    options?: { style: OptionalStyle } & T) => HTMLElement
+interface createButton {
+    <T>(parent: ButtonOptions): HTMLElement
+    <T>(parent: HTMLElement, text?: String, fncclick?: Function, fncmouseEnter?: Function, fncMouseLeave?: (btn: HTMLElement) => any, fncopen?: string,
+        options?: { style: OptionalStyle } & T): HTMLElement
+}
 
+//declare var window: DOMWindow;
+declare let crIN: createButton
 declare let crBE: Function

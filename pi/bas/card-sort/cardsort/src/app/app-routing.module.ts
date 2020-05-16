@@ -4,6 +4,7 @@ import { CardTestComponent } from './card-test/card-test.component';
 import { SortComponent } from './sort/sort.component';
 import { AdminComponent } from './adminComponent/adminComponent.component';
 import { TestRoutes } from '../teststuff/test.route';
+import { VidComponent } from '../teststuff/vid/vid.component';
 
 const routes: Routes = [
   ...TestRoutes,

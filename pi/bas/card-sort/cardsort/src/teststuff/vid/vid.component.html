@@ -1,0 +1,15 @@
+<div containerRight style="position: absolute;right: 0px;top: 0px;bottom: 0px;width: 600px;background-color: aqua;">
+    <div *ngFor="let ctrl of rightControls">
+        <div [id]="ctrl.id"></div>
+    </div>
+</div>
+<div containerRight
+    style="position: absolute;right: 600px;height: 300px;bottom: 0px;left:0px;background-color: chartreuse;">
+    <div *ngFor="let ctrl of bottomControl">
+        <div [id]="ctrl.id"></div>
+    </div>
+</div>
+
+<canvas id="canvas" style="height:200px;width:400px;border:1px solid black;background:white"></canvas>
+
+<div id="download">download</div>
