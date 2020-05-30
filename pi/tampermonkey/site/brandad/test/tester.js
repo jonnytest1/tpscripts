@@ -38,5 +38,6 @@ var tester = new EvalScript('', {
     },
     persist: () => ['dialog'],
     reset: (set) => {
+        //
     }
 });

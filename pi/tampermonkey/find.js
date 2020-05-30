@@ -1,6 +1,6 @@
 
 /**
- * @type { ElementGetter }
+ * @type { import('./customTypes/declarations').ElementGetter }
  */
 var elementGEtter = (string, iF, compress) => {
     if(!compress) {
@@ -124,6 +124,50 @@ elementGEtter.a = async function get(identification, parent, tag, finder = eleme
         }
         setTimeout(waitTillDefined, 10, identification);
     });
+};
+elementGEtter.point = (x, y) => {
+    if(typeof x !== 'number') {
+        y = x.y;
+        x = x.x;
+    }
+    /**
+     * @type {HTMLElement}
+     */
+    //@ts-ignore
+    const object = document.elementFromPoint(x, y);
+    return object;
+};
+
+elementGEtter.eval = (type, options) => {
+    let textContent = '';
+    if(options.text) {
+        textContent = `[contains(., \'${options.text}\')]`;
+    }
+    /**
+     * @type {any}
+     */
+    let parent = document;
+    if(options.parent) {
+        parent = options.parent;
+    }
+
+    let xpathCommand = `//${type}${textContent}`;
+
+    const iterator = document.evaluate(xpathCommand, parent, null, XPathResult.ANY_TYPE, null);
+    /**
+     * @type {Array<any>}
+     */
+    const results = [];
+    let item = iterator.iterateNext();
+    while(item !== null) {
+        results.push(item);
+        item = iterator.iterateNext();
+    }
+    if(results.length === 1) {
+        return results[0];
+    }
+    return results;
+
 };
 sc.g = elementGEtter;
 new EvalScript('', {}).finish(elementGEtter);

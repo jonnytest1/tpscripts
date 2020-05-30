@@ -16,6 +16,15 @@ var storageimpl = new EvalScript('', {
              */
             constructor(base) {
                 this.base = base;
+                for(let i in base) {
+                    if(i !== 'get' && i !== 'set') {
+                        let val = base[i];
+                        if(typeof val === 'function') {
+                            val.bind(this);
+                        }
+                        this[i] = val;
+                    }
+                }
             }
             g(identifier, standard) {
                 return this.base.get(identifier, standard);

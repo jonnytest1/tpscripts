@@ -147,10 +147,7 @@ class Database {
     }
 
     /**
-     * @returns {Promise<{maxId:number,highestId:number,data:Array<{imagedata:string,tags:Array<{
-            image:number
-            tag_id:number
-            tag_name:string}>,image_id:number}>}>}
+     * @returns {Promise<{maxId:number,highestId:number,data:Array<{imagedata:string,tags:Array<import('./classifier').Tag>,image_id:number}>}>}
      * @throws {"no more"}
      */
     async getExamples(minImageID = -1) {

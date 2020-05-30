@@ -126,9 +126,14 @@ function overwrites() {
 		sc.G.s('urlChange', { old: oldUrl, new: newUrl });
 		location.href = newUrl;
 	};
+	const overwriteLinks = [
+		'kissmanga'
+	];
 
-	document.querySelectorAll('a')
-		.forEach(link => link.addEventListener('click', e => navigate(link.href)));
+	if(overwriteLinks.some(link => location.origin.includes(link))) {
+		document.querySelectorAll('a')
+			.forEach(link => link.addEventListener('click', e => navigate(link.href)));
+	}
 
 	GM_addValueChangeListener('close', (name, old_value, new_value, from_remote) => {
 		if(new_value) {

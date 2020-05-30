@@ -3,10 +3,10 @@
  * @type {{type:EvalScript<unknown>}}
  */
 var greaseBase = new EvalScript('', {
-    async: true,
+    async: false,
     run: async (resolv, set) => {
         /**
-         * @type {import('./storage').StorageBase}
+         * @type {import('./storage').StorageBase&{l,toClipboard}}
          */
         const grease = {
             set: (identifier, element) => {
@@ -35,12 +35,33 @@ var greaseBase = new EvalScript('', {
                     return standard;
                 }
                 return element;
-            }
+            },
+            l: (name, fn, value1) => {
+                function callfn(attribute, oldV, newV, remote) {
+                    if(value1) {
+                        fn(value1, attribute, oldV, newV, remote);
+                    }
+                    else {
+                        fn(attribute, oldV, newV, remote);
+                    }
+                    //fn : function(name, old_value, new_value, remote) {}
+                }
+                return window['GM_addValueChangeListener'](name, callfn);
+            },
+            //run:(filename, fnc)=> {
+            //	this.s(this.sc.c.sI.GS.scriptcomm2, { mode: "getcode", file: filename, timestamp: new Date().valueOf(), url: location.href, fnc: fnc });
+            //}
+            toClipboard: (text, info = '') => {
+                return window['GM_setClipboard'](text, info);
+            },
         };
         resolv(grease);
+        return false;
 
     },
     reset: (set) => {
         //
     }
 });
+// tslint:disable-next-line:no-unused-expression
+greaseBase;

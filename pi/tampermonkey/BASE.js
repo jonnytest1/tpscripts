@@ -73,8 +73,9 @@ new Promise(async (resolver) => {
     await reqS('libs/eval-script');
 
     await reqS('Storage/storageimpl');
+    const greaseBase = await reqS('Storage/greaseBase');
 
-    sc.G = new StorageImplementation(await reqS('Storage/greaseBase'));
+    sc.G = new StorageImplementation(greaseBase);
 
     await reqS('libs/log-level');
 

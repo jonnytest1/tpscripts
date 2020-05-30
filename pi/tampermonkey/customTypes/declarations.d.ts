@@ -40,6 +40,10 @@ interface ElementGetter {
     c0: (iF: Element, count: number) => Element,
     W: (top?: boolean, wnd?: any) => Window,
     a: (identification: string, parent?: Element, tag?: string, finder?: Function) => Promise<any>
+    eval<K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement }): HTMLElementTagNameMap[K] | Array<HTMLElementTagNameMap[K]>;
+
+
+    point: (x: number | { x: number, y: number }, y?: number) => HTMLElement
 }
 
 

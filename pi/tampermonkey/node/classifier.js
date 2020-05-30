@@ -13,6 +13,11 @@ const database = require('./database');
  * }} CustomClassifier
  *
  *
+ * @typedef {{
+            image:number
+            tag_id:number
+            tag_name:string}} Tag
+ *
  * @typedef TagEvaluation
  * @property {string} tag
  * @property {number} prob
@@ -43,9 +48,28 @@ function getImageTensor(iamgeData) {
 
     const withoutAlpha = iamgeData
         .filter((d, i) => (i + 1) % 4 !== 0)//remove alpha
-        .map(d => d / 255);
+        .map(d => d / 255); //normalize
 
     const canvas = tf.tensor(withoutAlpha, [size, size, 3]);
+    return canvas;
+}
+/**
+ * @param {Array<number>} iamgeData
+ */
+function getNumbersTensor(iamgeData) {
+    const size = Math.sqrt(iamgeData.length / 4);
+    const withoutAlpha = iamgeData
+        .filter((d, i) => (i + 1) % 4 !== 0)//remove alpha
+        .map(d => d / 255); //normalize
+    const greyscale = [];
+    for(let i = 0; i < withoutAlpha.length; i += 3) {
+        const grey = (withoutAlpha[i] + withoutAlpha[i + 1] + withoutAlpha[i + 2]) / 3;
+        greyscale.push(grey);
+        greyscale.push(grey);
+        greyscale.push(grey); //hardcoded 3 in model
+    }
+
+    const canvas = tf.tensor(greyscale, [size, size, 3]);
     return canvas;
 }
 
@@ -120,14 +144,8 @@ class Classifier {
         while(examples.length > 0) {
             const example = examples.shift();
             await database.addExample(example, this.knnClassifier);
-            const canvas = getImageTensor(example.image);
-            for(let tag of example.tags) {
-                if(isNaN(+tag)) {
-                    this.addExampleClass(tag, canvas, this.knnClassifier);
-                } else {
-                    this.addExampleClass(tag, canvas, this.numbersClassifier);
-                }
-            }
+
+            this.addExampleToClassifier(example.tags, example.image);
             console.log('added examples ' + JSON.stringify(example.tags));
         }
 
@@ -178,17 +196,10 @@ class Classifier {
                      * @type { Array<number>}
                      */
                     const imageDataArray = JSON.parse(imageElement.imagedata);
-                    const imageTensor = getImageTensor(imageDataArray);
+
                     // Pass the intermediate activation to the classifier.
 
-                    for(let tag of imageElement.tags) {
-                        if(isNaN(+tag.tag_name)) {
-                            this.addExampleClass(tag.tag_name, imageTensor, this.knnClassifier);
-                        } else {
-                            this.addExampleClass(tag.tag_name, imageTensor, this.numbersClassifier);
-                        }
-                    }
-                    imageTensor.dispose();
+                    this.addExampleToClassifier(imageElement.tags.map(t => t.tag_name), imageDataArray);
 
                     //console.log('added example ' + JSON.stringify(imageElement.tag_name));
                 }
@@ -205,6 +216,25 @@ class Classifier {
         await Promise.all([database.save(this.knnClassifier), database.save(this.numbersClassifier)]);
 
     }
+    /**
+     * @param {Array<string>} tags
+     * @param {Array<number> } imageDataArray
+     */
+    addExampleToClassifier(tags, imageDataArray) {
+        for(let tag of tags) {
+            if(isNaN(+tag)) {
+                const imageTensor = getImageTensor(imageDataArray);
+                this.addExampleClass(tag, imageTensor, this.knnClassifier);
+                imageTensor.dispose();
+            }
+            else {
+                const imageTensor = getNumbersTensor(imageDataArray);
+                this.addExampleClass(tag, imageTensor, this.numbersClassifier);
+                imageTensor.dispose();
+            }
+        }
+    }
+
     /**
      *
      * @param {string} classId
