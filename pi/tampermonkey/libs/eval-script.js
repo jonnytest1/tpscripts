@@ -24,6 +24,7 @@ class EvalScript {
      * @property {()=>void|true|Promise<true|void>} [afterReset]
      * @property {()=>Array<string>} [persist]
      * @property {boolean} [async]
+     * @property {boolean} [cacheFncResult]
      *
      * @param {EvalScriptOptions<?>} options
      * @param {string} [url]
@@ -41,9 +42,6 @@ class EvalScript {
         this.script = document.currentScript || document.props.evalScripts[this.url];
         if(this.script) {
             this.script.reset = () => {
-                if(sc.menu) {
-                    sc.menu.removeByLib(this.getUrl());
-                }
                 this.reset.call(this);
             };
             if(options.async) {
@@ -54,12 +52,17 @@ class EvalScript {
         this.resetFunction = options.reset;
         this.afterReset = options.afterReset;
         this.persist = options.persist;
-        /**@type {Partial<V & {evalScript?:any, params?:Array<any>}>} */
+        this.cacheFncResult = options.cacheFncResult || false;
+        /**@type {Partial<V & {evalScript?:any, params?:Array<any>,result?:any}>} */
         this.options = EvalScript.persistedAttributes[this.getUrl()] || {};
         this.options.evalScript = this;
         EvalScript.current = this;
         this.onload = null;
         this.loaded = false;
+        /**
+         * @type {Array<()=>void>}
+         */
+        this.customResetfunctions = [];
         ///**@type {Array<keyof import('./require').RequireMap>} */
         //this.libraries = options.libraries || [];
         this.context = { test: 123 };
@@ -87,8 +90,10 @@ class EvalScript {
     set() {
         return this.options;
     }
-
     reset() {
+        if(sc.menu) {
+            sc.menu.removeByLib(this.getUrl());
+        }
         if(!this.resetFunction) {
             return;
         }
@@ -97,6 +102,9 @@ class EvalScript {
 
     async run() {
         const result = await new Promise(async resolver => {
+            if(this.options.result) {
+                resolver(() => this.options.result);
+            }
             let resolvedLibs = {};
             /*if (this.libraries.length > 0) {
                 const libs = await Promise.all(this.libraries.map(async lib => {
@@ -145,7 +153,11 @@ class EvalScript {
                     apply: (target, thisArg, argumentsList) => {
                         this.options.params = argumentsList;
                         // @ts-ignore
-                        return target(argumentsList[0], argumentsList[1]);
+                        const result = target.call(thisArg, ...argumentsList);
+                        if(this.cacheFncResult) {
+                            this.options.result = result;
+                        }
+                        return result;
                     }
                 });
             }

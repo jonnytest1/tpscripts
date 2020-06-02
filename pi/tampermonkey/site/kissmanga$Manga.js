@@ -43,7 +43,7 @@ new EvalScript('', {
         imgs.forEach((el) =>
             el.addEventListener('click', () => {
                 try {
-                    const nextButton = sc.g.eval('a', 'Next chapter');
+                    const nextButton = sc.g.eval('a', { text: 'Next chapter', first: true });
                     nextButton.click();
                 } catch(err) {
                     //
@@ -60,7 +60,7 @@ new EvalScript('', {
                 rotation: 0,
                 mouseOver: (parnet, btn) => {
                     try {
-                        const nextButton = sc.g.eval('a', 'Next chapter');
+                        const nextButton = sc.g.eval('a', { text: 'Next chapter', first: true });
                         if(!nextButton) {
                             btn.style.backgroundColor = 'red';
                             setTimeout(() => {
@@ -79,7 +79,7 @@ new EvalScript('', {
                 name: 'previous',
                 mouseOver: (parnet, btn) => {
                     try {
-                        const nextButton = sc.g.eval('a', 'Previous');
+                        const nextButton = sc.g.eval('a', { text: 'Previous', first: true });
                         debugger;
                         if(!nextButton) {
                             btn.style.backgroundColor = 'red';

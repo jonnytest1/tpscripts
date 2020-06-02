@@ -120,7 +120,7 @@ var indexeddb = new EvalScript('', {
                         }
                         if(request.result) {
                             data.push(JSON.parse(request.result.value));
-                            if(data.length > 100) {
+                            if(data.length > 150) {
                                 resolver(data);
                                 return;
                             }

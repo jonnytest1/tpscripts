@@ -131,9 +131,8 @@ elementGEtter.point = (x, y) => {
         x = x.x;
     }
     /**
-     * @type {HTMLElement}
+     * @type {any}
      */
-    //@ts-ignore
     const object = document.elementFromPoint(x, y);
     return object;
 };
@@ -159,11 +158,14 @@ elementGEtter.eval = (type, options) => {
      */
     const results = [];
     let item = iterator.iterateNext();
+    if(options.first) {
+        return item;
+    }
     while(item !== null) {
         results.push(item);
         item = iterator.iterateNext();
     }
-    if(results.length === 1) {
+    if(options.first) {
         return results[0];
     }
     return results;

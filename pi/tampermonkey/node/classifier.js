@@ -1,4 +1,5 @@
 
+const NumbersClassifier = require('./numbersmodel').NumbersClassifier;
 const classifier = require('@tensorflow-models/knn-classifier/dist/knn-classifier');
 const mobilenetModule = require('@tensorflow-models/mobilenet/dist/mobilenet');
 const tf = require('@tensorflow/tfjs-node');
@@ -53,25 +54,6 @@ function getImageTensor(iamgeData) {
     const canvas = tf.tensor(withoutAlpha, [size, size, 3]);
     return canvas;
 }
-/**
- * @param {Array<number>} iamgeData
- */
-function getNumbersTensor(iamgeData) {
-    const size = Math.sqrt(iamgeData.length / 4);
-    const withoutAlpha = iamgeData
-        .filter((d, i) => (i + 1) % 4 !== 0)//remove alpha
-        .map(d => d / 255); //normalize
-    const greyscale = [];
-    for(let i = 0; i < withoutAlpha.length; i += 3) {
-        const grey = (withoutAlpha[i] + withoutAlpha[i + 1] + withoutAlpha[i + 2]) / 3;
-        greyscale.push(grey);
-        greyscale.push(grey);
-        greyscale.push(grey); //hardcoded 3 in model
-    }
-
-    const canvas = tf.tensor(greyscale, [size, size, 3]);
-    return canvas;
-}
 
 class Classifier {
 
@@ -83,7 +65,7 @@ class Classifier {
          */
         this.knnClassifier = undefined;
         /**
-         * @type {CustomClassifier}
+         * @type {NumbersClassifier}
          */
         this.numbersClassifier = undefined;
     }
@@ -99,8 +81,7 @@ class Classifier {
         const tags = await database.getTags();
 
         this.knnClassifier = this.setClassifier(classifier.create(), await mobilenetModule.load(), name);
-
-        this.numbersClassifier = this.setClassifier(classifier.create(), await mobilenetModule.load(), name + 'numbers');
+        this.numbersClassifier = new NumbersClassifier(name + 'numbers');
 
         console.log('laoding weights');
         const [dbWeightsTags, dbWEightsNumber] = await Promise.all([database.getWeights(this.knnClassifier), database.getWeights(this.numbersClassifier)]);
@@ -109,7 +90,7 @@ class Classifier {
             await this.preTrain();
         } else {
             this.setWeights(dbWeightsTags, this.knnClassifier);
-            this.setWeights(dbWEightsNumber, this.numbersClassifier);
+            this.numbersClassifier.setClassifierDataset(dbWEightsNumber);
 
         }
         this.knnClassifier.tags = tags;
@@ -163,12 +144,10 @@ class Classifier {
         console.log('training numbers');
         return new Promise(async (res) => {
             for(let obj of exampleArray) {
-                const rData = getImageTensor(obj.image);
-                this.addExampleClass(obj.tag, rData, this.numbersClassifier);
-                rData.dispose();
+                await this.numbersClassifier.addExample(obj.tag, obj.image);
             }
             console.log('finished numbers traingin numbers');
-            //await database.save(knnClassifier);
+            //await database.save(numbers);
             res();
         });
     }
@@ -199,8 +178,7 @@ class Classifier {
 
                     // Pass the intermediate activation to the classifier.
 
-                    this.addExampleToClassifier(imageElement.tags.map(t => t.tag_name), imageDataArray);
-
+                    await this.addExampleToClassifier(imageElement.tags.map(t => t.tag_name), imageDataArray);
                     //console.log('added example ' + JSON.stringify(imageElement.tag_name));
                 }
                 console.log(`finsihed adding ${count} / ${tagCount} items`);
@@ -212,15 +190,14 @@ class Classifier {
                 console.log('no more data to add');
             }
         }
-
-        await Promise.all([database.save(this.knnClassifier), database.save(this.numbersClassifier)]);
+        await Promise.all([database.save(this.numbersClassifier), database.save(this.knnClassifier)]);
 
     }
     /**
      * @param {Array<string>} tags
      * @param {Array<number> } imageDataArray
      */
-    addExampleToClassifier(tags, imageDataArray) {
+    async addExampleToClassifier(tags, imageDataArray) {
         for(let tag of tags) {
             if(isNaN(+tag)) {
                 const imageTensor = getImageTensor(imageDataArray);
@@ -228,9 +205,7 @@ class Classifier {
                 imageTensor.dispose();
             }
             else {
-                const imageTensor = getNumbersTensor(imageDataArray);
-                this.addExampleClass(tag, imageTensor, this.numbersClassifier);
-                imageTensor.dispose();
+                await this.numbersClassifier.addExample(tag, imageDataArray);
             }
         }
     }
@@ -276,7 +251,7 @@ class Classifier {
         const activation = this.knnClassifier.mobilenet.infer(canvas, inertype);
         canvas.dispose();
         const result = await this.knnClassifier.predictClass(activation, 10);
-        const resultNumbers = await this.numbersClassifier.predictClass(activation, 10);
+        const resultNumbers = await this.numbersClassifier.predict(imageData);
         activation.dispose();
         /**
          * @type {Array<{percent:number,i:string}>}

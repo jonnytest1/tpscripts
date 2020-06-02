@@ -4,6 +4,7 @@
  */
 var datatobrowserdb = new EvalScript('', {
     async: true,
+    cacheFncResult: true,
     run: async (resolv, set) => {
         const idb = await reqS('libs/indexeddb');
 

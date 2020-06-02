@@ -125,11 +125,13 @@ class NeuralWrapper {
     /**
      *
      * @param {'reLU'|'dense'|'conv2d'|'maxPooling2d'|'flatten'} type
-     * @param {*} [options]
+     * @param {LayerOptions} [options]
      */
     addLayer(type, options) {
         this.layers.push({ type: type, options: options });
-        this.model.add(tf.layers[type](options));
+        const layer = tf.layers[type](options);
+        this.model.add(layer);
+        return layer;
     }
 
     copy() {
@@ -163,6 +165,10 @@ class NeuralWrapper {
         });
     }
 
+    /**
+     *
+     * @param {tfCompileOptions} options
+     */
     compile(options) {
         this.model.compile(options);
     }
@@ -287,6 +293,49 @@ class NeuralWrapper {
             units: outputs,
             kernelInitializer: 'VarianceScaling',
             activation: 'sigmoid'
+        });
+        nn.compile({
+            optimizer: tf.train.adam(),
+            loss: 'categoricalCrossentropy',
+            metrics: ['accuracy'],
+        });
+        return nn;
+    }
+
+    /**
+     *
+     * @param {TensorAble} example
+     * @param {number} [hidden]
+     * @param {number} [outputs]
+     * @returns {NeuralWrapper}
+     */
+    static shapeDetector2D(example, hidden = 10, outputs = 2) {
+        const nn = new NeuralWrapper();
+        const inputshapeTEnsor = this.toTensor(example);
+        /*   nn.addLayer('conv2d', {
+              units: hidden,
+              kernelSize: 20,
+              filters: 60,
+              inputShape: this.toTensor(example).shape,
+              activation: 'relu',
+              kernelInitializer: 'VarianceScaling'
+          }); */
+        //  nn.addLayer('flatten');
+        //
+        nn.addLayer('dense', {
+            inputShape: inputshapeTEnsor.shape,
+            units: hidden,
+            useBias: true,
+            activation: 'relu',
+        });
+        inputshapeTEnsor.dispose();
+        nn.addLayer('dense', {
+            units: hidden,
+            useBias: true,
+            activation: 'relu',
+        });
+        nn.addLayer('dense', {
+            units: outputs,
         });
         nn.compile({
             optimizer: tf.train.adam(),

@@ -30,6 +30,17 @@ interface HTMLChildren extends HTMLElement {
     children: HTMLCollectionOf<HTMLChildren>
 }
 
+export interface EvalFnc {
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement, first: true }): HTMLElementTagNameMap[K];
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement }): Array<HTMLElementTagNameMap[K]>;
+
+
+}
+
+interface PointFnc {
+    <T = HTMLElement>(x: number | { x: number, y: number }, y?: number): T
+}
+
 interface ElementGetter {
     (string: string, iF?: Element, compress?: Boolean): any;
 
@@ -40,10 +51,9 @@ interface ElementGetter {
     c0: (iF: Element, count: number) => Element,
     W: (top?: boolean, wnd?: any) => Window,
     a: (identification: string, parent?: Element, tag?: string, finder?: Function) => Promise<any>
-    eval<K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement }): HTMLElementTagNameMap[K] | Array<HTMLElementTagNameMap[K]>;
 
-
-    point: (x: number | { x: number, y: number }, y?: number) => HTMLElement
+    eval: EvalFnc,
+    point: PointFnc
 }
 
 

@@ -9,7 +9,17 @@
  * @property {HTMLElement} [popup]
  * @property {()=>void} [remove]
  * @property {any} [timeout]
- */
+ *
+ *
+ * @typedef ExpandedProgressOverlayOptions
+ * @property {number} [max]
+ * @property {number} [count]
+ * @property {number} [start]
+ * @property {string} [text]
+ * @property {HTMLElement} [popup]
+ * @property {()=>void} remove
+ * @property {any} [timeout]
+ * /
 
 /**
  */

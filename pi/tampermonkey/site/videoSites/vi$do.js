@@ -14,6 +14,7 @@ var vid = new EvalScript('', {
                 const overlay = sc.g.point(400, 400);
                 if(overlay.tagName !== 'VIDEO') {
                     overlay.parentElement.style.zIndex = '0';
+                    overlay.parentElement.style.position = 'relative';
                 }
             }, 300);
         } else {

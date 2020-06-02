@@ -56,16 +56,18 @@ var testMOdel = new EvalScript('', {
 
         const iamgeArray = [];
         objectArrays.forEach(el => {
-            const iD = canvasWrapper.drawForConv(el.pixels);
+            const iD = el.pixels.flatMap(e => {
+                return e.filter((e, i) => i !== 3);
+            });//canvasWrapper.drawForConv();
             delete el.pixels;
             delete el.tags;
             iamgeArray.push(iD);
         });
 
-        const model = NeuralWrapper.convImageFromExample(iamgeArray[0], 80, tagIds.length, 2);
+        const model = NeuralWrapper.shapeDetector2D(iamgeArray[0], 70, tagIds.length);
 
         const history = await model.fit(iamgeArray, tagArray, {
-            epochs: 20,
+            epochs: 30,
             validationSplit: 0.6,
             progressMonitor: progress(o => 0, { text: 'training' })
 

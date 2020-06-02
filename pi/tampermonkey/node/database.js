@@ -1,3 +1,4 @@
+
 const mariadb = require('mariadb');
 /// <reference path="./classifier" />
 let count = 0;
@@ -5,7 +6,7 @@ let count = 0;
 class Database {
 
     /**
-     * @param {import('./classifier').CustomClassifier} classifier
+     * @param {import('./classifier').CustomClassifier|import('./numbersmodel').NumbersClassifier} classifier
      * @returns {Promise<Array<{modelkey:string,modelvalue:string}>>}
      */
     async getWeights(classifier) {
@@ -24,7 +25,7 @@ class Database {
     }
     /**
      *
-     * @param {import('./classifier').CustomClassifier} classifier
+     * @param {import('./classifier').CustomClassifier|import('./numbersmodel').NumbersClassifier} classifier
      */
     toDBName(classifier) {
         if(!classifier.name) {
@@ -35,7 +36,7 @@ class Database {
 
     /**
      *
-    * @param {import('./classifier').CustomClassifier} classifier
+    * @param {import('./classifier').CustomClassifier|import('./numbersmodel').NumbersClassifier} classifier
     */
     async save(classifier) {
         const tableName = this.toDBName(classifier);
@@ -60,7 +61,7 @@ class Database {
             console.log('locked table');
             await connection.query(`DELETE FROM \`${tableName}\``);
 
-            let dataset = classifier.getClassifierDataset();
+            let dataset = await classifier.getClassifierDataset();
             let sql = `INSERT INTO ${tableName} ( modelkey,modelvalue) VALUES `;
             let params = [];
 
@@ -68,7 +69,11 @@ class Database {
             for(let key of Object.keys(dataset)) {
                 if(key !== 'timestamp' && key !== 'name') {
                     sql += ' ( ? , ? ) ,';
-                    let data = dataset[key].dataSync();
+
+                    let data = dataset[key];
+                    if(data.dataSync) {
+                        data = data.dataSync();
+                    }
                     params.push(key);
                     params.push(JSON.stringify(Array.from(data)));
                 }
@@ -198,7 +203,7 @@ class Database {
     /**
      *
      * @param {*} connection
-     * @param {import('./classifier').CustomClassifier} classifier
+     * @param {import('./classifier').CustomClassifier|import('./numbersmodel').NumbersClassifier} classifier
      */
     async setMetaAttributes(connection, classifier) {
 

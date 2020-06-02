@@ -1,4 +1,3 @@
-
 /**
  * @typedef RenderedObject
  * @property {{x:number,y:number}} pos

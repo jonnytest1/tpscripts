@@ -3,6 +3,14 @@
 /// <reference path="../libs/math/vector-2d.js" />
 
 /**
+ * @typedef {HTMLVideoElement & {
+    *  previousStyle:CSSStyleDeclaration
+    *  skipLoop:any
+    *  hasStarted?:boolean
+    *  parentElement:{webkitRequestFullScreen:Function}
+    * }} CustomVideElement
+ */
+/**
  * @type {{type:EvalScript<{abc:boolean}>}}
  */
 EvalScript.type = new EvalScript('', {
@@ -80,24 +88,29 @@ EvalScript.type = new EvalScript('', {
         //radial-gradient(circle at center,rgba(0,0,0,1),rgba(255,255,0,0.9))"
         const LS = await reqS('Storage/localStorage');
         addVideo(vid);
+
+        /**
+         * @param {CustomVideElement} videoElement
+         */
         function addVideo(videoElement) {
             if(videoElement[0]) {
                 videoElement = videoElement[0];
             }
-            let stdSpeed = LS.g('video_speed', 1);
-            videoElement.playbackRate = stdSpeed;
+            if(true) {
+                let stdSpeed = LS.g('video_speed', 1);
+                videoElement.playbackRate = stdSpeed;
+            }
             videoElement.focus();
             /**
              * @param {HTMLElement} parent
-             * @returns {HTMLVideoElement & {
-             *  previousStyle:CSSStyleDeclaration
-             *  skipLoop:any
-             *  parentElement:{webkitRequestFullScreen:Function}
-             * }}
+             * @returns {CustomVideElement}
              */
             function getVideo(parent) {
                 let localVideo = videoElement;
-                let element = document.elementFromPoint(parent.offsetLeft, parent.offsetTop);
+                /**
+                 * @type {CustomVideElement}
+                 */
+                let element = sc.g.point(parent.offsetLeft, parent.offsetTop);
                 if(element && element.tagName === 'VIDEO') {
                     localVideo = element;
                 }
@@ -129,8 +142,17 @@ EvalScript.type = new EvalScript('', {
                             isValid: () => videoElement.paused === false,
                             mouseOver: (parent) => {
                                 const localVideo = getVideo(parent);
-                                localVideo.pause();
                                 localVideo.focus();
+                                const volume = localVideo.volume;
+                                const i = setInterval(() => {
+                                    localVideo.volume -= 0.02;
+                                    if(localVideo.volume < 0.1) {
+                                        localVideo.pause();
+                                        localVideo.volume = volume;
+                                        clearInterval(i);
+                                    }
+                                }, 100);
+
                             }
                         }, {
                             name: 'fullscreen',
@@ -146,7 +168,7 @@ EvalScript.type = new EvalScript('', {
                                         localVideo.style.height = '100%';
                                         localVideo.style.left = localVideo.style.top = '0px';
 
-                                    }, 100);
+                                    }, 500);
 
                                 } else {
                                     document.exitFullscreen();
@@ -161,19 +183,30 @@ EvalScript.type = new EvalScript('', {
                             name: 'speed',
                             children: [{
                                 creationFunction: (parent, _, _1, _2, _3, _4, center, angle) => {
-                                    let localVideo = getVideo(parent);
-                                    stdSpeed = LS.g('video_speed', 1);
+                                    let localVideo = getVideo(parent);//
+                                    const stdSpeed = LS.g('video_speed', 1);
                                     let object = new CustomSlider(parent, center, value => {
                                         localVideo.playbackRate = value;
                                         LS.s('video_speed', value);
                                     }, Math.sqrt(stdSpeed * 2500), {
                                         viewRotation: 90 + angle,
-                                        mapping: percent => {
-                                            var speed = (percent / 50) * (percent / 50);
-                                            if(percent < 2) {
-                                                speed = -0.5;
+                                        additionalText: (speed) => {
+                                            const remaining = localVideo.duration - localVideo.currentTime;
+                                            const duration = Math.round(remaining / speed);
+                                            let seconds = duration % 60;
+                                            let minutes = Math.floor(duration / 60);
+
+                                            let hour = '';
+                                            if(minutes > 60) {
+                                                const hours = Math.floor(minutes / 60);
+                                                minutes = minutes % 60;
+                                                hour = `${hours}h `;
                                             }
-                                            return speed;
+                                            const minsec = `${minutes}m ${seconds}s`;
+                                            return `${hour}${minsec}`;
+                                        },
+                                        mapping: percent => {
+                                            return (percent / 50) * (percent / 50);
                                         }
                                     });
                                     object.container.style.backgroundColor = '#ffffff6e';

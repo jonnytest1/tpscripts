@@ -1,6 +1,7 @@
 .tableContainer{
     vertical-align: top;
     padding-top: 1px;
+    white-space: nowrap;
 }
 
 .tdBorder {

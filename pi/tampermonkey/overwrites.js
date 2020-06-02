@@ -9,7 +9,8 @@ function overwrites() {
 		'https://www.twitch.tv',
 		'https://app.gotomeeting.com',
 		'https://global.gotomeeting.com/',
-		'https://www.codingame.com'
+		'https://www.codingame.com',
+		'https://www.amazon.de/'
 	];
 
 	if(urlWhitelist.includes(location.origin)) {

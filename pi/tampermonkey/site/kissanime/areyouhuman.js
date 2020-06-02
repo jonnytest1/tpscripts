@@ -269,7 +269,7 @@
 
     /**@type { HTMLCollectionOf<HTMLTagImageElement> } */
     let images = sc.g('img', formContainer);
-    if(images.length > 24 && location.search.includes('eval=true')) {
+    if(images.length > 24) {
         [...images].forEach(image => {
             image.style.width = image.style.height = '100px';
             image.parentElement.style.padding = '0px';

@@ -9,8 +9,9 @@ var CustomSlider = class CustomSliderC {
      * @property {boolean} [skipInit] =false
      * @property {boolean} [skipMouseMove] =false
      * @property {number} [viewRotation]
+     * @property {(mappedValue:number)=>string} [additionalText]
      * @property {Vector} [positionOffset]
-     * @property {(value:number)=>number} [mapping]
+     * @property {(percent:number)=>number} [mapping]
      */
     /**
      * @typedef {HTMLElement} Slider
@@ -42,6 +43,7 @@ var CustomSlider = class CustomSliderC {
         this.color = options.color || 'blue';
         this.arcWidth = options.arcWidth || 2;
         this.skipMouseMove = options.skipMouseMove || false;
+        this.textFnc = options.additionalText;
 
         this.canvasWidth = 100 * this.scale;
         this.canvasHeight = 50 * this.scale;
@@ -80,8 +82,12 @@ var CustomSlider = class CustomSliderC {
     setValue(value) {
         if(this.mapping) {
             value = this.mapping(value);
-            this.text.textContent = (value + '').substr(0, 6);
+            this.text.innerHTML = (value + '').substr(0, 6);
+            if(this.textFnc) {
+                this.text.innerHTML += '<br>' + this.textFnc(value);
+            }
         }
+
         this.onMouse(value);
     }
 
@@ -90,8 +96,13 @@ var CustomSlider = class CustomSliderC {
         text.style.position = 'absolute';
         text.style.top = '20px';
         text.className = 'textField';
-        text.style.left = '30px';
-        //text.style.transform = 'translateX(-50%)';
+        text.style.left = '50%';
+        text.style.whiteSpace = 'nowrap';
+        text.style.zIndex = "-10";
+        if(this.textFnc) {
+            text.style.fontSize = '14px';
+        }
+        text.style.transform = 'translateX(-50%)';
         return text;
     }
 
@@ -122,7 +133,7 @@ var CustomSlider = class CustomSliderC {
         canvas.style.width = canvas.width + 'px';
         canvas.type = 'range';
         if(!this.skipMouseMove) {
-            this.container.onmousemove = (ev) => this.onCanvasMove.call(this, ev);
+            canvas.onmousemove = (ev) => this.onCanvasMove.call(this, ev);
         }
         return canvas;
     }
@@ -131,11 +142,12 @@ var CustomSlider = class CustomSliderC {
 
         let direction = { x: this.canvasHeight - ev.offsetX, y: (this.canvasWidth / 2) - ev.offsetY };
         if(ev.target.tagName !== 'CANVAS') {
+            console.log(ev.offsetX, ev.offsetY, direction, ev.target);
+            return;
             direction.x -= 30;
             direction.y -= 20;
         }
 
-        console.log(ev.offsetX, ev.offsetY, direction, ev.target);
         let rotation = Math.atan2(direction.y, direction.x);
         let degrees = (rotation * 180) / Math.PI;
         this._setPosition(degrees);

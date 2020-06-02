@@ -3,11 +3,21 @@ interface model {
     setWeights: (weights: Array<TensorObject>) => void
     getWeights: () => Array<TensorObject>
     dispose: () => void
-    compile: (...args) => void
+    compile: (options: tfCompileOptions, ...args) => void
     predict: (t: TensorObject) => TensorObject;
 
     fit: (x: TensorObject, y: TensorObject, fitOptions?: fitOptions) => Promise<fitHistory>;// returns History
-    add: (layer: Layers) => void
+    add: (layer: Layers) => tfLayer
+}
+
+interface Optimizer {
+
+}
+
+interface tfCompileOptions {
+    optimizer?: Optimizer,
+    loss?: "categoricalCrossentropy",
+    metrics?: Array<"accuracy">
 }
 interface fitReport {
     acc: Array<number>,
@@ -51,8 +61,17 @@ interface TensorInterface {
 }
 
 interface LayerOptions {
-    inputShape: Array<number>
-    units: number
+    inputShape?: Array<number>
+    units?: number
+
+    strides?: number | Array<number>
+    poolSize?: Array<number>
+    filters?: number
+    kernelSize?: number
+    kernelInitializer?: 'VarianceScaling'
+    activation?: 'sigmoid' | 'relu'
+
+    useBias?: boolean
 }
 interface Layer {
     type: String
@@ -71,10 +90,14 @@ interface Layers {
 interface Train {
     sgd: (lr: number) => Train
 
-    adam: () => Train
+    adam: () => Optimizer
 }
 interface Browser {
     fromPixels: (canvas: HTMLCanvasElement) => TensorObject
+}
+
+interface tfLayer {
+
 }
 interface tf {
     layers: Layers

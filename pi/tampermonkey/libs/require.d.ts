@@ -49,7 +49,7 @@ export interface RequireMap {
     'DOM/DOMConstants': DConstants;
     'DOM/dependencyCheck': void
 
-    'DOM/progress-overlay': (callback: (optinos: ProgressOverlayOptions) => Promise<number> | number, optinos?: ProgressOverlayOptions) => ProgressOverlayOptions
+    'DOM/progress-overlay': (callback: (optinos: ProgressOverlayOptions) => Promise<number> | number, optinos?: ProgressOverlayOptions) => ExpandedProgressOverlayOptions
     'DOM/line': void
     'DOM/table': DOMTableCosntructor
     'DOM/button': ButtonRes
@@ -70,6 +70,10 @@ export interface RequireMap {
     'site/brandad/test/integrationtest': () => void
     'site/brandad/test/tester': (dialog: Dialog) => void
     'site/kissanime/buildModel': void
+
+    /**
+     * @see {site/kissanime/testModel.js}
+     */
     'site/kissanime/data-to-browser-db': () => Promise<any>
     'site/kissanime/testModel': void
 

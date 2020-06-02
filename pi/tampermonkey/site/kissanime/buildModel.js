@@ -47,9 +47,11 @@ buildModelScript.isAsync = true;
     classifierReady.style.position = 'fixed';
     document.body.appendChild(classifierReady);
 
-    await reqS('learning/tensorflow');
-    await reqS('time');
-    await reqS('graphics/canvas');
+    let [_tensorflow, progress, _canvas, _time] = await reqS([
+        'learning/tensorflow',
+        'DOM/progress-overlay',
+        'graphics/canvas',
+        'time']);
     let knnIO;// = await reqS('learning/knnIO');
 
     /*knnIO('knnAnime')
@@ -192,6 +194,57 @@ buildModelScript.isAsync = true;
         }
     });
     console.log('added menu');
+
+    /**
+ * @param {TrainingData} data
+ * @param {CanvasWrapper } cWrapper
+ */
+    async function trainNumbers(classifier, cWrapper, data) {
+        return new Promise(async (res) => {
+            const amount = 600;
+            const batchSize = 100;
+            (async function trainer(data, index = 0) {
+                if(index > amount) {
+                    document.querySelector('#text').textContent = 'done';
+                    res();
+                    return;
+                }
+                document.querySelector('#text').textContent = `${index}/${amount}`;
+                //const dataAr = await getData(batchSize);
+
+                const [response, newdata] = await Promise.all(
+                    [
+                        fetch('http://localhost:8080/trainrandomnumbers', {
+                            body: JSON.stringify(data),
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }),
+                        getData(batchSize)
+                    ]
+                );
+
+                //classifier.addExampleClass(rData.tag.id, rData.iD);
+
+                setTimeout(trainer, 1, newdata, index + batchSize);
+            })(await getData(batchSize));
+        });
+
+        async function getData(batchSize) {
+            const dataAr = [];
+            const progressOtionsRef = await progress(o => 0, { text: 'generating data', max: batchSize });
+            for(let i = 0; i < batchSize; i++) {
+                const dataEl = cWrapper.noiseWithNumber();
+                await Promise.delayed();
+                dataAr.push({ tag: dataEl.number, image: [...dataEl.imageData.data] });
+                progressOtionsRef.count = i;
+            }
+            progressOtionsRef.count = progressOtionsRef.max;
+            return dataAr;
+        }
+    }
+
     finished(classifier, true, buildModelScript);
 })();
 var testContainer;
@@ -315,42 +368,6 @@ async function test(classifier, cWrapper, data) {
             } catch(error) {
                 console.error(error);
             }
-        })();
-    });
-}
-/**
- * @param {TrainingData} data
- * @param {CanvasWrapper } cWrapper
- */
-async function trainNumbers(classifier, cWrapper, data) {
-    return new Promise((res) => {
-        const amount = 600;
-        const batchSize = 100;
-        (async function trainer(index = 0) {
-            if(index > amount) {
-                document.querySelector('#text').textContent = 'done';
-                res();
-                return;
-            }
-            document.querySelector('#text').textContent = `${index}/${amount}`;
-            const dataAr = [];
-            for(let i = 0; i < batchSize; i++) {
-                const dataEl = cWrapper.noiseWithNumber();
-                await Promise.delayed();
-                dataAr.push({ tag: dataEl.number, image: [...dataEl.imageData.data] });
-            }
-
-            await fetch('http://localhost:8080/trainrandomnumbers', {
-                body: JSON.stringify(dataAr),
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            //classifier.addExampleClass(rData.tag.id, rData.iD);
-
-            setTimeout(trainer, 1, index + batchSize);
         })();
     });
 }
