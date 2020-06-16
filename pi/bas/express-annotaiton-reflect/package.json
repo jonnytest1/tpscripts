@@ -1,0 +1,22 @@
+{
+    "name": "expressannotation",
+    "version": "1.0.0",
+    "description": "node",
+    "main": "src/index.ts",
+    "dependencies": {
+        "dotenv": "^8.2.0",
+        "express": "",
+        "typescript": "",
+        "fs": ""
+    },
+    "devDependencies": {
+        "@types/express": "",
+        "ts-node": "",
+        "tslint": ""
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}

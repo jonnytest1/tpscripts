@@ -27,6 +27,22 @@
                 "${workspaceFolder}\\time\\src\\init.ts"
             ],
             "restart": true,
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ExpressReflect",
+            //"program": "${workspaceFolder}\\index.ts",
+            "autoAttachChildProcesses": true,
+            "cwd": "${workspaceFolder}\\express-annotaiton-reflect",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}\\express-annotaiton-reflect\\src\\index.ts"
+            ],
+            "restart": true,
         }
     ]
 }
