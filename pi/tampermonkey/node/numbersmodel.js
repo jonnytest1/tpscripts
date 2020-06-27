@@ -7,21 +7,33 @@ class NumbersClassifier {
         /**
          * @type {import("@tensorflow/tfjs-node").Sequential }
          */
-        this.model = tf.sequential();
+        this.model = tf.sequential({
+
+        });
+        this.model.add(tf.layers.conv2d({
+            inputShape: [160, 160, 3],
+            filters: 60,
+            kernelSize: 5,
+            activation: 'relu'
+        }));
+        this.model.add(tf.layers.maxPool2d({
+            poolSize: [2, 2]
+        }));
+        this.model.add(tf.layers.conv2d({
+            filters: 32,
+            kernelSize: 3,
+            activation: 'relu'
+        }));
+        this.model.add(tf.layers.maxPool2d({
+            poolSize: [2, 2]
+        }));
+        this.model.add(tf.layers.flatten());
         this.model.add(tf.layers.dense({
-            units: 50,
-            inputShape: [25600],
-            useBias: true,
+            units: 64,
             activation: 'relu'
         }));
         this.model.add(tf.layers.dense({
-            units: 70,
-            useBias: true,
-            activation: 'relu',
-        }));
-        this.model.add(tf.layers.dense({
             units: 10,
-            useBias: true,
             activation: 'softmax'
         }));
         this.model.compile({
@@ -44,7 +56,7 @@ class NumbersClassifier {
         for(let i in weights) {
             const layer = this.model.layers[layerIndex];
             let layerWeights = layer.weights[weightsindex];
-            if(!layerWeights) {
+            while(!layerWeights) {
                 layerIndex++;
                 weightsindex = 0;
                 layerWeights = this.model.layers[layerIndex].weights[weightsindex];
@@ -59,68 +71,53 @@ class NumbersClassifier {
         this.model.setWeights(weightArray);
     }
     /**
-     *
-     * @param {Array<number>} data
+     * greyscale tensor normalized ohne alpha
+     * @param {Array<{img:Array<number>}>} data
      * @returns {import("@tensorflow/tfjs-node").Tensor1D}
      */
     prepareImageData(data) {
-        const colorPixels = data.filter((e, i) => (i + 1) % 4 !== 0);
-        const dataAr = [];
-        for(let i = 0; i < colorPixels.length; i += 3) {
-            dataAr.push((colorPixels[i] + colorPixels[i + 1] + colorPixels[i + 2]) / (3 * 255));
-        }
-        return tf.tensor([dataAr]);
+        return tf.tensor(data.map(sinleData => {
+            const w = [];
+            for(let i = 0; i < 160; i++) {
+                const rowI = w.push([]) - 1;
+                for(let j = 0; j < 160; j++) {
+                    let index = ((i * 4) * 160) + (j * 4);
+                    //skip alpha
+                    w[rowI].push([sinleData.img[index] / 255, sinleData.img[index + 1] / 255, sinleData.img[index + 2] / 255]);
+                }
+            }
+            return w;
+        }));
     }
 
     /**
      *
-     * @param {string} tag
-     * @param {Array<number>} imageData
+     * @param {Array<{img:Array<number>,tag:string}>} data
      */
-    async addExample(tag, imageData) {
-        let tagArray = [];
-        for(let i = 0; i < 10; i++) {
-            if((i + '') === tag) {
-                tagArray.push(1);
-            } else {
-                tagArray.push(0);
+    async addExample(data) {
+        const tagTensor = tf.tensor(data.map(singleData => {
+            let tagArray = [];
+            for(let i = 0; i < 10; i++) {
+                if((i + '') === singleData.tag) {
+                    tagArray.push(1);
+                } else {
+                    tagArray.push(0);
+                }
             }
-        }
-
-        const tagTensor = tf.tensor([tagArray]);
-        await this.model.fit(this.prepareImageData(imageData), tagTensor, {
-            epochs: 30
+            return tagArray;
+        }));
+        await this.model.fit(this.prepareImageData(data), tagTensor, {
+            epochs: 3,
         });
         tagTensor.dispose();
     }
-
-    /*     /**
-     * @param {Array<number>} iamgeData
-
-    function getNumbersTensor(iamgeData) {
-        const size = Math.sqrt(iamgeData.length / 4);
-        const withoutAlpha = iamgeData
-            .filter((d, i) => (i + 1) % 4 !== 0)//remove alpha
-            .map(d => d / 255); //normalize
-        const greyscale = [];
-        for(let i = 0; i < withoutAlpha.length; i += 3) {
-            const grey = (withoutAlpha[i] + withoutAlpha[i + 1] + withoutAlpha[i + 2]) / 3;
-            greyscale.push(grey);
-            greyscale.push(grey);
-            greyscale.push(grey); //hardcoded 3 in model
-        }
-
-        const canvas = tf.tensor(greyscale, [size, size, 3]);
-        return canvas;
-    }
-    */
 
     /**
      * @param {Array<number>} imageData
      * @returns {Promise<any>}
      */
     async predict(imageData) {
-        const dataTensor = this.prepareImageData(imageData);
+        const dataTensor = this.prepareImageData([{ img: imageData }]);
         /**
          * @type {import("@tensorflow/tfjs-node").Tensor}
          */

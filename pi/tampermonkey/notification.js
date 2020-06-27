@@ -42,6 +42,7 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
         }
     };
     console.trace(details);
+    logKibana('DEBUG', details);
     return window['GM_notification'](details, ondone);
 };
 var notResponse = {

@@ -104,8 +104,9 @@ class CanvasWrapper {
     /**
      *
      * @param {Array<any>} imageArray
+     * @param {{greyscale?:boolean}} [options]
      */
-    draw(imageArray, toCanvas = true) {
+    draw(imageArray, toCanvas = true, options = {}) {
         let context = this.canvas.getContext('2d');
 
         let width = imageArray.length;
@@ -114,7 +115,11 @@ class CanvasWrapper {
         if(imageArray[0].length && (imageArray[0].length !== 4)) {
             height = imageArray[0].length;
         } else {
-            width = height = Math.sqrt(imageArray.length);
+            width = height = Math.sqrt(imageArray.length / 4);
+            if(width % 1 !== 0) {
+                width = height = Math.sqrt(imageArray.length / 3);
+            }
+
         }
         this.canvas.height = height;
         this.canvas.width = width;
@@ -146,7 +151,7 @@ class CanvasWrapper {
 
             for(let i = 0; i < imageData.width; i++) {
 
-                var index = ((i * 4) * imageData.width) + (j * 4);
+                var index = ((j * 4) * imageData.width) + (i * 4);
                 if(imageArray[j].length) {
                     if(imageArray[j].length <= 4) {
                         const imageArrayIndex = ((i) * imageData.width) + (j);
@@ -176,10 +181,18 @@ class CanvasWrapper {
                         imageData.data[index + 3] = 255;
                     }
                 } else {
-                    imageData.data[index] = imageArray[imageIndex] * multiplier;
-                    imageData.data[index + 1] = imageArray[imageIndex] * multiplier;
-                    imageData.data[index + 2] = imageArray[imageIndex++] * multiplier;
-                    imageData.data[index + 3] = 255;
+                    if(options.greyscale) {
+                        imageData.data[index] = imageArray[imageIndex] * multiplier;
+                        imageData.data[index + 1] = imageArray[imageIndex] * multiplier;
+                        imageData.data[index + 2] = imageArray[imageIndex++] * multiplier;
+                        imageData.data[index + 3] = 255;
+                    } else {
+                        imageData.data[index] = imageArray[imageIndex++] * multiplier;
+                        imageData.data[index + 1] = imageArray[imageIndex++] * multiplier;
+                        imageData.data[index + 2] = imageArray[imageIndex++] * multiplier;
+                        imageData.data[index + 3] = 255;
+                    }
+
                 }
             }
         }

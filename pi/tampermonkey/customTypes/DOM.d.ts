@@ -14,8 +14,12 @@ interface StyleNumbers {
     'width'
     'height',
     bottom,
+    left,
     right,
-    borderRadius
+
+    top,
+    borderRadius,
+    fontSize
 }
 
 

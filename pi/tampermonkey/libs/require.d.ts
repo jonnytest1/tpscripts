@@ -74,9 +74,9 @@ export interface RequireMap {
     /**
      * @see {site/kissanime/testModel.js}
      */
-    'site/kissanime/data-to-browser-db': () => Promise<any>
+    'site/kissanime/data-to-browser-db': () => Promise<Array<{ data: string, tags: Array<{ tag_name: string }> }>>
     'site/kissanime/testModel': void
-
+    'site/kissanime/areyouhuman': unknown
 
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage
@@ -138,4 +138,25 @@ export interface reqSType {
             RequireMap[S],
             RequireMap[U]
         ]>;
+    //
+    <
+        K extends keyof RequireMap,
+        T extends keyof RequireMap,
+        S extends keyof RequireMap,
+        I extends keyof RequireMap,
+        U extends keyof RequireMap>(path: [
+            K,
+            T,
+            S,
+            I,
+            U
+        ], options?: any):
+        Promise<[
+            RequireMap[K],
+            RequireMap[T],
+            RequireMap[S],
+            RequireMap[I],
+            RequireMap[U]
+        ]>;
+
 }

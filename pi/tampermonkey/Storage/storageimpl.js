@@ -101,7 +101,6 @@ var storageimpl = new EvalScript('', {
             static filterDaysFunction(days, options = {}) {
                 return (el, index, array) => {
                     if(options.keepLatest) {
-                        debugger;
                         const sorted = array.sort((a, b) => a.timestamp - b.timestamp);
                         return sorted[0].timestamp === el.timestamp || el.timestamp > Date.now() - (1000 * 60 * 60 * 24 * days);
                     }

@@ -17,9 +17,7 @@
   * @property {Array<tag>} tags classified (0 or 1 depending onwether its confirmed)
   * @property {Array<String>} tagNames
   *
-* @typedef TrainingData
-* @property {Array<tag>} tagList
-* @property {Array<ImageElement>} data
+* @typedef {Array<{data:Array<number>,tags:Array<{tag_name:string}>}>} TrainingData
 */
 /**
  * @type {HTMLOrSVGScriptElement & CustomScript } */
@@ -47,11 +45,13 @@ buildModelScript.isAsync = true;
     classifierReady.style.position = 'fixed';
     document.body.appendChild(classifierReady);
 
-    let [_tensorflow, progress, _canvas, _time] = await reqS([
+    let [_tensorflow, progress, _canvas, _time, dataFnc] = await reqS([
         'learning/tensorflow',
         'DOM/progress-overlay',
         'graphics/canvas',
-        'time']);
+        'time',
+        'site/kissanime/data-to-browser-db'
+    ]);
     let knnIO;// = await reqS('learning/knnIO');
 
     /*knnIO('knnAnime')
@@ -77,26 +77,26 @@ buildModelScript.isAsync = true;
 
     let classifier;
 
-    /* Promise.all([
-         getClassifier()
-             .then(c => {
-                 classifier = c;
-                 classifierReady.textContent = 'clasifier laoded';
-             })
-             .catch(e => {
-                 classifierReady.textContent = 'failed loading';
-             }),
+    /*Promise.all([
+        getClassifier()
+            .then(c => {
+                classifier = c;
+                classifierReady.textContent = 'clasifier laoded';
+            })
+            .catch(e => {
+                classifierReady.textContent = 'failed loading';
+            }),
 
-     ])
-         .then((promises) => {
-             txt.textContent = `got ${data.data.length} datapoints`;
-         });*/
-
-    /*new CustomTime().evaluateDuration(getPreviousTrainingData, t => console.log(`fetching data took ${t} ms`))
-        .then(d => {
-            data = d;
-            dataReady.textContent = 'loaded data';
+    ])
+        .then((promises) => {
+            txt.textContent = `got ${data.data.length} datapoints`;
         });*/
+
+    new CustomTime().evaluateDuration(dataFnc, t => console.log(`fetching data took ${t} ms`))
+        .then(d => {
+            data = d.map(el => ({ ...el, data: JSON.parse(el.data) }));
+            dataReady.textContent = 'loaded data';
+        });
 
     /**
     * @typedef TagConfirmation
@@ -117,10 +117,10 @@ buildModelScript.isAsync = true;
 
     sc.menu.addToMenu({
         name: 'train',
-        isValid: () => classifier && !!data,
+        isValid: () => !!data,
         mouseOver: () => {
             txt.textContent = 'traingin';
-            setTimeout(() => train(classifier, cWrapper, data)
+            setTimeout(() => train(cWrapper, data)
                 .then(() => {
                     txt.textContent = 'finished training';
                 }), 50);
@@ -248,6 +248,7 @@ buildModelScript.isAsync = true;
     finished(classifier, true, buildModelScript);
 })();
 var testContainer;
+
 /**
  *
  * @param {*} classifier
@@ -266,7 +267,7 @@ async function testNumbers(classifier, cWrapper, data) {
         testContainer.appendChild(document.createElement('br'));
         document.body.appendChild(testContainer);
 
-        for(let ind = 0; ind < 4; ind++) {
+        for(let ind = 0; ind < 20; ind++) {
             document.querySelector('#text').textContent = `${ind}/50`;
 
             const canvas = document.createElement('canvas');
@@ -279,6 +280,7 @@ async function testNumbers(classifier, cWrapper, data) {
             testContainer.appendChild(document.createElement('br'));
             const rData = cW.noiseWithNumber();
             let dataArray = [];
+
             for(let j of rData.imageData.data) {
                 dataArray.push(j);
             }
@@ -443,26 +445,38 @@ function generateRAndomData(cWrapper, data, downscaled = true) {
  * @param {TrainingData} data
  * @param {CanvasWrapper } cWrapper
  */
-async function train(classifier, cWrapper, data) {
+async function train(cWrapper, data) {
     return new Promise(async (resolver) => {
-        (function training(batchIndex = 0) {
+        (async function training(batchIndex = 0) {
 
             if(batchIndex % 10 === 0) {
-                const percentage = batchIndex * 100 / data.data.length;
+                const percentage = batchIndex * 100 / data.length;
                 document.querySelector('#text').textContent = percentage + '';
             }
-            if(batchIndex >= data.data.length) {
+            if(batchIndex >= data.length) {
                 resolver();
                 return;
             }
 
-            const imageElement = data.data[batchIndex];
+            const imageElement = data[batchIndex].data;
 
-            const iD = cWrapper.draw(imageElement.imageData, false);
+            const drawArray = [];
+            for(let i = 0; i < imageElement.length; i += 4) {
+                drawArray.push(...[imageElement[i], imageElement[i + 1], imageElement[i + 2]]);
+            }
+            debugger;
+            const iD = cWrapper.draw(drawArray);
 
-            for(let t of imageElement.tags) {
-                if(imageElement.tagNames.includes(t.tag)) {
-                    classifier.addExampleClass(t.id, iD);
+            for(let t of data[batchIndex].tags) {
+                if(!isNaN(+t.tag_name)) {
+                    fetch('http://localhost:8080/trainrandomnumbers', {
+                        body: JSON.stringify([{ tag: t.tag_name, image: imageElement }]),
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return;
                 }
             }
 

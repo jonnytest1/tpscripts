@@ -107,9 +107,17 @@
             }
         }
         let tagArray = tagArrays[tagMatchCounts[0] > tagMatchCounts[1] ? 0 : 1];
-        sessionStorage.setValue('image', hash(imageData), { img: imageData, tags: tagArray, chosen: true });
 
-        chosenMatch.image.click();
+        /**
+        * @type {boolean}
+        */
+        const initial = true;
+        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
+            sessionStorage.s('autoselect', true);
+            debugger;
+            sessionStorage.setValue('image', hash(imageData), { img: imageData, tags: tagArray, chosen: true });
+            chosenMatch.image.click();
+        }
     }
 
     function onImageLoad(event) {
@@ -194,7 +202,6 @@
     let matchCount = 0;
 
     async function autoSelect() {
-        sessionStorage.s('autoselect', true);
         for(let i in matches) {
             let match = matches[i];
             if(!match.clicked) {
@@ -240,14 +247,8 @@
             matches: imageMatches
         });
         matchCount++;
+        autoSelect();
 
-        /**
-         * @type {boolean}
-         */
-        const initial = true;
-        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
-            autoSelect();
-        }
     }
 
     /**

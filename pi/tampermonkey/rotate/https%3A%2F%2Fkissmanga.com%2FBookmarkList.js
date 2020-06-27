@@ -6,7 +6,7 @@
 
     document.title = document.title.replace('Read manga', '');
 
-    http.http('GET', location.href, html => {
+    http.http('GET', location.href, async html => {
         var ar = html.split('<td title=\'');
         var list = document.getElementsByClassName('listing')[0].children[0].children;
         for(var i = 2; i < list.length; i++) {
@@ -34,6 +34,7 @@
                 GMnot('Manga: ' + element.children[0].textContent.trim(), element.children[1].textContent.trim(), iconUrl, undefined, openurl);
                 element.children[2].children[1].click();
                 open(openurl);
+                await Promise.delayed(1000);
             }
         }
     });

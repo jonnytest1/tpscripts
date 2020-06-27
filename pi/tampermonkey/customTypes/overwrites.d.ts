@@ -1,5 +1,5 @@
 declare interface PromiseConstructor {
-    delayed: (amount?: number) => Promise<void>
+    delayed: (millis?: number) => Promise<void>
 }
 
 

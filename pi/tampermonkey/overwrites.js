@@ -4,18 +4,19 @@
 
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
-
-	const urlWhitelist = [
-		'https://www.twitch.tv',
-		'https://app.gotomeeting.com',
-		'https://global.gotomeeting.com/',
-		'https://www.codingame.com',
-		'https://www.amazon.de/'
-	];
-
-	if(urlWhitelist.includes(location.origin)) {
-		return;
-	}
+	/**
+	 * @type {{[key:string]:'same-origin'|true}}
+	 */
+	const urlWhitelist = {
+		'https://www.twitch.tv': true,
+		'https://app.gotomeeting.com': true,
+		'https://global.gotomeeting.com/': true,
+		'https://www.codingame.com': true,
+		'https://www.amazon.de/': true,
+		'https://www.muenchner-bank.de/': true,
+		'https://kissmanga.com': 'same-origin',
+		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true
+	};
 
 	const setTimeoutBlacklist = [
 		'loopIframe'
@@ -75,11 +76,22 @@ function overwrites() {
 			} catch(e) {
 				// nvm
 			}
-			if(urlWhitelist.includes(location.origin) || urlWhitelist.some(whitelistUrl => urlOrigin === whitelistUrl)) {
-				wind = originalOpen(url, target, featureFocus, ...args);
+			if(urlWhitelist[location.origin] || Object.keys(urlWhitelist).some(whitelistUrl => urlOrigin === whitelistUrl)) {
+				debugger;
+				if(urlWhitelist[location.origin] === 'same-origin') {
+					if(location.origin === urlOrigin) {
+						wind = originalOpen(url, target, featureFocus, ...args);
+					}
+				} else {
+					wind = originalOpen(url, target, featureFocus, ...args);
+				}
+
 			} else if(featureFocus === true) {
 				wind = originalOpen(url, target, featureFocus, ...args);
 			} else if(url.startsWith('http')) {
+				GMnot('blocked open', `${urlOrigin} on ${location.origin}`);
+				const windowMock = { location: {}, open: () => windowMock };
+				return windowMock;
 				let win = GM_openInTab(url, { active: false, insert: false }); //active ~focused insert: append at end or after the current tab
 				win.name = window.name;
 				if(win === undefined) {
@@ -155,11 +167,11 @@ function overwrites() {
 	};
 
 	/**
-	 * @param {number} [amount]
+	 * @param {number} [millis]
 	 */
-	Promise.delayed = async (amount = 1) => {
+	Promise.delayed = async (millis = 1) => {
 		return new Promise(resolver => {
-			setTimeout(resolver, amount);
+			setTimeout(resolver, millis);
 		});
 	};
 

@@ -15,7 +15,11 @@ let prepareScript = () => {
 function logInfo(message, error) {
   logKibana('INFO', message, error);
 }
-/** @global */
+/** @global
+ * @param {"INFO"|'ERROR'|'DEBUG'} level
+ * @param {string|Object} message
+ * @param {any} [error]
+*/
 function logKibana(level, message, error) {
   error = { ...error };
   let jsonMessage = message;

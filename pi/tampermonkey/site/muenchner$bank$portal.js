@@ -26,7 +26,10 @@ var _ = new EvalScript('', {
                     undefined,
                     undefined,
                     'https://www.muenchner-bank.de/banking-private/portal?menuId=Postfach',
-                    { style: { position: 'absolute', left: '240px', top: '300px', height: '27px', width: '100px', backgroundColor: '#50e61c' } });
+                    {
+                        style:
+                            { position: 'absolute', left: 240, top: 300, height: 27, width: 100, backgroundColor: '#50e61c' }
+                    });
 
                 /**
                  * @type {Array<HTMLElement>}
@@ -81,10 +84,10 @@ var _ = new EvalScript('', {
          * @returns {boolean}
          */
         function isFood(booking) {
-            return booking.includes('E-CENTER SCHULER') ||
-                booking.includes('MCDONALDS') ||
-                booking.includes('MARKTKAUF/NUERNBERG/DE') ||
-                booking.includes('TAKEAWAYCOM');
+            return booking.includes('E-CENTER SCHULER')
+                || booking.includes('MCDONALDS')
+                || booking.includes('MARKTKAUF/NUERNBERG/DE')
+                || booking.includes('TAKEAWAYCOM');
         }
 
         /**
@@ -94,10 +97,11 @@ var _ = new EvalScript('', {
          */
         function isMonthly(booking, html) {
             console.log(booking);
-            return booking.includes('VERKEHRS AG') ||
-                booking.includes('DB AUTOMAT') ||
-                booking.includes('Miete') ||
-                booking.includes('GAA-AUSZAHLUNG') || html.includes('1u1 Telecom GmbH');
+            return booking.includes('VERKEHRS AG')
+                || booking.includes('DB AUTOMAT')
+                || booking.includes('Miete')
+                || booking.includes('GAA-AUSZAHLUNG')
+                || html.includes('1u1 Telecom GmbH');
         }
         /**
          * @param {string} booking
@@ -118,12 +122,12 @@ var _ = new EvalScript('', {
          * @param {number} monatlichOptional
          */
         function createDisplayButtons(container, monatlich, elementWidth, essen, rest, gehalt, monatlichOptional) {
-            crIN(container, 'monat: ' + monatlich, undefined, undefined, undefined, undefined, {
+            crIN(container, 'monat: ' + monatlich.toPrecision(4), undefined, undefined, undefined, undefined, {
                 style: {
                     position: 'fixed',
-                    left: '0px',
+                    left: 0,
                     width: elementWidth,
-                    top: '0px',
+                    top: 0,
                     backgroundColor: 'aqua'
                 }
             });
@@ -132,7 +136,7 @@ var _ = new EvalScript('', {
                     position: 'fixed',
                     left: elementWidth,
                     width: elementWidth,
-                    top: '0px',
+                    top: 0,
                     backgroundColor: '#00c4ff'
                 }
             });
@@ -141,25 +145,25 @@ var _ = new EvalScript('', {
                     position: 'fixed',
                     left: 2 * elementWidth,
                     width: elementWidth,
-                    top: '0px',
+                    top: 0,
                     backgroundColor: 'orange',
                 }
             });
             crIN(container, 'rest: ' + Math.round(rest), undefined, undefined, undefined, undefined, {
-                style: { position: 'fixed', left: 3 * elementWidth, width: elementWidth, top: '0px', backgroundColor: 'red' }
+                style: { position: 'fixed', left: 3 * elementWidth, width: elementWidth, top: 0, backgroundColor: 'red' }
             });
             let ges = (rest + essen + monatlich + monatlichOptional);
             let gesamt = crIN(container, 'gesamt: ' + Math.round(ges), undefined, undefined, undefined, undefined, {
-                style: { position: 'fixed', left: 4 * elementWidth, width: elementWidth, top: '0px' }
+                style: { position: 'fixed', left: 4 * elementWidth, width: elementWidth, top: 0 }
             });
             crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, {
-                style: { position: 'fixed', left: '0px', width: elementWidth, top: '23px', backgroundColor: 'green' }
+                style: { position: 'fixed', left: 0, width: elementWidth, top: 23, backgroundColor: 'green' }
             });
             crIN(container, 'gehalt: ' + gehalt, undefined, undefined, undefined, undefined, {
-                style: { position: 'fixed', left: 4 * elementWidth, width: elementWidth, top: '23px', backgroundColor: 'green' }
+                style: { position: 'fixed', left: 4 * elementWidth, width: elementWidth, top: 23, backgroundColor: 'green' }
             });
             let differenz = crIN(container, 'diff: ' + Math.round(gehalt - ges), undefined, undefined, undefined, undefined,
-                { style: { position: 'fixed', left: 4 * elementWidth, top: '46px', width: elementWidth } });
+                { style: { position: 'fixed', left: 4 * elementWidth, top: 46, width: elementWidth } });
             if(gehalt < ges) {
                 gesamt.style.backgroundColor = 'orange';
                 differenz.style.backgroundColor = 'red';

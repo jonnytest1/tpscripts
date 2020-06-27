@@ -70,9 +70,10 @@ var rotateScript = new EvalScript('', {
 
         set.customTime = new CustomTime();
 
+        const duration = (1000 * 60 * 60 * 1.2 * (Math.random() + 1)) / URLS.length;
         function progressOverlayRegression() {
             set.customTime.waitFor({
-                duration: (1000 * 60 * 60) / URLS.length,
+                duration: duration,
                 callback: () => {
                     navigate(NEXTURL);
                 },
@@ -86,6 +87,6 @@ var rotateScript = new EvalScript('', {
         }
         progressOverlayRegression();
         //lets see if this survives hibernate
-        set.hibernateTimeout = setTimeout(progressOverlayRegression, 1000 * 60 * 60 * 8);
+        set.hibernateTimeout = setTimeout(progressOverlayRegression, duration * 8);
     }
 });

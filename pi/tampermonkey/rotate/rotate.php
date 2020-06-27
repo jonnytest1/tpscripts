@@ -75,7 +75,7 @@ class Rotate
 	function checkLogs()
 	{
 		$logsREsponse="\n//checking new logs\n";
-		$affected = $this->db->sql("UPDATE log SET checked = TRUE WHERE checked is NULL OR checked = FALSE");
+		$affected = $this->db->sql("UPDATE log SET checked = TRUE WHERE (checked is NULL OR checked = FALSE) AND NOT severity = 'DEBUG' AND NOT severity = 'INFO'");
 		$logsREsponse=$logsREsponse."//  ".$affected." new logs\n";
 		if($affected > 0 ){
 			$logsREsponse=$logsREsponse."open('https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/?count=".$affected."');\n";

@@ -228,21 +228,28 @@ var integrationtest = new EvalScript('', {
              * @returns {string}
              */
             function convertToIntegartionTest(testRoute) {
-                let testString = '!| script | selenium driver fixture |\n| login mit Admin |\n';
+                let testString = `it('test case', async () => {\n`;
                 for(let event of testRoute) {
+                    let elementSelector;
+                    if(event.id) {
+                        elementSelector = `by.id("${event.id}")`;
+                    } else if(event.tagName) {
+                        elementSelector = `by.tagName("${event.tagName}")`;
+                    }
+
                     switch(event.mode) {
                         case 'click':
-                            testString += `| klicke auf | ${event.text} |\n`;
+                            testString += `await element(${elementSelector}).click();\n`;
                             break;
                         case 'evaluate':
-                            testString += `| prüfe sichtbar aktiv |\n`;
+                            testString += `expect(await element(${elementSelector}).getText()).toBe('${event.text}')\n`;
                             break;
                         default:
                             testString += `missing deserialize\n${JSON.stringify(event)}`;
 
                     }
                 }
-                testString += `| logout |`;
+                testString += `});`;
                 return testString;
             }
 

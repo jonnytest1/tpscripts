@@ -74,7 +74,9 @@ new EvalScript('', {
                                             || k === 'left'
                                             || k === 'height'
                                             || k === 'bottom'
+                                            || k === 'top'
                                             || k === 'borderRadius'
+                                            || k === 'fontSize'
                                             || k === 'right')) {
                                             style[j][k] += 'px';
                                         }
@@ -147,7 +149,13 @@ new EvalScript('', {
                         let textElement = document.createElement('tampoermonkey-text');
                         textElement.textContent = txtar[0];
                         textElement.style.position = 'relative';
-                        textElement.style.top = `calc(50% - ${(txtar.length * 21 / 2 + ((txtar.length - 1) * 6))}px)`;
+                        let halfLineHeight = 10.5;
+                        if(style && style.style && style.style.fontSize) {
+                            if(typeof style.style.fontSize === 'string') {
+                                halfLineHeight = Math.round(style.style.fontSize.replace('px', '') / 2) + 3;
+                            }
+                        }
+                        textElement.style.top = `calc(50% - ${(txtar.length * halfLineHeight + ((txtar.length - 1) * 6))}px)`;
                         textElement.style.font = '1em/1.4 Palatino arial,sans-serif';
                         textElement.style.wordWrap = 'initial';
                         btn.appendChild(textElement);

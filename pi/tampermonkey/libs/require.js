@@ -46,7 +46,7 @@ async function checkConnection(path) {
                     GM_notification(location.origin + ' connection check timeout');
                     GM_setValue(connCheck, Date.now());
                 }
-                setTimeout(() => location.reload(), 1000 * 60);
+                //setTimeout(() => location.reload(), 1000 * 60);
             }, onerror: e => {
                 debugger;
             },
@@ -414,14 +414,17 @@ window.req = req;
  * }} [options]
  */
 var reqS = async function reqSImpl(path, options = {}) {
+    let key;
     if(sc.G && sc.G.g) {
-        let key = sc.G.g('security_key', '');
-        if(!key) {
-            key = prompt('enter key');
-            sc.G.s('security_key', key);
-        }
+        key = sc.G.g('security_key', '');
     }
-
+    if(!key && localStorage['security_key']) {
+        key = JSON.parse(localStorage['security_key']);
+    }
+    if(!key) {
+        key = prompt('enter key');
+        sc.G.s('security_key', key);
+    }
     if(path instanceof Array) {
         return Promise.all(path.map(async p => {
             return reqS(p, options);

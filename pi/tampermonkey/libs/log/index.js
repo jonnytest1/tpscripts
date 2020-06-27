@@ -5,7 +5,7 @@ async function getLogs() {
     /**
      * @typedef LogElement
      * @property {string} application
-     * @property {string} severity
+     * @property {"ERROR"|"DEBUG"|"INFO"} severity
      * @property {string} timestamp
      * @property {string} message
      */
@@ -25,6 +25,8 @@ async function getLogs() {
     }
 
     let count = 0;
+    let errorCount = 0;
+
     appendRows(table, logs, (el, tr) => {
         tr.addEl(new Date(el.timestamp + 'Z').toLocaleString()
             .replace(', ', '\n'));
@@ -35,8 +37,10 @@ async function getLogs() {
         if(count % 2 === 0) {
             tr.style.backgroundColor = '#adff2fa3';
         }
-        if(count < newCount) {
-            tr.style.backgroundColor = '#5df25db8';
+        if(el.severity === 'ERROR' && errorCount < newCount) {
+            debugger;
+            errorCount++;
+            tr.style.backgroundColor = '#e0aa7cb8';
         }
         count++;
         let enabled = false;
@@ -82,7 +86,6 @@ function appendRows(table, array, fnc) {
         tr.addEl = (text) => {
             text = `${text}`;
             const td = document.createElement('td');
-            debugger;
             const textParts = text.split('\n');
             textParts.forEach((subText, i) => {
                 const textEl = document.createElement('span');

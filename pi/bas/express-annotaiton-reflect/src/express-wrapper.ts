@@ -27,7 +27,6 @@ export async function load(rootpath: string, configuration?: (app: Express) => v
     const app: Express = express();
 
     for (let resource of resources) {
-        debugger;
         app[resource.type](resource.path, resource.callback);
     }
 

@@ -42,9 +42,9 @@
                 $params[]= $value;
             }
             $sqlStr=rtrim($sqlStr, ',');
-            echo $sqlStr;
-            echo json_encode($params);
-            $db->sql( $sqlStr,$paramTypes, $params);
+            //echo $sqlStr;
+            //echo json_encode($params);
+            echo $db->sql( $sqlStr,$paramTypes, $params);
         }
     }
 ?>

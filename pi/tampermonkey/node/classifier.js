@@ -4,6 +4,9 @@ const classifier = require('@tensorflow-models/knn-classifier/dist/knn-classifie
 const mobilenetModule = require('@tensorflow-models/mobilenet/dist/mobilenet');
 const tf = require('@tensorflow/tfjs-node');
 const database = require('./database');
+var jpeg = require('jpeg-js');
+const fs = require('fs');
+const c = require('crypto');
 
 /**
  * @typedef {import("@tensorflow-models/knn-classifier").KNNClassifier & {
@@ -144,7 +147,8 @@ class Classifier {
         console.log('training numbers');
         return new Promise(async (res) => {
             for(let obj of exampleArray) {
-                await this.numbersClassifier.addExample(obj.tag, obj.image);
+                console.error('commented');
+                //await this.numbersClassifier.addExample(obj.tag, obj.image);
             }
             console.log('finished numbers traingin numbers');
             //await database.save(numbers);
@@ -170,6 +174,7 @@ class Classifier {
                 count += data.length;
 
                 for(let i = 0; i < data.length; i++) {
+
                     const imageElement = data[i];
                     /**
                      * @type { Array<number>}
@@ -178,9 +183,50 @@ class Classifier {
 
                     // Pass the intermediate activation to the classifier.
 
-                    await this.addExampleToClassifier(imageElement.tags.map(t => t.tag_name), imageDataArray);
+                    await this.addExampleToClassifier(imageElement.tags.map(t => t.tag_name)
+                        .filter(t => isNaN(+t)), imageDataArray);
                     //console.log('added example ' + JSON.stringify(imageElement.tag_name));
+
+                    const frameData = new Buffer(160 * 160 * 4);
+                    for(let i = 0; i < imageDataArray.length; i++) {
+                        frameData[i] = imageDataArray[i];
+                    }
+                    const rawImageData = {
+                        data: frameData,
+                        width: 160,
+                        height: 160,
+                    };
+                    const jpegImageData = jpeg.encode(rawImageData, 80);
+                    const currentTag = imageElement.tags.map(t => t.tag_name).find(t => !isNaN(+t));
+                    if(!currentTag) {
+                        continue;
+                    }
+                    const hash = c.createHmac('sha512', 'whatever');
+                    hash.update(JSON.stringify(rawImageData));
+                    const filenmae = hash.digest('hex');
+
+                    await new Promise((res) => {
+                        fs.exists(`D:/vm/dockervm/storage/py/tensorflow/${currentTag}`, (e) => {
+                            if(!e) {
+                                fs.mkdir(`D:/vm/dockervm/storage/py/tensorflow/${currentTag}`, () => {
+                                    fs.writeFileSync(`D:/vm/dockervm/storage/py/tensorflow/${currentTag}/${filenmae}.jpg`, jpegImageData.data);
+                                    res();
+                                });
+                            } else {
+                                fs.writeFileSync(`D:/vm/dockervm/storage/py/tensorflow/${currentTag}/${filenmae}.jpg`, jpegImageData.data);
+                                res();
+                            }
+                        });
+                    });
+
                 }
+                await this.numbersClassifier.addExample(data
+                    .filter(d => d.tags.some(t => !isNaN(+t.tag_name)))
+                    .map(d => {
+
+                        return ({ img: JSON.parse(d.imagedata), tag: d.tags.find(tag => !isNaN(+tag.tag_name)).tag_name });
+                    }
+                    ));
                 console.log(`finsihed adding ${count} / ${tagCount} items`);
             }
         } catch(e) {
@@ -203,9 +249,8 @@ class Classifier {
                 const imageTensor = getImageTensor(imageDataArray);
                 this.addExampleClass(tag, imageTensor, this.knnClassifier);
                 imageTensor.dispose();
-            }
-            else {
-                await this.numbersClassifier.addExample(tag, imageDataArray);
+            } else {
+                this.numbersClassifier.addExample([{ img: imageDataArray, tag: tag }]);
             }
         }
     }

@@ -3,11 +3,17 @@
 /// <reference path="../libs/math/vector-2d.js" />
 
 /**
+ * @typedef {{
+ *   timestamp:number,
+ *   action:string
+ * }}  HistoryElement
+ *
  * @typedef {HTMLVideoElement & {
     *  previousStyle:CSSStyleDeclaration
     *  skipLoop:any
     *  hasStarted?:boolean
     *  parentElement:{webkitRequestFullScreen:Function}
+    *  history:Array<HistoryElement>
     * }} CustomVideElement
  */
 /**
@@ -117,12 +123,48 @@ EvalScript.type = new EvalScript('', {
                 return localVideo;
             }
 
+            function addAction(action) {
+                const now = Date.now();
+                if(!videoElement.history.length || videoElement.history[videoElement.history.length - 1].timestamp < now - 1000) {
+                    videoElement.history.push({ timestamp: now, action });
+                }
+            }
+
             if(!hasAdded) {
                 hasAdded = true;
-                if(!videoElement.hasStarted) {
+                if(!videoElement.hasStarted && !videoElement.paused) {
                     videoElement.hasStarted = true;
                     videoElement.play();
                 }
+                videoElement.history = [];
+                Object.defineProperty(videoElement, 'currentTime', {
+                    enumerable: true,
+                    configurable: true,
+                    get: function() {
+                        var ct = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,
+                            'currentTime').get
+                            .call(this);
+                        return ct;
+                    },
+                    set: function(newValue) {
+                        addAction('set time');
+                        // intercept values here
+                        Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,
+                            'currentTime').set
+                            .call(this, newValue);
+                    }
+                });
+
+                Object.defineProperty(videoElement, 'pause', {
+                    enumerable: true,
+                    configurable: true,
+                    value: new Proxy(videoElement.pause, {
+                        apply: (target, thisarg, args) => {
+                            addAction('pause');
+                            target.call(thisarg, ...args);
+                        }
+                    })
+                });
 
                 sc.menu.addToMenu({
                     name: 'video',
@@ -237,6 +279,25 @@ EvalScript.type = new EvalScript('', {
                 sc.menu.addToMenu({
                     name: 'pos',
                     children: [
+                        {
+                            name: 'history',
+                            mouseOver: (parent, btn) => {
+                                /**
+                                * @type {Array<MenuElementItem>}
+                                */
+                                const historyChildren = (getVideo(parent).history || [{ timestamp: 0, action: 'test' }]).map(historyEl => ({
+                                    name: `${new Date(historyEl.timestamp).toISOString()} ${historyEl.action}`,
+                                    style: {
+                                        fontSize: 10
+                                    }
+
+                                }));
+                                if(historyChildren[0]) {
+                                    historyChildren[0].rotation = -45;
+                                }
+                                btn.menuOption.children = historyChildren;
+                            }
+                        },
                         {
                             name: 'forward',
                             mouseOver: (parent) => {

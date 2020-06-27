@@ -18,7 +18,7 @@
 * @property { MenuElementItem[] } [children]
 * @property {String} [name]
 * @property {Function} [onclick]
-* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseOver]
+* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>(boolean|void)} [mouseOver]
 * @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseLeave]
 * @property {(target)=>boolean} [isValid]
 * @property {CreateElement} [creationFunction]
@@ -28,6 +28,7 @@
 * @property {number} [rotation]
 * @property {Line} [line]
 * @property {string} [lib]
+* @property {OptionalStyle} [style]
 */
 
 /**
@@ -251,7 +252,7 @@ new EvalScript('', {
                  * @param {Array<MenuElementItem>} els
                  */
                 leave(els) {
-                    console.log('leave');
+                    //console.log('leave');
                     els.forEach(element => {
                         if(element.mouseLeave) {
                             element.mouseLeave(this.backgroundObj, element.element);
@@ -332,7 +333,16 @@ new EvalScript('', {
                     let sradius = 50;
                     /** @type {CircularMenuHTMLButton} */
                     let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
-                    element.style.width = `${sradius}px`;
+
+                    if(text) {
+                        element.style.width = 'fit-content';
+                        if(element.getBoundingClientRect().width < 50) {
+                            element.style.width = '50px';
+                        }
+                        element.style.paddingLeft = element.style.paddingRight = '4px';
+                    } else {
+                        element.style.width = `${sradius}px`;
+                    }
                     element.style.height = `${sradius}px`;
 
                     element.style.left = `${center.x - (sradius / 2)}px`;
@@ -376,6 +386,7 @@ new EvalScript('', {
                     }
 
                     for(let i = 0; i < buttonArray.length; i++) {
+
                         let angle = rotationArray[i] + rotationOffset;
                         let posX = (Math.cos(angle * (Math.PI / 180)) * innerRadius);
                         let posY = (Math.sin(angle * (Math.PI / 180)) * innerRadius);
@@ -383,17 +394,18 @@ new EvalScript('', {
                         let newElementCenterX = center.x + posX;
                         let newElementCenterY = center.y + posY;
 
+                        const currentButton = buttonArray[i];
                         /**@type {CreateElement} */
-                        let creationFunction = buttonArray[i].creationFunction || this.createElement;
+                        let creationFunction = currentButton.creationFunction || this.createElement;
 
                         let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };
 
                         let line = new Line(parent, center, newCenter, 36);
 
                         let buttonInstance = creationFunction(
-                            parent, buttonArray[i].name || '',
+                            parent, currentButton.name || '',
                             (() => {
-                                let fnc = buttonArray[i].onclick;
+                                let fnc = currentButton.onclick;
                                 return (btn) => {
                                     fnc(btn);
                                     btn.parentElement.remove();
@@ -441,7 +453,8 @@ new EvalScript('', {
                                     borderRadius: `${distance}px`,
                                     visibility: 'visible',
                                     backgroundColor: 'rgba(255,255,255, 0.4)',
-                                    whiteSpace: 'noWrap'
+                                    whiteSpace: 'noWrap',
+                                    ...(currentButton.style || {}),
                                 }
                             },
                             newCenter,
@@ -450,19 +463,21 @@ new EvalScript('', {
                         );
 
                         buttonInstance.center = newCenter;
-                        buttonInstance.menuOption = buttonArray[i];
+                        buttonInstance.menuOption = currentButton;
                         buttonInstance.degree = angle;
                         buttonInstance.parentSpace = degree;
                         buttonInstance.menu = this;
-                        if(buttonArray[i].normalColor) {
-                            buttonInstance.style.backgroundColor = buttonArray[i].normalColor;
+                        if(currentButton.normalColor) {
+                            buttonInstance.style.backgroundColor = currentButton.normalColor;
                         }
-                        buttonArray[i].element = buttonInstance;
-                        buttonArray[i].line = line;
+                        currentButton.element = buttonInstance;
+                        currentButton.line = line;
                     }
                 }
                 static async main() {
-
+                    if(location.host === 'miro.com') {
+                        return null;
+                    }
                     async function activator() {
                         return new Promise(resolv => {
                             function onKeyDown(event) {
