@@ -15,7 +15,8 @@ function overwrites() {
 		'https://www.amazon.de/': true,
 		'https://www.muenchner-bank.de/': true,
 		'https://kissmanga.com': 'same-origin',
-		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true
+		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true,
+		'https://outlook.office.com': true
 	};
 
 	const setTimeoutBlacklist = [

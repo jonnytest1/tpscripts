@@ -136,8 +136,27 @@ elementGEtter.point = (x, y) => {
     const object = document.elementFromPoint(x, y);
     return object;
 };
+/**
+ *
+ * @param {import("./customTypes/declarations").evalFncOptions & {first?:boolean,await?:boolean}} [options]
+ * @param {keyof HTMLElementTagNameMap} type
+ */
+elementGEtter.eval = (type, options = {}) => {
 
-elementGEtter.eval = (type, options) => {
+    if(options.await) {
+        return new Promise((resolver) => {
+            // @ts-ignore
+            const response = sc.g.eval(type, { ...options, await: false });
+            if(!response) {
+                setTimeout(() => {
+                    resolver(elementGEtter.eval(type, options));
+                }, 400);
+            } else {
+                resolver(response);
+            }
+        });
+    }
+
     let textContent = '';
     if(options.text) {
         textContent = `[contains(., \'${options.text}\')]`;
@@ -158,17 +177,22 @@ elementGEtter.eval = (type, options) => {
      */
     const results = [];
     let item = iterator.iterateNext();
+    /**
+     * @type {any}
+     */
+    let retValue = results;
     if(options.first) {
-        return item;
+        retValue = item;
     }
     while(item !== null) {
         results.push(item);
         item = iterator.iterateNext();
     }
+
     if(options.first) {
-        return results[0];
+        retValue = results[0];
     }
-    return results;
+    return retValue;
 
 };
 sc.g = elementGEtter;

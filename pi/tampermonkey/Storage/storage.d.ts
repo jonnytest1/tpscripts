@@ -7,7 +7,7 @@ declare interface StorageImplementationConstructorType {
 
     new(base: StorageBase): StorageImplementationType
 
-    filterDaysFunction: Function
+    filterDaysFunction: filterFunction
 }
 
 declare global {

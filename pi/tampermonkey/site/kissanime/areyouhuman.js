@@ -31,6 +31,7 @@
     *   alternative:boolean
     * }} tagElement
     */
+
     setInterval(() => {
 
         try {
@@ -84,6 +85,7 @@
         return imageHash;
     }
 
+    let gotresult = false;
     /**
      *
      * @param {{
@@ -112,7 +114,7 @@
         * @type {boolean}
         */
         const initial = true;
-        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true) {
+        if(location.href.includes('Katsute-Kami-Datta-Kemono-tachi') || sessionStorage.g('autoselect', initial) === true && gotresult) {
             sessionStorage.s('autoselect', true);
             debugger;
             sessionStorage.setValue('image', hash(imageData), { img: imageData, tags: tagArray, chosen: true });
@@ -151,7 +153,7 @@
             }
         })
             .then(async res => {
-
+                gotresult = true;
                 /**@type {import('../../node/classifier').evalResponse} */
                 const pred = await res.json();
 
@@ -161,7 +163,7 @@
                 const tagMatches2 = [];
 
                 let bestones = '<table style="margin-left:50px;">';
-                for(let p of pred.filter(pred => pred.prob > 0.1)) {
+                for(let p of pred.filter(prediction => prediction.prob > 0.1)) {
                     bestones += `<tr><td>${p.tag}</td><td>${Math.round(p.prob * 100) / 100}</td></tr>`;
                     if(tagArrays[0].tagArray.includes(p.tag)) {
                         tagMatches1.push(p);

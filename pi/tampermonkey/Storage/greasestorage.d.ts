@@ -12,6 +12,8 @@ export interface GreaseStorageArrayTypes {
     'recentNewSeries': CheckedShow
 
     'tempSS': any
+
+    twitchvideoposition: TimedObject<{ currentTime: number, url: string }>
 }
 
 type GreaseStorageArrayTypesFull<T> = { [P in keyof T]: Array<T[P]>; };

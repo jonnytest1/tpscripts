@@ -30,9 +30,18 @@ interface HTMLChildren extends HTMLElement {
     children: HTMLCollectionOf<HTMLChildren>
 }
 
+
+export interface evalFncOptions {
+    text?: string
+    parent?: HTMLElement
+}
+
 export interface EvalFnc {
-    <K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement, first: true }): HTMLElementTagNameMap[K];
-    <K extends keyof HTMLElementTagNameMap>(type: K, options: { text: string, parent?: HTMLElement }): Array<HTMLElementTagNameMap[K]>;
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions & { first: true, await: true }): Promise<HTMLElementTagNameMap[K]>;
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions & { await: true }): Promise<Array<HTMLElementTagNameMap[K]>>;
+
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions & { first: true }): HTMLElementTagNameMap[K];
+    <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions): Array<HTMLElementTagNameMap[K]>;
 
 
 }
