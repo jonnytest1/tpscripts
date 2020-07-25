@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { v4 as uuidv4 } from 'uuid';
 import { enc, AES } from 'crypto-js';
 import { map } from 'rxjs/operators';
+import { getSecKey, getSharedKeys } from './util';
 
 @Injectable({ providedIn: 'root' })
 export class ImageService {
@@ -22,16 +22,30 @@ export class ImageService {
     }
 
     getFiles() {
+        this.secKey = getSecKey();
         return this.http.get('https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/imagestore')
             .pipe(
                 map((files: Array<{ b64: string, id: number }>) => files.map(file => {
                     let b64;
                     let id = file[0];
+
                     try {
-                        b64 = this.decrypt(file[1]);
+                        b64 = this.decrypt(file[1], this.secKey);
                     } catch (e) {
-                        b64 = this.errorImg;
                         id = -1;
+                        let hasdecrypted = false;
+                        for (const key of getSharedKeys()) {
+                            try {
+                                b64 = this.decrypt(file[1], key);
+                                hasdecrypted = true;
+                            } catch (e) {
+                                // key didnt work
+                            }
+                        }
+                        if (!hasdecrypted) {
+                            b64 = this.errorImg;
+                        }
+
                     }
                     return ({
                         b64,
@@ -42,20 +56,11 @@ export class ImageService {
 
 
     encrypt(b64: string): string {
-        this.secKey = localStorage.getItem('secKey');
-        if (!this.secKey) {
-            this.secKey = uuidv4();
-            localStorage.setItem('secKey', this.secKey);
-        }
+        this.secKey = getSecKey();
         return AES.encrypt(b64, this.secKey).toString();
     }
 
-    decrypt(aes: string): string {
-        this.secKey = localStorage.getItem('secKey');
-        if (!this.secKey) {
-            this.secKey = uuidv4();
-            localStorage.setItem('secKey', this.secKey);
-        }
-        return AES.decrypt(aes, this.secKey).toString(enc.Utf8);
+    decrypt(aes: string, key: string): string {
+        return AES.decrypt(aes, key).toString(enc.Utf8);
     }
 }

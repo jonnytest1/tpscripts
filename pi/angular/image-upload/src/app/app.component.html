@@ -1,12 +1,20 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <h2>Personal Nude Upload ;D </h2>
-<h3>share key: {{secKey}}</h3>
+
+<h3>private share key: {{secKey}}</h3> <button (click)="addKey()">add key</button>
+
+<h3 *ngIf="importedKeys.length">imported share keys</h3>
+<h4 *ngFor="let key of importedKeys"> {{key}} </h4>
+
+<br>
+<br>
 
 <ngx-dropzone (change)="onSelect($event)">
-  <ngx-dropzone-label>Drop it, baby! <-- that was the default but its hilarious</ngx-dropzone-label>
+  <ngx-dropzone-label>Drop it, baby! <-- that was the default but its hilarious (just drag n drop images on here or
+      click for upload selection)</ngx-dropzone-label>
 
       <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" *ngFor="let f of files" (removed)="onRemove(f)"
-        [removable]="true" [file]="f">
+        [removable]="f.id>-1" [file]="f">
 
       </ngx-dropzone-image-preview>
 </ngx-dropzone>
