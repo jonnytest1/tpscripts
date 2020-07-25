@@ -1,0 +1,12 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<h2>Personal Nude Upload ;D </h2>
+<h3>share key: {{secKey}}</h3>
+
+<ngx-dropzone (change)="onSelect($event)">
+  <ngx-dropzone-label>Drop it, baby! <-- that was the default but its hilarious</ngx-dropzone-label>
+
+      <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" *ngFor="let f of files" (removed)="onRemove(f)"
+        [removable]="true" [file]="f">
+
+      </ngx-dropzone-image-preview>
+</ngx-dropzone>
