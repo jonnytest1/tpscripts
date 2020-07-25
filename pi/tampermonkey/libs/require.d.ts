@@ -70,7 +70,7 @@ export interface RequireMap {
     'site/brandad/test/integrationtest': () => void
     'site/brandad/test/tester': (dialog: Dialog) => void
     'site/kissanime/buildModel': void
-
+    "site/kissanime/confirm": void
     /**
      * @see {site/kissanime/testModel.js}
      */

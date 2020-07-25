@@ -51,6 +51,7 @@ new EvalScript('', {
             })
         );
         if(location.search.includes('id')) {
+            reqS('site/kissanime/confirm');
             sc.G.p(seenKey, {
                 timestamp: Date.now(),
                 value: location.pathname
@@ -92,6 +93,7 @@ new EvalScript('', {
                 },
                 // lib: set.evalScript.getUrl()
             });
+
         } else {
             openLatestUnread();
 
