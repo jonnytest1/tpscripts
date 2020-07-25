@@ -11,20 +11,23 @@ new EvalScript('', {
     run: async () => {
 
         function getColor(success) {
-            let color = 'green';
+            /**
+             * @type {Colors}
+             */
+            let color = 'Green';
             switch(success) {
                 case 'error':
                 case 'failed':
-                    color = 'red';
+                    color = 'Red';
                     break;
                 case 'skipped':
-                    color = 'gray';
+                    color = 'Gray';
                     break;
                 case 'success':
-                    color = 'green';
+                    color = 'Green';
                     break;
                 default:
-                    color = 'black';
+                    color = 'Black';
             }
             return color;
         }

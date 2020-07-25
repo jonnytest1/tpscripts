@@ -1,6 +1,6 @@
 <?PHP
 
-include_once(dirname(__FILE__) . '/exceptions/sqlExceptions.php');
+require_once(dirname(__FILE__) . '/exceptions/sqlExceptions.php');
 class DataBase
 {
 

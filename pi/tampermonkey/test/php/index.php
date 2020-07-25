@@ -1,11 +1,20 @@
 <?php
 
-    header("Content-Type: application/json");
-    include_once(dirname(__FILE__) . '/test.php');
-    include_once( dirname(__FILE__) . '/mock-obj.php');
-    include_once( dirname(__FILE__) . '/../../database.php');
-    include_once( dirname(__FILE__) . '/../../rotate/requests.php');
-    include_once( dirname(__FILE__) . '/../../rotate/rotate.php');
+    try{
+        header("Content-Type: application/json");
+        require_once(dirname(__FILE__) . '/test.php');
+        require_once( dirname(__FILE__) . '/mock-obj.php');
+        //echo "mockim";
+        require_once( dirname(__FILE__) . '/../../database.php');
+        require_once( dirname(__FILE__) . '/../../rotate/requests.php');
+        //echo "req";
+        require_once( dirname(__FILE__) . '/../../rotate/rotate.php');
+       // echo "rot";
+        require_once( dirname(__FILE__) . '/../../libs/log/index.php');
+
+    }catch(ErrorException $e){
+        echo "error in inports";
+    }
 
     echo Tests::run(function(){
 
@@ -36,6 +45,14 @@
            
             expect("//requests: \n//requesting for https://api.github.com/users/CodingTrain/repos?type=all&n=50\n// https://api.github.com/users/CodingTrain/repos?type=all&n=50 is up top date\n")
                 ->toBe($requests->callRequests());
+        });
+
+        test("logging decrypt",function(){
+            $b64="eyJhcHBsaWNhdGlvbiI6ImFuZHJvaWQgdGltZXIiLCJTZXZlcml0eSI6IlRJTUVSIiwidGltZXN0YW1wIjoiMjAyMC0wNy0yMlQxNDowNDozNS43ODJaIiwibWVzc2FnZSI6Ii0wNTc0NDU2NyJ9";
+
+            $json=json_decode(decode_b64($b64),true);
+
+            expect($json)->toHaveKey("application");
         });
 
     })->toString();

@@ -10,13 +10,16 @@ function overwrites() {
 	const urlWhitelist = {
 		'https://www.twitch.tv': true,
 		'https://app.gotomeeting.com': true,
-		'https://global.gotomeeting.com/': true,
+		'https://global.gotomeeting.com': true,
 		'https://www.codingame.com': true,
-		'https://www.amazon.de/': true,
-		'https://www.muenchner-bank.de/': true,
+		'https://www.amazon.de': true,
+		'https://www.muenchner-bank.de': true,
 		'https://kissmanga.com': 'same-origin',
+		'https://kissanime.ru': 'same-origin',
 		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true,
-		'https://outlook.office.com': true
+		'https://outlook.office.com': true,
+		'https://www.youtube.com': true,
+		'https://www1.swatchseries.to': 'same-origin'
 	};
 
 	const setTimeoutBlacklist = [
@@ -81,7 +84,7 @@ function overwrites() {
 				debugger;
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin) {
-						wind = originalOpen(url, target, featureFocus, ...args);
+						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
 					}
 				} else {
 					wind = originalOpen(url, target, featureFocus, ...args);
@@ -103,9 +106,10 @@ function overwrites() {
 				if(urlBlacklist.includes(location.origin) || urlBlacklist.some(blacklistURl => urlOrigin === blacklistURl)) {
 					wind = null;
 				}
+
 				const not = new Notification(`blocked ${urlOrigin} on ${location.origin} `);
 				not.onclick = () => {
-					debugger;
+					GM_setClipboard(location.origin);
 				};
 				// return originalOpen(url, target, featureFocus, ...args);
 				throw `blocked ${urlOrigin} on ${location.origin} `;

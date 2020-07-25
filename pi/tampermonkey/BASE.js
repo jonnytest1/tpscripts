@@ -6,7 +6,7 @@ console.log('entrypoint');
 /**@type {Document&{window?}} */
 const d = document;
 for(let att in d.window) {
-    if(att.startsWith('GM_') || att === 'reqS' || att === 'req' || att === 'finished') {
+    if(att.startsWith('GM_') || att === 'reqS' || att === 'req' || att === 'backendUrl' || att === 'finished') {
         // @ts-ignore
         window[att] = document.window[att];
     }

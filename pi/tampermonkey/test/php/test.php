@@ -1,5 +1,5 @@
 <?PHP
-    include(__DIR__."../../../request.php");
+    include_once(__DIR__."../../../request.php");
     class SuccessfulTest extends Exception{
 
     }
@@ -62,6 +62,21 @@
             return;
         }
 
+        function toHaveKey($key){
+            if($key==null){
+                throw "key is not set";
+            }
+            if(key_exists($key,$this->var)){
+                throw new SuccessfulTest(); 
+            }else{
+                throw new FailedTest(array(
+                    "expected"=>$this->var,
+                    "toHaveKey"=>$key
+                ));
+            }
+            return;
+        }
+
         function toString(){
             return json_encode($this->cases);
         }
@@ -82,6 +97,7 @@
     function expect($variable){
         return Tests::getInstance()->expect($variable);
     }
+
     function xtest($name,$test){
         $queryPAramas=getQueryParams();
 		if(array_key_exists("test",$queryPAramas)){
