@@ -80,7 +80,8 @@ function overwrites() {
 			} catch(e) {
 				// nvm
 			}
-			if(urlWhitelist[location.origin] || Object.keys(urlWhitelist).some(whitelistUrl => urlOrigin === whitelistUrl)) {
+			if(urlWhitelist[location.origin] || Object.keys(urlWhitelist)
+				.some(whitelistUrl => urlOrigin === whitelistUrl)) {
 				debugger;
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin) {

@@ -11,5 +11,5 @@
     $newId= $db->sql("INSERT image (b64) VALUES (?)","s",array(
         $body
     ));
-    
+    echo $newId
 ?>

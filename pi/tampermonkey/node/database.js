@@ -6,7 +6,7 @@ let count = 0;
 class Database {
 
     /**
-     * @param {import('./classifier').CustomClassifier|import('./numbersmodel').NumbersClassifier} classifier
+     * @param {import('./classifier').CustomClassifier| import('./numbersmodel').NumbersClassifier} classifier
      * @returns {Promise<Array<{modelkey:string,modelvalue:string}>>}
      */
     async getWeights(classifier) {

@@ -7,9 +7,7 @@ class NumbersClassifier {
         /**
          * @type {import("@tensorflow/tfjs-node").Sequential }
          */
-        this.model = tf.sequential({
-
-        });
+        this.model = tf.sequential();
         this.model.add(tf.layers.conv2d({
             inputShape: [160, 160, 3],
             filters: 60,
@@ -63,7 +61,8 @@ class NumbersClassifier {
             }
             const el = weights[i];
             if(!isNaN(+el.modelkey)) {
-                weightArray.push(tf.tensor(JSON.parse(el.modelvalue)).reshape(layerWeights.shape));
+                weightArray.push(tf.tensor(JSON.parse(el.modelvalue))
+                    .reshape(layerWeights.shape));
                 weightsindex++;
             }
 
@@ -107,7 +106,7 @@ class NumbersClassifier {
             return tagArray;
         }));
         await this.model.fit(this.prepareImageData(data), tagTensor, {
-            epochs: 3,
+            epochs: 2,
         });
         tagTensor.dispose();
     }
@@ -151,4 +150,4 @@ class NumbersClassifier {
     }
 }
 
-module.exports = { NumbersClassifier };
+module.exports = { NumbersClassifier: NumbersClassifier };
