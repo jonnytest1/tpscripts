@@ -101,7 +101,7 @@ class Database {
 
     }
 
-    async getTags(dbName) {
+    async getTags() {
 
         const tagsResponse = await query(c => c.query('SELECT * FROM kissanime_tags ORDER BY tag_id'));
 

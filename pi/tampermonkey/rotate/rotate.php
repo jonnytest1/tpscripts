@@ -1,6 +1,6 @@
 <?PHP
-include_once(dirname(__FILE__) . '/../database.php');
-include_once(dirname(__FILE__) . '/requests.php');
+require_once(dirname(__FILE__) . '/../database.php');
+require_once(dirname(__FILE__) . '/requests.php');
 class Rotate
 {
 

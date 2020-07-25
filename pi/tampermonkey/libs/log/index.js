@@ -38,7 +38,6 @@ async function getLogs() {
             tr.style.backgroundColor = '#adff2fa3';
         }
         if(el.severity === 'ERROR' && errorCount < newCount) {
-            debugger;
             errorCount++;
             tr.style.backgroundColor = '#e0aa7cb8';
         }

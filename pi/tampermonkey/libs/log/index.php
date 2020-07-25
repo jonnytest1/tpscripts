@@ -1,31 +1,12 @@
 <?PHP
-    include(dirname(__FILE__) . '/../../database.php');
-    include(dirname(__FILE__) . '/logging.php');
+    require_once(dirname(__FILE__) . '/../../database.php');
+    require_once(dirname(__FILE__) . '/logging.php');
+    require_once(dirname(__FILE__) . '/../decodeB64.php');
+
 
     $body=file_get_contents("php://input");
     
-    function decode_b64($str){
-        $dec=base64_decode($str);
-        $chars=str_split($dec);
-        $res="";
-        foreach($chars as $char){
-            $res=$res.unichr(ord($char));
-        }
-        return $res;
-    }
-    function unichr($dec) {
-        if ($dec < 128) {
-          $utf = chr($dec);
-        } else if ($dec < 2048) {
-          $utf = chr(192 + (($dec - ($dec % 64)) / 64));
-          $utf .= chr(128 + ($dec % 64));
-        } else {
-          $utf = chr(224 + (($dec - ($dec % 4096)) / 4096));
-          $utf .= chr(128 + ((($dec % 4096) - ($dec % 64)) / 64));
-          $utf .= chr(128 + ($dec % 64));
-        }
-        return $utf;
-    }
+   
 
     $decoded=decode_b64($body);
 
@@ -47,7 +28,7 @@
     }
     if(!key_exists("application",$parsed)){
         http_response_code(400);
-        echo "// missing key application in ".json_encode($parsed)."original ".$body." \n";
+        echo "// missing key application in ".json_encode($parsed)."original ".$body."\n";
         return;
     }
 
