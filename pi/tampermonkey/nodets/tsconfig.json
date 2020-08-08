@@ -9,6 +9,7 @@
             "node_modules/@types",
             "customTypes/*"
         ],
+        "experimentalDecorators": true,
         "outDir": "compiledjs/shutup",
         "lib": [
             "dom",

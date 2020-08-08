@@ -4,8 +4,10 @@
     "description": "node",
     "main": "index.ts",
     "dependencies": {
-        "mariadb": "",
         "express": "",
+        "mariadb": "",
+        "node-fetch": "^2.6.0",
+        "nodemon": "^2.0.4",
         "typescript": ""
     },
     "devDependencies": {
@@ -17,5 +19,13 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
-    "license": "ISC"
+    "license": "ISC",
+    "nodemonConfig": {
+        "execMap": {
+            "ts": "node -r ts-node/register"
+        },
+        "verbose": true,
+        "ignore": [],
+        "delay": "0"
+    }
 }
