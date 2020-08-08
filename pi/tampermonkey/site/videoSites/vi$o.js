@@ -9,18 +9,24 @@ var vid = new EvalScript('', {
             if(document.querySelector('#container').children[1].textContent === 'File Not Found') {
                 other();
             }
-
             set.overlayInterval = setInterval(() => {
+                /**
+                 * @type {HTMLVideoElement}
+                 */
                 const overlay = sc.g.point(400, 400);
                 if(overlay.tagName !== 'VIDEO') {
                     overlay.parentElement.style.zIndex = '0';
                     overlay.parentElement.style.position = 'relative';
+                } else {
+                    location.href = overlay.src;
                 }
             }, 300);
         } else {
-            GMnot('didnt match setup');
+            if(location.href.endsWith('mp4')) {
+                return;
+            }
+            GMnot('didnt match setup for vidtodo');
         }
-
     },
     reset: (set) => {
         clearTimeout(set.overlayInterval);

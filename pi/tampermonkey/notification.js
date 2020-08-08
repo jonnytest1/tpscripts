@@ -36,6 +36,7 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
     details.text = text;
     details.image = detailsOrIcon;
     details.timeout = timeout;
+    details.href = location.href;
     details.onclick = () => {
         if(onclick) {
             onclick();

@@ -150,7 +150,7 @@ elementGEtter.eval = (type, options = {}) => {
             if(!response) {
                 setTimeout(() => {
                     resolver(elementGEtter.eval(type, options));
-                }, 400);
+                }, 500);
             } else {
                 resolver(response);
             }
