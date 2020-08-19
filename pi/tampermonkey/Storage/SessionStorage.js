@@ -4,6 +4,7 @@
 var S = {
     s: (identifier, element) => {
         sessionStorage.setItem('tampermonkey_' + identifier, JSON.stringify(element));
+        return element;
     },
     g: (identifier, standard) => {
         if(!standard === undefined) {

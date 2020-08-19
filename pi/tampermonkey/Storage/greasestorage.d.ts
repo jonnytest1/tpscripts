@@ -23,14 +23,16 @@ type GreaseArrayTypes = GreaseStorageArrayTypesFull<GreaseStorageArrayTypes>
 
 interface GreaseStorageObjectArrayTypes {
     'kissmangaSeenMangas': { [key: string]: Array<TimedObject<string>> }
+
 }
 export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObjectArrayTypes {
     'basTestModeEnabled': boolean,
-
+    "kissmangaLastCheck": number
     'LogLevel': { general: "INFO" }
     'novelplanet': { [key: string]: string }
     'mitAlterEgoLastLink': string
     'security_key': string
+    'mangarockSeenMangas': { [key: string]: { latest: string, seen: string, lastChecked: number } }
 
     'restRequests': { [key: string]: RequestStorage }
     'form': { [key: string]: RequestStorage }
@@ -43,11 +45,11 @@ export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObject
 
 
 interface greaseSetter {
-    <K extends keyof GreaseStorageType>(identifier: K, value: GreaseStorageType[K]): void;
+    <K extends keyof GreaseStorageType>(identifier: K, value: GreaseStorageType[K]): GreaseStorageType[K];
 }
 
 interface greaseGetter {
-    <K extends keyof GreaseStorageType>(identifier: K, fallback: GreaseStorageType[K]): GreaseStorageType[K];
+    <K extends keyof GreaseStorageType>(identifier: K, fallback?: GreaseStorageType[K]): GreaseStorageType[K];
 }
 
 

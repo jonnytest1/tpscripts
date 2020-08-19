@@ -24,7 +24,7 @@ declare global {
 export interface StorageBase {
     get: getter
 
-    set: (identifier: string, value) => void
+    set: <T>(identifier: string, value: T) => T
 }
 
 export interface getter {

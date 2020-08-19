@@ -23,6 +23,7 @@ var L = {
     },
     s: (identifier, value) => {
         localStorage.setItem('tampermonkey_' + identifier, JSON.stringify(value));
+        return value;
     },
     filter: (identifier, filterFunction) => {
         /**@type {Array<any>} */
