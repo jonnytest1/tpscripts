@@ -31,7 +31,7 @@ var storageimpl = new EvalScript('', {
             }
 
             s(identifier, element) {
-                this.base.set(identifier, element);
+                return this.base.set(identifier, element);
             }
 
             p(identifier, value, options = {}) {
