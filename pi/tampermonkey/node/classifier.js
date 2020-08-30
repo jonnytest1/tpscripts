@@ -325,7 +325,7 @@ class Classifier {
     *   image:Array<number>
     * }>} exampleArray
     */
-    async  addExample(exampleArray) {
+    async addExample(exampleArray) {
         exampleArray.forEach(example => {
             examples.push(example);
         });

@@ -157,9 +157,23 @@ elementGEtter.eval = (type, options = {}) => {
         });
     }
 
-    let textContent = '';
-    if(options.text) {
-        textContent = `[contains(., \'${options.text}\')]`;
+    let conditions = '';
+    if(options.text || options.class) {
+        conditions = '[';
+        let addedCondition = false;
+        if(options.text) {
+            conditions += `contains(., \'${options.text}\')`;
+            addedCondition = true;
+        }
+        if(options.class) {
+            for(let className of options.class) {
+                if(addedCondition) {
+                    conditions += ' and ';
+                }
+                conditions += `contains(@class, '${className}')`;
+            }
+        }
+        conditions += ']';
     }
     /**
      * @type {any}
@@ -169,7 +183,7 @@ elementGEtter.eval = (type, options = {}) => {
         parent = options.parent;
     }
 
-    let xpathCommand = `//${type}${textContent}`;
+    let xpathCommand = `//${type}${conditions}`;
 
     const iterator = document.evaluate(xpathCommand, parent, null, XPathResult.ANY_TYPE, null);
     /**

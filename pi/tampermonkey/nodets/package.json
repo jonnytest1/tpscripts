@@ -5,6 +5,7 @@
     "main": "index.ts",
     "dependencies": {
         "express": "",
+        "firebase-admin": "^9.1.0",
         "mariadb": "",
         "node-fetch": "^2.6.0",
         "nodemon": "^2.0.4",
@@ -22,10 +23,12 @@
     "license": "ISC",
     "nodemonConfig": {
         "execMap": {
-            "ts": "node -r ts-node/register"
+            "ts": "npm install && node -r ts-node/register"
         },
         "verbose": true,
-        "ignore": [],
+        "ignore": [
+            "public/*"
+        ],
         "delay": "0"
     }
 }

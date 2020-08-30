@@ -32,17 +32,25 @@ export interface getter {
     (identfier: string, standard: boolean): boolean
 }
 
-export interface StorageImplementationType {
-    g: (identifier: string, standrad) => any;
-    s: (identifier: string, value) => void;
+type arrayType<T> = T extends Array<any> ? T[0] : unknown;
 
-    p: (identifier: string, object, options?: any) => void
+declare global {
+    export interface StorageImplementationType<K = string, T = any> {
 
-    filter: (identifier: string, filterFunction: (element, index?: number, array?: Array<any>) => boolean) => Array<any>
 
-    setValue: (identifier: string, key: string, value, standard) => void
-    removeWhere: (identifier: string, filterFunction: (element, index?: number, array?: Array<any>) => boolean) => Array<any>
+        g: (identifier: K, standrad: T) => T;
+        s: (identifier: K, value) => T;
+
+        p: (identifier: K, object: arrayType<T>, options?: any) => void
+
+        filter: (identifier: K, filterFunction: (element: arrayType<T>, index?: number, array?: T) => boolean) => T
+
+        setValue: (identifier: K, key: string, value, standard) => void
+        removeWhere: (identifier: K, filterFunction: (element: arrayType<T>, index?: number, array?: T) => boolean) => T
+    }
 }
+
+
 
 interface CustomStorage {
 

@@ -92,6 +92,9 @@ EvalScript.type = new EvalScript('', {
         const vid = await sc.g.a('video', undefined, undefined, sc.g.T);
 
         //radial-gradient(circle at center,rgba(0,0,0,1),rgba(255,255,0,0.9))"
+        /**
+         * @type {StorageImplementationType<'video_speed',number>}
+         */
         const LS = await reqS('Storage/localStorage');
         addVideo(vid);
 

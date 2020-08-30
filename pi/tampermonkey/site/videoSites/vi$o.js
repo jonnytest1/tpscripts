@@ -21,11 +21,6 @@ var vid = new EvalScript('', {
                     location.href = overlay.src;
                 }
             }, 300);
-        } else {
-            if(location.href.endsWith('mp4')) {
-                return;
-            }
-            GMnot('didnt match setup for vidtodo');
         }
     },
     reset: (set) => {

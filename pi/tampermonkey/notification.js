@@ -1,7 +1,7 @@
 /* gloabl GMnot */
 
 /**
- * @param {*} [detailsOrIcon]
+ * @param {string|{image?:string,title?:string,text?:string,body?:string,timeout?:number}} [detailsOrIcon]
  * @param {Function} [onclick]
  * @param {string} [openurl]
  * @param {number} [timeout]
@@ -20,7 +20,7 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
     if(!ondone) {
         ondone = () => { return; };
     }
-    if(detailsOrIcon.image) {
+    if(typeof detailsOrIcon !== 'string') {
         detailsOrIcon.title = title;
         detailsOrIcon.text = detailsOrIcon.body;
         if(!detailsOrIcon.timeout) {

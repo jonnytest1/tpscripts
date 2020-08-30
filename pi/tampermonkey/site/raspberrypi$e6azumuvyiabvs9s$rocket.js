@@ -1,5 +1,8 @@
 ///<reference path="../customTypes/index.d.ts"/>
-new EvalScript('', {
+/**
+ * @type {EvalScript<{interval:NodeJS.Timeout}>}
+ */
+var rocketlog = new EvalScript('', {
     /**
      * @typedef {HTMLElement &{
      *  message:any
@@ -8,6 +11,9 @@ new EvalScript('', {
 
     run: async (res, set) => {
         const previousLogsKey = 'rocket_logs_key';
+        /**
+         * @type { StorageImplementationType<'rocket_logs_key',Array<number>>}
+         */
         const LS = await reqS('Storage/localStorage');
         const checkedLogs = LS.filter(previousLogsKey, log => log > Date.now() - (1000 * 60 * 60 * 24 * 7));
 

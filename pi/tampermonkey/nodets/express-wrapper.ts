@@ -48,8 +48,8 @@ export async function load(rootpath: string, options?: {
         options.prereesources(app);
     }
     for (let resource of resources) {
-        console.log(`adding ${resource.path} with ${resource.type.toLocaleUpperCase()}`);
-        app[resource.type](resource.path, resource.callback);
+        console.log(`adding ${'/rest' + resource.path} with ${resource.type.toLocaleUpperCase()}`);
+        app[resource.type]('/rest' + resource.path, resource.callback);
     }
 
     if (options && options.postresource) {

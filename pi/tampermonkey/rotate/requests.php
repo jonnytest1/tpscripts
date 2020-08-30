@@ -109,7 +109,7 @@ class RotateRequest
                 }
                 return $success;
             }
-        } catch (Eception $e) { }
+        } catch (Exception $e) { }
 
         if (strpos($data, $matcher) == FALSE) {
 

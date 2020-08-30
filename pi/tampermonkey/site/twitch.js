@@ -10,7 +10,7 @@ var twitch = new EvalScript('', {
             const video = sc.g.eval('video', { first: true });
 
             const currentTimestamps = sc.G //
-                .filter('twitchvideoposition', StorageImplementation.filterDaysFunction(100, { keepLatest: true }))
+                .filter('twitchvideoposition', StorageImplementation.filterDaysFunction(1, { keepLatest: true }))
                 .filter(vid => vid.value.url === location.href);
             if(currentTimestamps.length) {
                 video.currentTime = currentTimestamps[currentTimestamps.length - 1].value.currentTime - 2;

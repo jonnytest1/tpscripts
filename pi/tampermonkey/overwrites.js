@@ -7,20 +7,23 @@ function overwrites() {
 	/**
 	 * @type {{[key:string]:'same-origin'|true}}
 	 */
-	const urlWhitelist = {
+	const urlWhitelist = Object.assign({
 		'https://www.twitch.tv': true,
 		'https://app.gotomeeting.com': true,
 		'https://global.gotomeeting.com': true,
 		'https://www.codingame.com': true,
 		'https://www.amazon.de': true,
+		'https://www.instagram.com': true,
 		'https://www.muenchner-bank.de': true,
-		'https://kissmanga.com': 'same-origin',
+		'https://kissmanga.in': 'same-origin',
 		'https://kissanime.ru': 'same-origin',
 		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true,
 		'https://outlook.office.com': true,
 		'https://www.youtube.com': true,
-		'https://www1.swatchseries.to': 'same-origin'
-	};
+		'https://www1.swatchseries.to': 'same-origin',
+		'https://www.lieferando.de/': true,
+		'https://brandad.tpondemand.com/': true
+	}, sc.G.g('urlwhitelist', {}));
 
 	const setTimeoutBlacklist = [
 		'loopIframe'
@@ -61,11 +64,19 @@ function overwrites() {
 
 	let openedWindows = {};
 
+	function allowedToOpen(urlOrigin) {
+		if(urlWhitelist[location.origin] || urlWhitelist[location.origin + '/']) {
+			return true;
+		}
+
+		return Object.keys(urlWhitelist)
+			.some(whitelistUrl => urlOrigin === whitelistUrl || urlOrigin + '/' === whitelistUrl);
+	}
+
 	let originalOpen = open;
 	// @ts-ignore
 	open = (url, target, featureFocus, ...args) => {
 
-		debugger;
 		/**
 		 * @type {Window|WindowLike}
 		 */
@@ -80,9 +91,7 @@ function overwrites() {
 			} catch(e) {
 				// nvm
 			}
-			if(urlWhitelist[location.origin] || Object.keys(urlWhitelist)
-				.some(whitelistUrl => urlOrigin === whitelistUrl)) {
-				debugger;
+			if(allowedToOpen(urlOrigin)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin) {
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
@@ -94,7 +103,12 @@ function overwrites() {
 			} else if(featureFocus === true) {
 				wind = originalOpen(url, target, featureFocus, ...args);
 			} else if(url.startsWith('http')) {
-				GMnot('blocked open', `${urlOrigin} on ${location.origin}`);
+				GMnot('blocked open', `${urlOrigin} on ${location.origin}`, '', () => {
+					urlWhitelist[urlOrigin] = 'same-origin';
+					let whitelsit = sc.G.g('urlwhitelist', {});
+					whitelsit[urlOrigin] = 'same-origin';
+					sc.G.s('urlwhitelist', whitelsit);
+				});
 				const windowMock = { location: {}, open: () => windowMock };
 				return windowMock;
 				let win = GM_openInTab(url, { active: false, insert: false }); //active ~focused insert: append at end or after the current tab

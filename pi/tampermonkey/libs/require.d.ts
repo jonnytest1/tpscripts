@@ -80,7 +80,7 @@ export interface RequireMap {
 
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage
-    'Storage/localStorage': LocalStorage
+    'Storage/localStorage': StorageImplementationType
 
     "Storage/greaseBase": StorageBase
     'Storage/storageimpl': void

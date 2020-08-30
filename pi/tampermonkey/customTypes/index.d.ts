@@ -12,9 +12,6 @@
 /// <reference path="./overwrites.d.ts" />
 /// <reference path="../BASE.js" />
 
-
-
-
 interface EvalSSCripts {
     [key: string]: any
 }

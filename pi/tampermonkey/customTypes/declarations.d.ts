@@ -6,6 +6,7 @@
 import { CustomStorage } from '../Storage/storage';
 import { GreaseStorage } from '../Storage/greasestorage';
 
+
 declare global {
 
     interface Window {
@@ -33,7 +34,9 @@ interface HTMLChildren extends HTMLElement {
 
 export interface evalFncOptions {
     text?: string
-    parent?: HTMLElement
+    parent?: HTMLElement,
+
+    class?: Array<string>
 }
 
 export interface EvalFnc {

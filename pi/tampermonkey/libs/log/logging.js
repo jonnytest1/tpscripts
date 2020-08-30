@@ -1,7 +1,7 @@
 /// <reference path="../../customTypes/index.d.ts" />
 
 var logHistory = {};
-let prepareScript = () => {
+var prepareScript = () => {
   if(!scriptContent) {
     return '';
   }
@@ -35,7 +35,6 @@ function logKibana(level, message, error) {
     message: jsonMessage
   };
 
-  debugger;
   if(error) {
     jsonData.error_message = error.message;
     jsonData.error_stacktrace = error.stack;

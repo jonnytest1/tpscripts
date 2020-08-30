@@ -1,0 +1,100 @@
+<html>
+
+    <head>
+        <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-analytics.js"></script>
+    </head>
+
+    <body>
+
+        monitoring app
+        <div id="token"></div>
+        <script>
+
+            function saveToken(token) {
+                fetch("https://pi4.e6azumuvyiabvs9s.myfritz.net/nodets/rest/token", {
+                    method: "POST",
+                    body: token
+                })
+            }
+
+            onload = () => {
+                // Your web app's Firebase configuration
+                var firebaseConfig = {
+                    apiKey: "AIzaSyBBrBhwjzP0PiXIYIcVWgQz3zLBbmsuO7U",
+                    authDomain: "privateproject-jonny.firebaseapp.com",
+                    databaseURL: "https://privateproject-jonny.firebaseio.com",
+                    projectId: "privateproject-jonny",
+                    storageBucket: "privateproject-jonny.appspot.com",
+                    messagingSenderId: "90777757347",
+                    appId: "1:90777757347:web:a1fe4b223a627e505f4116",
+                    measurementId: "G-700ZKPN3GH"
+                };
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                firebase.analytics();
+                const messaging = firebase.messaging();
+                messaging.usePublicVapidKey("BD369F6WX25ahLy010Ub5BdBySxQOncE-7l0pRI2eGLc5izosv9h1P29wPTdg1wPQecqV5X13FNBFlHWDIPF0s4");
+                messaging.getToken().then((refreshedToken) => {
+                    document.querySelector("#token").innerHTML = refreshedToken;
+                    // Indicate that the new Instance ID token has not yet been sent to the
+                    // app server.
+                    //setTokenSentToServer(false);
+                    // Send Instance ID token to app server.
+                    saveToken(refreshedToken);
+                    // ...
+                }).catch((err) => {
+                    console.log('Unable to retrieve refreshed token ', err);
+                })
+                messaging.onTokenRefresh(() => {
+                    messaging.getToken().then((refreshedToken) => {
+                        document.querySelector("#token").innerHTML = refreshedToken;
+                        console.log('Token refreshed.');
+                        // Indicate that the new Instance ID token has not yet been sent to the
+                        // app server.
+                        // setTokenSentToServer(false);
+                        // Send Instance ID token to app server.
+                        saveToken(refreshedToken);
+                        // ...
+                    }).catch((err) => {
+                        console.log('Unable to retrieve refreshed token ', err);
+                        //showToken('Unable to retrieve refreshed token ', err);
+                    });
+                });
+                messaging.onMessage((payload) => {
+                    console.log('Message received. ', payload);
+                    // ...
+                });
+
+                window.subscribe = () => {
+                    const messaging = firebase.messaging();
+
+                    messaging.getToken().then((currentToken) => {
+                        if(currentToken) {
+                            console.log(currentToken);
+                            debugger;
+                            document.querySelector("#token").innerHTML = currentToken;
+                            saveToken(currentToken);
+                            //updateUIForPushEnabled(currentToken);
+                        } else {
+                            // Show permission request.
+                            console.log('No Instance ID token available. Request permission to generate one.');
+                            // Show permission UI.
+                            // updateUIForPushPermissionRequired();
+                            // setTokenSentToServer(false);
+                        }
+                    }).catch((err) => {
+                        console.log('An error occurred while retrieving token. ', err);
+                        //showToken('Error retrieving Instance ID token. ', err);
+                        //setTokenSentToServer(false);
+                    });
+                }
+            }
+        </script>
+        <button onclick="subscribe()">Subscribe to events</button>
+
+
+    </body>
+
+</html>

@@ -28,11 +28,13 @@ youtubeScript.reset = () => {
 };
 
 (async () => {
-    let localStorage = await reqS('Storage/localStorage');
 
-    await reqS('DOM/button');
-
-    let time = await reqS('time');
+    /**
+    * @type {[StorageImplementationType<'mostRecentVideo',string>,CustomTimeClass,unknown]}
+    */
+    const [localStorage, time, _] = await reqS([
+        'Storage/localStorage', 'time', 'DOM/button'
+    ]);
 
     const youtubemostrecent = 'mostRecentVideo';
 

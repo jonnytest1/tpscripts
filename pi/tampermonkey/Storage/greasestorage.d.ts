@@ -1,4 +1,4 @@
-import { StorageImplementationType, TimedObject, PushOptions, PushMapOptions } from "./storage"
+import { TimedObject, PushOptions, PushMapOptions } from "./storage"
 
 export interface GreaseStorageArrayTypes {
 
@@ -23,17 +23,22 @@ type GreaseArrayTypes = GreaseStorageArrayTypesFull<GreaseStorageArrayTypes>
 
 interface GreaseStorageObjectArrayTypes {
     'kissmangaSeenMangas': { [key: string]: Array<TimedObject<string>> }
-
 }
 export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObjectArrayTypes {
     'basTestModeEnabled': boolean,
     "kissmangaLastCheck": number
     'LogLevel': { general: "INFO" }
+
+    kissmangainlatest: string
+    'kissmangainMangas': {
+        [key: string]: {
+            lastEpisode?: string,
+        }
+    }
     'novelplanet': { [key: string]: string }
+    'urlwhitelist': { [key: string]: 'same-origin' | true }
     'mitAlterEgoLastLink': string
     'security_key': string
-    'mangarockSeenMangas': { [key: string]: { latest: string, seen: string, lastChecked: number } }
-
     'restRequests': { [key: string]: RequestStorage }
     'form': { [key: string]: RequestStorage }
     'otherRequests': { [key: string]: RequestStorage }

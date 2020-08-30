@@ -2,6 +2,7 @@ import { log } from 'console';
 import { Request, Response } from 'express';
 import { GET, POST } from '../express-wrapper';
 import { logKibana } from '../util/log';
+import { firebasemessageing } from './firebasemessaging';
 
 const timers: { [key: string]: { name: string, duration: number } } = {
     '4100060012329': {
@@ -9,7 +10,17 @@ const timers: { [key: string]: { name: string, duration: number } } = {
         duration: 6
     }
 };
+
+let token = 'cDE5YKnedYwerc-5ODDYxY:APA91bF2g4xDrd5TxYGUUY0Z9xyzzUKHBrFrXfDfUibuoC8SfRTRUDJ2rQUIRINmjVrP4KDBxXBN9zsPDTa6q-scRU8UcPPoh1PBao6dr31s_fF0WW3Lxt0On_3KmUQJcnqkJRtfeqxM';
 export class Timer {
+
+    @POST({
+        path: '/token'
+    })
+    async setToken(req, res) {
+        token = req.body;
+        res.send(token);
+    }
 
     @POST({
         path: '/timer'
@@ -38,8 +49,10 @@ export class Timer {
         path: '/'
     })
     async timers(req: Request, res: Response) {
+        console.log('sending message');
+        const response = await firebasemessageing.sendTestNotification(token);
         console.log(req.body);
         console.log(req.method);
-        res.send('hi\n');
+        res.send('hi\n' + JSON.stringify(response));
     }
 }
