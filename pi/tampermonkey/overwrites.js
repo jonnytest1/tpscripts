@@ -139,12 +139,12 @@ function overwrites() {
 		return wind;
 	};
 
-	GM_addValueChangeListener('urlChange', (name, old_value, new_value, from_remote) => {
-		const wind = openedWindows[new_value.old];
-		if(new_value && wind) {
-			console.log(`changeing ${new_value.old} to ${new_value.new}`);
-			openedWindows[new_value.new] = wind;
-			delete openedWindows[new_value.old];
+	GM_addValueChangeListener('urlChange', (name, oldvalue, newvalue, fromRemote) => {
+		const wind = openedWindows[newvalue.old];
+		if(newvalue && wind) {
+			console.log(`changeing ${newvalue.old} to ${newvalue.new}`);
+			openedWindows[newvalue.new] = wind;
+			delete openedWindows[newvalue.old];
 			GM_setValue('urlChange', null);
 		}
 	});
@@ -168,10 +168,10 @@ function overwrites() {
 			.forEach(link => link.addEventListener('click', e => navigate(link.href)));
 	}
 
-	GM_addValueChangeListener('close', (name, old_value, new_value, from_remote) => {
-		if(new_value) {
+	GM_addValueChangeListener('close', (name, oldvalue, newvalue, fromremote) => {
+		if(newvalue) {
 			for(let i in openedWindows) {
-				if(new_value === i) {
+				if(newvalue === i) {
 					openedWindows[i].close();
 				}
 			}

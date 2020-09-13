@@ -188,8 +188,8 @@ class Classifier {
                     //console.log('added example ' + JSON.stringify(imageElement.tag_name));
 
                     const frameData = new Buffer(160 * 160 * 4);
-                    for(let i = 0; i < imageDataArray.length; i++) {
-                        frameData[i] = imageDataArray[i];
+                    for(let m = 0; m < imageDataArray.length; m++) {
+                        frameData[m] = imageDataArray[m];
                     }
                     const rawImageData = {
                         data: frameData,
@@ -197,7 +197,8 @@ class Classifier {
                         height: 160,
                     };
                     const jpegImageData = jpeg.encode(rawImageData, 80);
-                    const currentTag = imageElement.tags.map(t => t.tag_name).find(t => !isNaN(+t));
+                    const currentTag = imageElement.tags.map(t => t.tag_name)
+                        .find(t => !isNaN(+t));
                     if(!currentTag) {
                         continue;
                     }

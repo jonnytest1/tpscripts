@@ -144,8 +144,8 @@ EvalScript.type = new EvalScript('', {
                     enumerable: true,
                     configurable: true,
                     get: function() {
-                        var ct = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,
-                            'currentTime').get
+                        var ct = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime')
+                            .get
                             .call(this);
                         return ct;
                     },

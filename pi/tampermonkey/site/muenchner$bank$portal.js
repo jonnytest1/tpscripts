@@ -25,7 +25,7 @@ var _ = new EvalScript('', {
                     undefined,
                     undefined,
                     undefined,
-                    'https://www.muenchner-bank.de/banking-private/portal?menuId=Postfach',
+                    '/banking-private/portal?menuId=Postfach',
                     {
                         style:
                             { position: 'absolute', left: 240, top: 300, height: 27, width: 100, backgroundColor: '#50e61c' }
@@ -53,12 +53,12 @@ var _ = new EvalScript('', {
                         if(isFood(booking)) {
                             essen += amount;
                             obj.style.backgroundColor = 'orange';
-                        } else if(isMonthly(booking, bookingHTML)) {
-                            monatlich += amount;
-                            obj.style.backgroundColor = 'aqua';
                         } else if(isMonthlyOptional(booking)) {
                             monatlichOptional += amount;
                             obj.style.backgroundColor = '#00c4ff';
+                        } else if(isMonthly(booking, bookingHTML)) {
+                            monatlich += amount;
+                            obj.style.backgroundColor = 'aqua';
                         } else {
                             rest += amount;
                             obj.style.backgroundColor = 'red';
@@ -109,7 +109,8 @@ var _ = new EvalScript('', {
          */
         function isMonthlyOptional(booking) {
             console.log(booking);
-            return booking.includes('CRUNCHYROLL');
+            return booking.includes('CRUNCHYROLL')
+                || booking.includes('AMZNPri');
         }
         /**
          *

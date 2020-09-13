@@ -24,11 +24,11 @@ var kissmangain = new EvalScript('', {
                 const mangaIdentifier = titleLink.href.split('kissmanga/')[1]
                     .replace('/', '');
                 let mangaViews = seenMangas[mangaIdentifier] || [];
-                if(!hasSetLatest) {
-                    sc.G.s('kissmangainlatest', mangaIdentifier);
-                    hasSetLatest = true;
-                }
                 if(subscribed[mangaIdentifier]) {
+                    if(!hasSetLatest) {
+                        sc.G.s('kissmangainlatest', mangaIdentifier);
+                        hasSetLatest = true;
+                    }
                     if(lastSubscribedFound === mangaIdentifier) {
                         done = true;
                     }
