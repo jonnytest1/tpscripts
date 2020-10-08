@@ -1,0 +1,38 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<mat-sidenav-container class="example-container">
+  <mat-sidenav #sidenav
+               mode="push"
+               [opened]="contentOpened||sidenavOpened"
+               (mouseenter)="sidenavOpened=true"
+               (mouseleave)="sidenavOpened=false">
+    <mat-nav-list>
+      <a mat-list-item
+         routerLink="setup">
+        settins
+      </a>
+
+      <a mat-list-item
+         routerLink="device">
+        deviiiiiiiiiiiiiiiiices
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="content-wrapper">
+      <div class="mouseenter"
+           (mouseenter)="contentOpened=true"
+           (mouseleave)="contentOpened=false">
+        <mat-icon>menu</mat-icon>
+      </div>
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
+
+<div style="text-align:center">
+  <h1>
+    Smart Home
+  </h1>
+</div>
