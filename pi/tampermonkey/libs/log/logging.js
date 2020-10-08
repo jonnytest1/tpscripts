@@ -27,7 +27,21 @@ function logKibana(level, message, error) {
     jsonMessage = error.message;
   }
   if(jsonMessage instanceof Object) {
-    jsonMessage = JSON.stringify(jsonMessage);
+    try {
+      btoa(JSON.stringify(jsonMessage));
+      jsonMessage = JSON.stringify(jsonMessage);
+    } catch(e) {
+      let tmp = {};
+      for(let i in jsonMessage) {
+        try {
+          btoa(JSON.stringify(jsonMessage[i]));
+          tmp[i] = jsonMessage[i];
+        } catch(e) {
+          tmp[i] = 'error parsing for' + i;
+        }
+      }
+      jsonMessage = JSON.stringify(tmp);
+    }
   }
   let jsonData = {
     Severity: level,

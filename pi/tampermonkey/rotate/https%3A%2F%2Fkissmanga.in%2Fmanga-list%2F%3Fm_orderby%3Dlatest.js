@@ -5,55 +5,121 @@
 var kissmangain = new EvalScript('', {
     async: true,
     run: async (resolv, set) => {
-        let lastSubscribedFound = sc.G.g('kissmangainlatest', '');
-        const seenMangas = sc.G.g('kissmangaSeenMangas');
+
+        let timer = await reqS('time');
+
+        XMLHttpRequest.prototype.whitelisturl = [
+            `(.*)${location.origin.replace('.', '\\.')
+                .replace('?', '\\?')
+                .replace(/\//g, '\\/')}(.*)`
+        ];
+
         const subscribed = sc.G.g('kissmangainMangas');
-        let index = 1;
-        let done = false;
-        let hasSetLatest = false;
-        while(!done) {
-            const siteRequest = await fetch(`https://kissmanga.in/manga-list/page/${index++}/?m_orderby=latest`);
-            const html = await siteRequest.text();
+        await timer.asyncForEach({
+            array: Object.keys(subscribed),
+            callback: async (key) => {
 
-            const element = document.createElement('htmltree');
-            element.innerHTML = html;
-            const mangas = element.querySelectorAll('.page-item-detail');
+                const seenMangas = sc.G.filter('kissmangaSeenMangas',
+                    StorageImplementation.filterDaysFunction(14, { keepLatest: true }),
+                    { mapKey: key });
 
-            for(let manga of mangas) {
-                const titleLink = manga.querySelector('a');
-                const mangaIdentifier = titleLink.href.split('kissmanga/')[1]
-                    .replace('/', '');
-                let mangaViews = seenMangas[mangaIdentifier] || [];
-                if(subscribed[mangaIdentifier]) {
-                    if(!hasSetLatest) {
-                        sc.G.s('kissmangainlatest', mangaIdentifier);
-                        hasSetLatest = true;
+                if(!subscribed[key].shortKey || !subscribed[key].imageUrl || !subscribed[key].mangaName) {
+                    const response = await fetch('/kissmanga/' + key);
+                    const text = await response.text();
+
+                    const container = new DOMParser().parseFromString(text, 'text/html');
+                    /**
+                     * @type {HTMLAnchorElement}
+                     */
+                    const shortLink = container.querySelector('link[rel=\'shortlink\']');
+                    const url = new URL(shortLink.href);
+
+                    const img = sc.g.eval('img', {
+                        parent: container.querySelector('.summary_image'),
+                        first: true
+                    });
+                    if(img) {
+                        subscribed[key].imageUrl = img.src;
                     }
-                    if(lastSubscribedFound === mangaIdentifier) {
-                        done = true;
-                    }
-                    const chapters = manga.querySelectorAll('.chapter-item ');
-                    for(let chapter of chapters) {
-                        const timeText = chapter.querySelector('.post-on');
-                        const chapterLink = chapter.querySelector('a');
-                        const chapterLinkPath = new URL(chapterLink.href).pathname;
+                    subscribed[key].mangaName = container.querySelector('h1').textContent
+                        .trim();
 
-                        const timeContent = timeText.textContent.trim();
-                        const inTimeRange = timeContent.includes(' second') || timeContent.includes(' min') || timeContent.includes(' hour');
-                        const seenChapter = mangaViews.some(mangaView => mangaView.value === chapterLinkPath);
-                        if(inTimeRange && subscribed[mangaIdentifier].lastEpisode !== chapterLink.href && !seenChapter) {
-                            const wnd = open(titleLink.href + '?open=latest');
-                            GMnot(`new episode \n ${mangaIdentifier}`, chapterLink.textContent, manga.querySelector('img').src, () => {
+                    subscribed[key].shortKey = url.searchParams.get('p');
+                }
+
+                let shortKey = subscribed[key].shortKey;
+
+                const chapterRepsonse = await fetch('https://kissmanga.in/wp-admin/admin-ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: `action=manga_get_chapters&manga=${shortKey}`
+                });
+                const chapterHTML = await chapterRepsonse.text();
+                const chapterDoc = new DOMParser().parseFromString(chapterHTML, 'text/html');
+
+                /**
+                 * @type {HTMLAnchorElement}
+                 */
+                let latestNotSeen;
+
+                const chapters = sc.g.eval('li', {
+                    parent: chapterDoc,
+                    class: ['wp-manga-chapter']
+                });
+
+                let hasFoundSeenChapter = false;
+                for(const chapter of chapters) {
+                    const chapterLink = chapter.querySelector('a');
+                    const chapterName = chapterLink.textContent.trim();
+                    const chapterUrl = new URL(chapterLink.href);
+
+                    const hasSeenChapter = seenMangas.some(seenLink => seenLink.value === chapterUrl.pathname);
+                    hasFoundSeenChapter = hasFoundSeenChapter || hasSeenChapter;
+                    const noSeenMangaStored = seenMangas.length === 0 && latestNotSeen;
+                    if(hasSeenChapter || noSeenMangaStored) {
+                        if(latestNotSeen) {
+                            debugger;
+                            sc.G.p('kissmangaSeenMangas', {
+                                timestamp: Date.now(),
+                                value: new URL(latestNotSeen.href).pathname
+                            }, { mapKey: key });
+                            const wnd = open(latestNotSeen.href);
+                            GMnot(`new episode \n ${subscribed[key].mangaName}`, chapterName, subscribed[key].imageUrl, () => {
                                 wnd.focus();
                             });
-                            subscribed[mangaIdentifier].lastEpisode = chapterLink.href;
-                            break;
+                            return null;
+                        } else {
+                            console.log(`already seen ${chapterName} from ${subscribed[key].mangaName}`);
+                            return null;
                         }
+                    } else {
+                        latestNotSeen = chapterLink;
                     }
                 }
+                if(!hasFoundSeenChapter) {
+                    const chapter = chapters[0];
+
+                    const chapterLink = chapter.querySelector('a');
+                    const chapterName = chapterLink.textContent.trim();
+
+                    sc.G.p('kissmangaSeenMangas', {
+                        timestamp: Date.now(),
+                        value: new URL(chapterLink.href).pathname
+                    }, { mapKey: key });
+                    const wnd = open(chapterLink.href);
+                    GMnot(`new episode \n ${subscribed[key].mangaName}`, chapterName, subscribed[key].imageUrl, () => {
+                        wnd.focus();
+                    });
+                    debugger;
+                }
+                return null;
             }
-        }
+        });
+
         sc.G.s('kissmangainMangas', subscribed);
+
     },
     reset: (set) => {
         //

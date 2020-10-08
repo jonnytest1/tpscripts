@@ -89,7 +89,12 @@ try {
 	$requestUrl = urldecode( getQueryParams()["url"]);
 	$parsedUrl = parse_url($requestUrl);
 
-	$json = $json . "\n//---------------------site start: rotate: " . $requestUrl . "  site: " . urlencode($parsedUrl["host"]) . "  -----------------------\n";
+	$host=" --- no host ---";
+	if(array_key_exists("host", $parsedUrl)){
+		$host="  site: " . urlencode($parsedUrl["host"]) ;
+	}
+
+	$json = $json . "\n//---------------------site start: rotate: " . $requestUrl . $host. "  -----------------------\n";
 	if ($rotate->isRotate($requestUrl) && !array_key_exists("fileOnly", $queryPAramas)) {
 		$json = $json . "\n//isrotate true\n";
 		$json = $json . $rotate->getNext($requestUrl);

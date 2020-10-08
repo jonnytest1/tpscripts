@@ -10,7 +10,11 @@ var greaseBase = new EvalScript('', {
          */
         const grease = {
             set: (identifier, element) => {
-                window['GM_getValue'] ? window['GM_setValue'](identifier, element) : localStorage[identifier] = JSON.stringify(element);
+                if(window['GM_setValue']) {
+                    window['GM_setValue'](identifier, element);
+                } else {
+                    localStorage[identifier] = JSON.stringify(element);
+                }
                 return element;
             },
             /**

@@ -20,9 +20,9 @@ type GreaseStorageArrayTypesFull<T> = { [P in keyof T]: Array<T[P]>; };
 type GreaseArrayTypes = GreaseStorageArrayTypesFull<GreaseStorageArrayTypes>
 
 
-
 interface GreaseStorageObjectArrayTypes {
     'kissmangaSeenMangas': { [key: string]: Array<TimedObject<string>> }
+    'manganeloSeenMangas': { [key: string]: Array<TimedObject<string>> }
 }
 export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObjectArrayTypes {
     'basTestModeEnabled': boolean,
@@ -31,6 +31,15 @@ export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObject
 
     kissmangainlatest: string
     'kissmangainMangas': {
+        [key: string]: {
+            lastEpisode?: string,
+            shortKey?: string,
+            imageUrl?: string,
+            mangaName?: string
+        }
+    }
+    manganelolatest: string
+    manganeloMangas: {
         [key: string]: {
             lastEpisode?: string,
         }

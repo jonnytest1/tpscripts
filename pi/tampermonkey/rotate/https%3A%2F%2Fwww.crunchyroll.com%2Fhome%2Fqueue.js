@@ -38,9 +38,9 @@ new EvalScript('', {
                         url
                     });
                     open(url);
-                    return;
+                    return true;
                 }
-                return false;
+                return;
             }
         });
     }

@@ -72,6 +72,8 @@ var CustomTime = class CustomTimeC {
     }
 
     /**
+     * breaks on callback()==false
+     * skips timeout on callback()==null;
      * @template T
      * @param {{
      *     array:Array<T>,
@@ -81,18 +83,26 @@ var CustomTime = class CustomTimeC {
      */
     async asyncForEach(options) {
         const delay = options.delay || 500;
-
-        for(let item of options.array) {
-            const nextDelay = await options.callback(item);
-            if(nextDelay === null || nextDelay === true) {
-                await this.waitForAsync({
-                    duration: delay,
-                    callback: () => {
-                        //
-                    }
-                });
+        try {
+            for(let item of options.array) {
+                const nextDelay = await options.callback(item);
+                if(nextDelay === true) {
+                    await this.waitForAsync({
+                        duration: delay,
+                        callback: () => {
+                            //
+                        }
+                    });
+                }
+                if(nextDelay === false) {
+                    break;
+                }
             }
-
+        } catch(e) {
+            logKibana('ERROR', {
+                message: 'error in async forEach',
+                ...options
+            }, e);
         }
     }
 

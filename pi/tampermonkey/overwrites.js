@@ -1,13 +1,59 @@
 /* global evalError */
 /// <reference path="./customTypes/index.d.ts"/>
 /// <reference path="./customTypes/overwrites.d.ts" />
-
+// tslint:disable: no-invalid-this
 // eslint-disable-next-line no-unused-vars
 function overwrites() {
+	const openMethod = XMLHttpRequest.prototype.open;
+	XMLHttpRequest.prototype.open = function(...args) {
+		this.requestUrl = args[1];
+		return openMethod.call(this, ...args);
+	};
+
+	const send = XMLHttpRequest.prototype.send;
+	XMLHttpRequest.prototype.send = function(...args) {
+		try {
+			if(this.whitelisturl && this.whitelisturl.length) {
+				let matched = false;
+				for(let matcher of this.whitelisturl) {
+					if(this.requestUrl.match(matcher).length > 0) {
+						matched = true;
+					}
+				}
+				if(!matched) {
+					logKibana('ERROR', `blocked request to ${this.requestUrl} at ${location.href}`);
+					debugger;
+					return;
+				}
+			}
+			if(args[0]) {
+				const orginalReadyStateChange = this.onreadystatechange;
+				this.onreadystatechange = function(...args) {
+					if(this.readyState === 4) {
+						const response = this.response;
+						Object.defineProperty(this, 'response', {
+							get: () => {
+								return response;
+							}
+						});
+					}
+					if(orginalReadyStateChange) {
+						orginalReadyStateChange.call(this, ...args);
+					}
+				};
+			}
+		} catch(e) {
+			logKibana('ERROR', `error intercepting request ${e}`);
+		}
+		send.call(this, ...args);
+
+	};
+
 	/**
 	 * @type {{[key:string]:'same-origin'|true}}
 	 */
-	const urlWhitelist = Object.assign({
+
+	let staticlist = {
 		'https://www.twitch.tv': true,
 		'https://app.gotomeeting.com': true,
 		'https://global.gotomeeting.com': true,
@@ -22,9 +68,9 @@ function overwrites() {
 		'https://www.youtube.com': true,
 		'https://www1.swatchseries.to': 'same-origin',
 		'https://www.lieferando.de/': true,
-		'https://brandad.tpondemand.com/': true
-	}, sc.G.g('urlwhitelist', {}));
-
+		'https://brandad.tpondemand.com/': true,
+		'https://manganelo.com/': 'same-origin'
+	};
 	const setTimeoutBlacklist = [
 		'loopIframe'
 	];
@@ -64,7 +110,7 @@ function overwrites() {
 
 	let openedWindows = {};
 
-	function allowedToOpen(urlOrigin) {
+	function allowedToOpen(urlOrigin, urlWhitelist) {
 		if(urlWhitelist[location.origin] || urlWhitelist[location.origin + '/']) {
 			return true;
 		}
@@ -76,7 +122,7 @@ function overwrites() {
 	let originalOpen = open;
 	// @ts-ignore
 	open = (url, target, featureFocus, ...args) => {
-
+		const urlWhitelist = Object.assign(staticlist, sc.G.g('urlwhitelist', {}));
 		/**
 		 * @type {Window|WindowLike}
 		 */
@@ -91,7 +137,7 @@ function overwrites() {
 			} catch(e) {
 				// nvm
 			}
-			if(allowedToOpen(urlOrigin)) {
+			if(allowedToOpen(urlOrigin, urlWhitelist)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin) {
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);

@@ -3,4 +3,11 @@ declare interface PromiseConstructor {
 }
 
 
+interface XMLHttpRequest {
+    requestUrl: string
+
+    whitelisturl: Array<string>
+}
+
+
 declare function navigate(params: string): void

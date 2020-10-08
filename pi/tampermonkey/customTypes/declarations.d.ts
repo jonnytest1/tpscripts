@@ -34,7 +34,7 @@ interface HTMLChildren extends HTMLElement {
 
 export interface evalFncOptions {
     text?: string
-    parent?: HTMLElement,
+    parent?: HTMLElement | Document | Element,
 
     class?: Array<string>
 }

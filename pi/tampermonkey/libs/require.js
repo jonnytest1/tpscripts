@@ -364,8 +364,14 @@ async function req(path, options = {}) {
                         document.props.canInjectText = false;
                         injectByEval(errorEvent.target);
                     };
-
+                    document.body.onerror = e => {
+                        if(e === 'Uncaught SyntaxError: Unexpected identifier') {
+                            alert('error in script ' + path);
+                            GM_notification('error in script');
+                        }
+                    };
                     document.body.appendChild(errorFixScript);
+
                     errorFixScript.onload = onScriptLoad(errorFixScript.resolve);
                     console.log('calling standard finish for ' + errorFixScript.source);
                     setTimeout(() => {

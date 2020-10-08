@@ -58,7 +58,7 @@ new EvalScript('', {
      * @type {httpFnc}
      */
     async function http(type = 'GET', url, callback = () => console.log, data = null, headers = {}, htmlErrorCheck = true) {
-      let request = new XMLHttpRequest();
+      /*let request = new XMLHttpRequest();
       if(!url.includes('localhost') && !url.includes('.e6azumuvyiabvs9')) {
         console.log('request to ' + url);
       }
@@ -73,7 +73,7 @@ new EvalScript('', {
           callback(request.responseText);
         }
       };
-      //request.send(data);
+      request.send(data);*/
 
       let stack = '';
       try {

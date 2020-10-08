@@ -67,7 +67,7 @@ globalThis.querydoc = querydoc;
  *  @typedef {HTMLOrSVGScriptElement & CustomScript } CustomHTMLscript
 */
 new Promise(async (resolver) => {
-
+    let overwrites = IMPORT;
     //console.log('canInject returned ' + baseContainer.canInject);
 
     await reqS('libs/eval-script');
@@ -88,8 +88,8 @@ new Promise(async (resolver) => {
 
     /**@type {import('./customTypes/declarations').ElementGetter} */
     let find = await reqS('find');
-    // eslint-disable-next-line no-unused-vars
-    let overwrites = IMPORT;
+    // eslint-disable-neinno-unused-vars
+
 
     await reqS('DOM/CircularMenu');
 
