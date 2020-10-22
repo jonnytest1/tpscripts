@@ -1,14 +1,16 @@
 import { ComponentType } from '@angular/cdk/portal';
-import { AfterViewInit, Component, ContentChild, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ContentChild, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { Observable, forkJoin } from 'rxjs';
 import { CanvasUtil } from '../utils/context';
 import { ConfigurationComponent } from './configuration/configuration.component';
 import { ConnectionBottomsheetComponent } from './connection-bottomsheet/connection-bottomsheet.component';
 import { ConnectionHandler } from './connection-handler';
 import { ReceiverBottomsheetComponent } from './receiver-bottomsheet/receiver-bottomsheet.component';
-import { Receiver, Sender } from './sender';
+import { Receiver, Sender } from './interfaces';
 import { SenderBottomSheetComponent } from './sender-bottom-sheet/sender-bottom-sheet.component';
+import { SettingsService } from './settings.service';
 
 @Component({
   selector: 'app-settings',
@@ -17,14 +19,14 @@ import { SenderBottomSheetComponent } from './sender-bottom-sheet/sender-bottom-
 })
 export class SettingsComponent implements OnInit, AfterViewInit {
 
-  senders: Array<Sender> = [];
-
-  receivers: Array<Receiver> = [];
+  senders: Array<Sender>;
 
   @ViewChild('canvas')
   canvas: ElementRef<HTMLCanvasElement>;
   bottomSheetRef: MatSnackBarRef<any>;
   connectionHandler: ConnectionHandler;
+  receivers: any[];
+  data$: Observable<[Sender[], any[]]>;
 
   setActive(sender: Sender, event: MouseEvent) {
     this.openSnackBar(sender, SenderBottomSheetComponent);
@@ -32,25 +34,41 @@ export class SettingsComponent implements OnInit, AfterViewInit {
     event.stopPropagation();
   }
 
-  constructor(private bottomSheet: MatBottomSheet, private snack: MatSnackBar) {
-
+  constructor(private bottomSheet: MatBottomSheet, private snack: MatSnackBar, service: SettingsService, private cdr: ChangeDetectorRef) {
+    Promise.all([service.getSenders().toPromise().then(senders => {
+      this.senders = senders;
+      return senders;
+    }),
+    service.getReceivers().toPromise().then(receivers => {
+      this.receivers = receivers;
+      return receivers;
+    })]).then(data => {
+      this.connectionHandler = new ConnectionHandler(data[0], data[1], this.openSnackBar.bind(this));
+      if (this.canvas) {
+        this.connectionHandler.setCanvas(this.canvas.nativeElement);
+      }
+      this.connectionHandler.randomize();
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnInit() {
-    this.connectionHandler = new ConnectionHandler(this.senders, this.receivers, this.openSnackBar.bind(this));
-    this.connectionHandler.randomize();
-
   }
 
   ngAfterViewInit() {
-    this.connectionHandler.setCanvas(this.canvas.nativeElement);
+    if (this.connectionHandler) {
+      this.connectionHandler.setCanvas(this.canvas.nativeElement);
+    }
   }
 
   receiverClick(item: Receiver) {
-    if (this.connectionHandler.addConnection(item)) {
+    const newConnection = this.connectionHandler.addConnection(item);
+    if (newConnection) {
       this.connectionHandler.drawConnections();
+      this.openSnackBar(newConnection);
+    } else {
+      this.openSnackBar(item);
     }
-    this.openSnackBar(item);
   }
 
   senderAddClick(sender: Sender) {
@@ -58,7 +76,9 @@ export class SettingsComponent implements OnInit, AfterViewInit {
   }
 
   wrapperClick() {
-    this.connectionHandler.reset();
+    if (this.connectionHandler) {
+      this.connectionHandler.reset();
+    }
     if (this.bottomSheetRef) {
       this.bottomSheetRef.dismiss();
       this.bottomSheetRef = undefined;
@@ -70,6 +90,7 @@ export class SettingsComponent implements OnInit, AfterViewInit {
     }
 
     this.bottomSheetRef = this.snack.openFromComponent(type, {
+      panelClass: 'unlimitedsnackbar',
       data: config,
     });
   }

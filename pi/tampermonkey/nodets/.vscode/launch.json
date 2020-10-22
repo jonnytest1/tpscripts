@@ -13,7 +13,7 @@
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/var/node"
         },
-        {
+        /*  {
             "type": "node",
             "request": "attach",
             "name": "Attach to server",
@@ -21,7 +21,7 @@
             "port": 14748,
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/var/node"
-        },
+        },*/
         {
             "type": "node",
             "request": "launch",

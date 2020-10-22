@@ -1,16 +1,29 @@
-<mat-card>
+<mat-card autosaving-provider
+          [dataRef]="data.id"
+          resource="connection"
+          dataRefName="itemRef">
   <mat-card-title>
     {{data.id}}
   </mat-card-title>
   <mat-card-content>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
-    ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+    <div class="content">
+      <div>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+        ssfjsoig jsio gjswoi egjois jgoisj go9sj dgosgjosogjoo<br>
+      </div>
+      <code-editor [(ngModel)]="data.transformation"
+                   [codetitle]="title$|async"
+                   autosaving
+                   name=transformation
+                   placeholder="// code"></code-editor>
+    </div>
+
   </mat-card-content>
 </mat-card>

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
-import { Connection, Receiver, Sender } from '../sender';
+import { Connection, Receiver, Sender } from '../interfaces';
 
 @Component({
   selector: 'app-configuration',

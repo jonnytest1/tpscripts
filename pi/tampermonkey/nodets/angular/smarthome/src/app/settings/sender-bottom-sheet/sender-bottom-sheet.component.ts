@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
-import { Sender } from '../sender';
+import { Sender } from '../interfaces';
 
 @Component({
   selector: 'app-sender-bottom-sheet',
@@ -10,7 +10,8 @@ import { Sender } from '../sender';
 export class SenderBottomSheetComponent implements OnInit {
 
   constructor(@Inject(MAT_SNACK_BAR_DATA) public data: Sender,
-    private snackbarRef: MatSnackBarRef<any>) { }
+    private snackbarRef: MatSnackBarRef<any>) {
+  }
 
   ngOnInit() {
   }

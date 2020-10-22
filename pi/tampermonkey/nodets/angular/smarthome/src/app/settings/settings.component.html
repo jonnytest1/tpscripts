@@ -22,13 +22,13 @@
                         [attr.item]="item.id"
                         (click)="setActive(item,$event)">
                 <mat-card-title>
-                  {{item.name}}
+                  {{item.id}} {{item.name}}
                 </mat-card-title>
                 <mat-card-subtitle>
                   {{item.description}}
                 </mat-card-subtitle>
               </mat-card>
-              <mat-icon [class.active]="connectionHandler.addingSender===item"
+              <mat-icon [class.active]="connectionHandler && connectionHandler.addingSender===item"
                         (click)="senderAddClick(item);$event.stopPropagation()">add_box</mat-icon>
             </div>
           </div>

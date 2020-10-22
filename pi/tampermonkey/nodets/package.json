@@ -9,7 +9,9 @@
         "mariadb": "",
         "node-fetch": "^2.6.0",
         "nodemon": "^2.0.4",
-        "typescript": ""
+        "typescript": "",
+        "dotenv": "",
+        "hibernatets": "^1.0.37"
     },
     "devDependencies": {
         "@types/firebase": "^3.2.1",
@@ -30,7 +32,8 @@
         "verbose": true,
         "ignore": [
             "public/*",
-            "angular/*"
+            "angular/*",
+            "package-lock.json"
         ],
         "delay": "0"
     }

@@ -4,7 +4,7 @@ export function logKibana(level: 'INFO' | 'ERROR' | 'DEBUG', message: string | O
     error = { ...error };
     let jsonData: { [key: string]: string } = {
         Severity: level,
-        application: 'clientJS',
+        application: 'SmartHome',
     };
     if (!message && error) {
         jsonData.message = error.message;

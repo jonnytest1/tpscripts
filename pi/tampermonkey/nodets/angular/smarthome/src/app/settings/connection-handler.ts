@@ -1,6 +1,9 @@
+
+import { ChangeDetectorRef } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { CanvasUtil } from '../utils/context';
 import { ConnectionBottomsheetComponent } from './connection-bottomsheet/connection-bottomsheet.component';
-import { Receiver, Sender } from './sender';
+import { Connection, Receiver, Sender } from './interfaces';
 import { SenderBottomSheetComponent } from './sender-bottom-sheet/sender-bottom-sheet.component';
 
 export class ConnectionHandler {
@@ -11,50 +14,51 @@ export class ConnectionHandler {
     activeSender: Sender;
     util: CanvasUtil;
 
-    constructor(private senders: Array<Sender>, private receivers: Array<Receiver>, private snackOpen: (data, type) => any) {
+    constructor(private senders: Array<Sender>,
+        private receivers: Array<Receiver>,
+        private snackOpen: (data, type) => any) {
 
     }
 
     randomize() {
-        for (let i = 0; i < 5; i++) {
-            this.senders.push({
-                id: `${i}`,
-                description: 'sdfsgsdhg sd sdg sd hgdsfh sd jfj sf jftj fsj fj fg jhfg jfgj fuj rjsdrtjudrtj  yrzh dfh ',
-                name: `sender${i}`
-            });
-        }
+        /* for (let i = 0; i < 5; i++) {
+             this.senders.push({
+                 id: 400 + i,
+                 description: 'sdfsgsdhg sd sdg sd hgdsfh sd jfj sf jftj fsj fj fg jhfg jfgj fuj rjsdrtjudrtj  yrzh dfh ',
+                 name: `sender${i}`,
+                 connections: []
+             });
+         }*/
 
-        for (let i = 0; i < 3; i++) {
-            this.receivers.push({
-                id: `${i}`,
-                description: 'sdfsgsdhg asgsd gae rha glas jgoiasjgh oöiaj öoirja göoieaj rgöoie ajoiejraoijreaoiö eiprjioe gjidrgöp',
-                name: `receiver${i}`
-            });
-        }
-        let conId = 1;
+        /* for (let i = 0; i < 3; i++) {
+             this.receivers.push({
+                 id: `${200 + i}`,
+                 description: 'sdfsgsdhg asgsd gae rha glas jgoiasjgh oöiaj öoirja göoieaj rgöoie ajoiejraoijreaoiö eiprjioe gjidrgöp',
+                 name: `receiver${i}`
+             });
+         }*/
+        const conId = 200;
         this.senders.forEach(sender => {
-            this.receivers.forEach(receiver => {
+            /*this.receivers.forEach(receiver => {
                 if (Math.random() > 0.4) {
                     if (!sender.connections) {
                         sender.connections = [];
                     }
                     sender.connections.push({
-                        id: `${conId++}`,
+                        id: conId++,
                         receiver: receiver
                     });
                 }
-            });
+            });*/
         });
     }
 
     setCanvas(nativeCanvas: HTMLCanvasElement) {
-        const height = getComputedStyle(nativeCanvas.parentElement).height;
-        nativeCanvas.height = +height.replace('px', '');
         this.util = new CanvasUtil(nativeCanvas);
     }
 
     setAcvtiveSender(sender: Sender) {
-        if (sender != this.activeSender) {
+        if (sender !== this.activeSender) {
             this.activeSender = sender;
             this.drawConnections();
         }
@@ -62,6 +66,9 @@ export class ConnectionHandler {
 
     drawConnections() {
         const nativeCanvas = this.util.canvas;
+
+        const height = getComputedStyle(nativeCanvas.parentElement).height;
+        nativeCanvas.height = +height.replace('px', '');
 
         const width = nativeCanvas.width;
         this.util.reset();
@@ -77,7 +84,7 @@ export class ConnectionHandler {
         const offsetMod = -26;
         receivers.forEach(receiver => {
             const connection = this.activeSender.connections
-                .find(con => con.receiver.id === receiver.attributes.getNamedItem('item').value);
+                .find(con => `${con.receiver.id}` === receiver.attributes.getNamedItem('item').value);
             if (connection) {
                 const top = receiver.offsetTop + offsetMod;
                 const heightForSender = Math.floor((top + (top + receiver.offsetHeight)) / 2);
@@ -101,7 +108,7 @@ export class ConnectionHandler {
         });
 
         senders.forEach(sender => {
-            if (sender.attributes.getNamedItem('item').value === this.activeSender.id) {
+            if (sender.attributes.getNamedItem('item').value === `${this.activeSender.id}`) {
                 const top = sender.offsetTop + offsetMod;
                 const heightForSender = Math.floor((top + (top + sender.offsetHeight)) / 2);
                 if (!startY || heightForSender < startY) {
@@ -131,7 +138,7 @@ export class ConnectionHandler {
         }
     }
 
-    addConnection(item: Receiver): boolean {
+    addConnection(item: Receiver): Connection {
         if (this.addingSender) {
             if (!this.addingSender.connections) {
                 this.addingSender.connections = [];
@@ -144,18 +151,32 @@ export class ConnectionHandler {
                 return c.receiver.id === item.id;
             })) {
                 this.addingSender = undefined;
-                return false;
+                return null;
             }
-
-            this.addingSender.connections.push({
+            const newConnection: Connection = {
                 receiver: item,
-                id: `${highestId + 1}`
-            });
+                id: highestId + 10
+            };
+            this.addingSender.connections.push(newConnection);
+            fetch(environment.prefixPath + 'rest/connection', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    senderId: this.addingSender.deviceKey,
+                    receiverId: item.id
+                })
+            })
+                .then(r => r.json())
+                .then((connection: Connection) => {
+                    newConnection.id = connection.id;
+                });
             this.addingSender = undefined;
-            return true;
+            return newConnection;
         }
         this.addingSender = undefined;
-        return false;
+        return null;
 
     }
 

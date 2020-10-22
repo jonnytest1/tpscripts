@@ -2,7 +2,7 @@
 import * as admin from 'firebase-admin';
 
 class FireBAseMessaging {
-    app: admin.app.App;
+    private app: admin.app.App;
 
     constructor() {
         this.app = admin.initializeApp();
@@ -19,6 +19,15 @@ class FireBAseMessaging {
                 },
                 notification: {
                     body: 'test'
+                }
+            });
+    }
+    async sendNotification(token, data) {
+        return this.app.messaging()
+            .sendToDevice(token, {
+                data: data,
+                notification: {
+                    body: data
                 }
             });
     }
