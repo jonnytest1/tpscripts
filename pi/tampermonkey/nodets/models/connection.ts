@@ -1,8 +1,32 @@
 
 import { column, mapping, Mappings, primary, primaryOptions, table } from 'hibernatets';
 import { runInNewContext } from 'vm';
-import { settable } from '../util/settable';
+import { settable, settableValidator } from '../util/settable';
 import { Receiver } from './receiver';
+
+/**
+ * @this {instanceof Connection}
+ * @param transformation
+ */
+function validateTransformation(this: Connection, transformation: String) {
+    let obj;
+    try {
+        obj = this.transform(null, transformation);
+    } catch (e) {
+        let stacklines = e.stack.split('\n');
+        stacklines.shift();
+        stacklines = stacklines.filter(line => line.trim().length && !line.trim()
+            .startsWith('at '));
+        return { ___: stacklines.join('\n') };
+    }
+    if (typeof obj !== 'object') {
+        return { ___: 'transformation needs to return an object' };
+    }
+
+    if (obj.title && typeof obj.title !== 'string') {
+        return { title: 'title needs to be string' };
+    }
+}
 
 @table()
 export class Connection {
@@ -13,7 +37,7 @@ export class Connection {
     @mapping(Mappings.OneToOne, Receiver)
     receiver: Receiver;
 
-    @settable
+    @settableValidator(validateTransformation)
     @column()
     transformation: string;
 
@@ -26,9 +50,9 @@ export class Connection {
         }
     }
 
-    async execute(data: any): Promise<void> {
-        data = await this.transform(data);
-        await this.receiver.send(data);
+    async execute(data: any): Promise<number> {
+        data = await this.transform(data, this.transformation);
+        return this.receiver.send(data);
     }
 
     getContext(data) {
@@ -43,12 +67,12 @@ export class Connection {
         return Object.keys(this.getContext(null));
     }
 
-    async transform(data: any): Promise<any> {
-        if (this.transformation) {
+    transform(data: any, transformation): any {
+        if (transformation) {
             const context = this.getContext(data);
             const methodCall = Object.keys(context)
                 .join(',');
-            data = runInNewContext(`${this.transformation}`, context, {
+            data = runInNewContext(`${transformation}`, context, {
                 displayErrors: true,
             });
         }

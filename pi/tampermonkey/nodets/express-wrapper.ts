@@ -3,12 +3,12 @@ import { Express, NextFunction, Request, Response } from 'express';
 import { promises } from 'fs';
 import { Http2ServerRequest } from 'http2';
 import { join } from 'path';
-
+import { ExpressWs, Websocket } from './express-ws-type';
 export type HttpRequest = Request;
 export type HttpResponse = Response;
 
 const resources: Array<{
-    type: 'get' | 'post' | 'delete' | 'put',
+    type: 'get' | 'post' | 'delete' | 'put' | 'ws',
     path: string
     target: any
     callback(req, res): Promise<void>,
@@ -24,8 +24,8 @@ export function Path(subPath?: string) {
     };
 }
 
-function resourceFunction(method: typeof resources[0]['type'], options: { path: string; }) {
-    return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<(req: HttpRequest, res: HttpResponse) => Promise<void>>) => {
+function resourceFunction<T = (req: HttpRequest, res: HttpResponse) => Promise<any>>(method: typeof resources[0]['type'], options: { path: string; }) {
+    return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) => {
         resources.push({
             callback: target[propertyKey],
             type: method,
@@ -34,6 +34,11 @@ function resourceFunction(method: typeof resources[0]['type'], options: { path: 
         });
     };
 }
+
+export function WS(options: { path: string }) {
+    return resourceFunction('ws', options) as any;
+}
+
 export function GET(options: { path: string }) {
     return resourceFunction('get', options);
 }
@@ -54,7 +59,11 @@ export async function initialize(rootpath: string, options?: {
     await loadFiles(rootpath);
     console.log('laoded files');
 
-    const app: Express = express();
+    //console.log(wsConverter);
+
+    const app: ExpressWs = express();
+
+    var expressWs = require('express-ws')(app);
 
     if (options.allowCors) {
         app.use((req, res, next) => {
@@ -71,22 +80,42 @@ export async function initialize(rootpath: string, options?: {
     if (options && options.prereesources) {
         options.prereesources(app);
     }
+
+    app.use((req, res, next) => {
+        const forwardedFor = req.headers.http_x_forwarded_for;
+        if (!forwardedFor || typeof forwardedFor !== 'string' || !forwardedFor.startsWith('192.168.178')) {
+            res.status(403).send();
+            return;
+        }
+        next();
+    });
+
     for (let resource of resources) {
         const filePath = resource.target.constructor.path ? '/' + resource.target.constructor.path : '';
         const resourcePath = resource.path.startsWith('/') || resource.path === '' ? resource.path : '/' + resource.path;
         const fullPath = `/rest${filePath}${resourcePath}`;
         console.log(`adding ${fullPath} with ${resource.type.toLocaleUpperCase()}`);
-        app[resource.type](fullPath, async (req, res) => {
-            try {
-                await resource.callback(req, res);
-            } catch (e) {
-                console.error(e);
-                res.status(500)
-                    .send(e);
-            }
-        });
+        if (resource.type === 'ws') {
+            app[resource.type](fullPath, (ws, req) => {
+                const clientKey: string = req.query.client;
+                resource.target.onConnected(clientKey, ws);
+            });
+        } else {
+            app[resource.type](fullPath, async (req, res) => {
+                try {
+                    await resource.callback(req, res);
+                } catch (e) {
+                    console.error(e);
+                    res.status(500)
+                        .send(e);
+                }
+            });
+        }
     }
 
+    if (options && options.postresource) {
+        options.postresource(app);
+    }
     if (options.public) {
         app.use(express.static(options.public));
         app.all('/*', (req, res) => {
@@ -94,9 +123,7 @@ export async function initialize(rootpath: string, options?: {
         });
     }
 
-    if (options && options.postresource) {
-        options.postresource(app);
-    }
+
     app.listen(8080, '', () => {
         console.log('started server on localhost with port 8080');
     });

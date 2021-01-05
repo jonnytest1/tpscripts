@@ -2,6 +2,7 @@ import { column, mapping, Mappings, primary, primaryOptions, table } from 'hiber
 import { settable } from '../util/settable';
 import { BatteryLevel } from './battery';
 import { Connection } from './connection';
+import { EventHistory } from './event';
 
 @table()
 export class Sender {
@@ -14,6 +15,9 @@ export class Sender {
 
     @mapping(Mappings.OneToMany, BatteryLevel, 'sender')
     public batteryEntries: Array<BatteryLevel> = [];
+
+    @mapping(Mappings.OneToMany, EventHistory, 'sender')
+    public events: Array<EventHistory> = [];
 
     @column()
     @settable

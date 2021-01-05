@@ -11,7 +11,8 @@ export class ConnectionResource {
     @POST({ path: '' })
     async add(req, res) {
         if (!req.body.senderId || !req.body.receiverId) {
-            return res.status(400).send();
+            return res.status(400)
+                .send();
         }
         const [sender, receiver] = await Promise.all([
             load(Sender, s => s.deviceKey = req.body.senderId, [], { first: true }),
@@ -25,7 +26,14 @@ export class ConnectionResource {
     @PUT({ path: '' })
     async update(req: HttpRequest, res: HttpResponse) {
         const connection = await load(Connection, +req.body.itemRef);
-        assign(connection, req.body);
+
+        const errors = assign(connection, req.body);
+        if (errors) {
+            res.status(400)
+                .send(errors);
+            return;
+        }
+
         await queries(connection);
         res.send(connection);
     }

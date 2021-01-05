@@ -1,5 +1,6 @@
 import { column, mapping, primary, table } from 'hibernatets';
 import { firebasemessageing } from '../resources/firebasemessaging';
+import ws from '../resources/websocketmessaging';
 import { logKibana } from '../util/log';
 import { settable } from '../util/settable';
 
@@ -28,14 +29,32 @@ export class Receiver {
     @column()
     name: string;
 
+    @settable
+    @column()
+    ip: String;
+
+    @settable
+    @column()
+    type: 'ip' | 'firebase' | 'ws';
+
     constructor() {
 
     }
 
-    async send(data: any): Promise<void> {
+    async send(data: any): Promise<number> {
+        if (this.type == 'ws') {
+            return ws.sendWebsocket(this.ip, data);
+        }
+        if (!this.firebaseToken) {
+            console.log(`sending websocket notification for ${this.name}`);
+            ws.send(this.deviceKey, data);
+            return 0;
+        }
+        console.log(`sending push notification for ${this.name}`);
         const response = await firebasemessageing.sendNotification(this.firebaseToken, data);
         if (response.failureCount > 0) {
             logKibana('ERROR', 'error sending firebase to receiver');
         }
+        return response.failureCount;
     }
 }

@@ -36,6 +36,22 @@
                 "${workspaceFolder}\\index.ts"
             ],
             "restart": true,
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "launch local receiver",
+            //"program": "${workspaceFolder}\\index.ts",
+            "autoAttachChildProcesses": true,
+            "cwd": "${workspaceFolder}\\pc-receiver",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}\\pc-receiver\\index.ts"
+            ],
+            "restart": true,
         }
     ]
 }
