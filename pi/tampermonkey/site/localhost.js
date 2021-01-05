@@ -11,11 +11,38 @@
  */
 var ev = new EvalScript('', {
     run: async (res, set) => {
+
+        if(location.port === '54321') {
+            return;
+        }
         //await reqS("learning/tensorflow");
         // await reqS('DOM/customSlider');
         //await reqT("video")
         //await reqS('site/kissanime/testModel');
-        await reqS('site/kissanime/buildModel');
+        const t = await reqS('libs/graphics/googlegraphs');
+
+        var data = new t.google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+            ['Mushrooms', 3],
+            ['Onions', 1],
+            ['Olives', 1],
+            ['Zucchini', 1],
+            ['Pepperoni', 2]
+        ]);
+
+        // Set chart options
+        var options = {
+            'title': 'How Much Pizza I Ate Last Night',
+            'width': 400,
+            'height': 300
+        };
+        var chart = new t.google.visualization.PieChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+        debugger;
+        // await reqS('site/kissanime/buildModel');
         //await reqT('multiplemenu');
         // await reqS("DOM/rectMenu")
         // await reqT("ngtest");

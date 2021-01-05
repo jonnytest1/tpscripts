@@ -1,10 +1,17 @@
 /// <reference path="../customTypes/index.d.ts" />
 
+/**
+ * @typedef {{
+ *  amount:number,
+ *  text:string,
+ *  date:string
+ * }} Booking
+ */
+
 /**@type {EvalScript<{overview:HTMLElement}>} */
 var _ = new EvalScript('', {
     run: async (res, set) => {
-        await reqS('DOM/button');
-
+        const [chart, _btn] = await reqS(['libs/graphics/googlegraphs', 'DOM/button']);
         if(sc.g('stackedFrontletTitle') && sc.g('stackedFrontletTitle').innerText === 'Umsatzanzeige' && querydoc('#lblUmsaetzeVonValue')) {
 
             const vonField = querydoc('#lblUmsaetzeVonValue');
@@ -40,6 +47,10 @@ var _ = new EvalScript('', {
                 let essen = 0;
                 let rest = 0;
                 let gehalt = 0;
+                /**
+                 * @type { Array<Booking>}
+                 */
+                const bookings = [];
                 for(let obj of elements) {
                     let booking = obj.innerText;
                     const bookingHTML = obj.innerHTML;
@@ -49,6 +60,8 @@ var _ = new EvalScript('', {
                     let amount = +amounts[0]
                         .replace('.', '')
                         .replace(',', '.');
+                    let numericAmount = amount;
+                    const date = obj.children[1].textContent;
                     if(amounts[2].includes('S')) {
                         if(isFood(booking)) {
                             essen += amount;
@@ -63,19 +76,37 @@ var _ = new EvalScript('', {
                             rest += amount;
                             obj.style.backgroundColor = 'red';
                         }
+                        numericAmount = amount * -1;
                     } else if(booking.includes('LOHN/GEHALT')) {
                         gehalt += amount;
                         obj.style.backgroundColor = 'green';
                     }
+
+                    bookings.push({
+                        amount: numericAmount,
+                        text: booking,
+                        date
+                    });
                 }
                 let elementWidth = 130;
 
                 const container = document.createElement('div');
                 sc.g('breadcrumb')
                     .appendChild(container);
+
+                crIN(container, '', undefined, undefined, undefined, undefined, {
+                    className: 'chart_div',
+                    style: {
+                        position: 'fixed',
+                        right: 20,
+                        top: 0
+                    }
+                });
+
                 set.overview = container;
 
                 createDisplayButtons(container, monatlich, elementWidth, essen, rest, gehalt, monatlichOptional);
+                createVisualization(bookings);
             }
         }
 
@@ -101,6 +132,7 @@ var _ = new EvalScript('', {
                 || booking.includes('DB AUTOMAT')
                 || booking.includes('Miete')
                 || booking.includes('GAA-AUSZAHLUNG')
+                || html.includes('Bausparkasse Schwaebisch')
                 || html.includes('1u1 Telecom GmbH');
         }
         /**
@@ -110,7 +142,9 @@ var _ = new EvalScript('', {
         function isMonthlyOptional(booking) {
             console.log(booking);
             return booking.includes('CRUNCHYROLL')
+                || booking.includes('NETFLIX.COM')
                 || booking.includes('AMZNPri');
+
         }
         /**
          *
@@ -174,8 +208,59 @@ var _ = new EvalScript('', {
                 differenz.style.backgroundColor = 'green';
             }
         }
+        /**
+         *
+         * @param {Array<Booking>} bookings
+         */
+        function createVisualization(bookings) {
+            var data = new chart.google.visualization.DataTable();
+            data.addColumn('date', 'Date');
+            data.addColumn('number', 'Amount');
+            data.addColumn({
+                type: 'string',
+                role: 'tooltip',
+            });
+
+            const startAmountElement = document.querySelector('div[id*=StartsaldoValue]');
+            const startAmount = startAmountElement.textContent.trim();
+            const startAMountReplaced = startAmount.split(' ')[0]
+                .replace(/\./g, '')
+                .replace(',', '.');
+            let currentAmount = +startAMountReplaced;
+
+            const firstBooking = bookings[bookings.length - 1];
+            data.addRow([bookingToDate(firstBooking), currentAmount, 'initial']);
+
+            bookings
+                .reverse()
+                .forEach(booking => {
+                    currentAmount += booking.amount;
+                    data.addRow([bookingToDate(booking), currentAmount, `${currentAmount.toPrecision(6)}\n${booking.text}`]);
+                });
+            // Set chart options
+            var options = {
+                'title': 'Umsätze',
+                'width': 400,
+                'height': 300
+            };
+            var cChart = new chart.google.visualization.ComboChart(document.querySelector('.chart_div'));
+            cChart.draw(data, options);
+        }
+
+        /**
+         *
+         * @param {Booking} booking
+         */
+        function bookingToDate(booking) {
+            const dateStr = booking.date
+                .split('.')
+                .reverse()
+                .join('.');
+            return new Date(dateStr);
+        }
     },
     reset: (set) => {
         set.overview.remove();
+
     }
 });

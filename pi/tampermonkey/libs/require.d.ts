@@ -14,6 +14,7 @@
 /// <reference path="../DOM/progress-overlay.js" />
 /// <reference path="../libs/indexeddb.js" />
 
+import { GoogleCharts } from "../libs/graphics/googlegraphs"
 import { ElementGetter } from '../customTypes/declarations';
 import { CustomStorage, StorageBase } from '../Storage/storage';
 
@@ -30,6 +31,8 @@ export interface RequireMap {
 
     'libs/dom/selector': (element: HTMLElement) => string
     'libs/eval-script': void
+
+    "libs/graphics/googlegraphs": GoogleCharts
 
     'libs/indexeddb': indexedDB
     'libs/log-level': void
@@ -95,8 +98,6 @@ export interface RequireMap {
 
 export interface reqSType {
     <K extends keyof RequireMap>(path: K, options?: any): Promise<RequireMap[K]>;
-
-
     <
         K extends keyof RequireMap,
         T extends keyof RequireMap>(path: [
