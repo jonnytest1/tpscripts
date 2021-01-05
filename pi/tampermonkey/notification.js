@@ -2,16 +2,16 @@
 
 async function toDataURL(url) {
     return fetch(url)
-    .then(r=>r.blob())
-    .then(async text=>{
-        return new Promise(res=>{
-            var reader = new FileReader();
-            reader.onloadend = ()=> {
-                res(reader.result);
-            };
-            reader.readAsDataURL(text);
+        .then(r => r.blob())
+        .then(async text => {
+            return new Promise(res => {
+                var reader = new FileReader();
+                reader.onloadend = () => {
+                    res(reader.result);
+                };
+                reader.readAsDataURL(text);
+            });
         });
-    });
 }
 
 /**
@@ -21,7 +21,7 @@ async function toDataURL(url) {
     *   title: string
 *       body?:string
 *       image: string;
- *      href: string;
+ *      href?: string;
  *      onclick(): void;
  * }} not_options
  *
@@ -44,7 +44,7 @@ async function toDataURL(url) {
  * @global
  */
 //tslint:disable-next-line variable-name
-var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
+var GMnot = async (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
     /**
      * @type {GM_not_optinos}
      */
@@ -59,12 +59,12 @@ var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl
         ondone = () => { return; };
     }
     if(typeof title !== 'string') {
-        details={...title,text:title.body};
+        details = { ...title, text: title.body };
         if(!details.timeout) {
             details.timeout = timeout;
         }
-        if(details.image){
-           // details.image=await toDataURL(details.image);
+        if(details.image) {
+            // details.image=await toDataURL(details.image);
         }
         return window['GM_notification'](details, details.onclick);
     }
@@ -74,7 +74,7 @@ var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl
         if(!details.timeout) {
             details.timeout = timeout;
         }
-        if(details.image){
+        if(details.image) {
             //details.image=await toDataURL(details.image);
         }
         return window['GM_notification'](details, details.onclick);
@@ -85,8 +85,8 @@ var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl
     details.title = title;
     details.text = text;
     details.image = detailsOrIcon;
-    if(details.image){
-        details.image=await toDataURL(details.image);
+    if(details.image) {
+        details.image = await toDataURL(details.image);
     }
     details.timeout = timeout;
     details.onclick = () => {
@@ -95,7 +95,7 @@ var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl
         }
     };
     console.trace(details);
-    logKibana('DEBUG', {...details,href:location.href});
+    logKibana('DEBUG', { ...details, href: location.href });
     return window['GM_notification'](details, ondone);
 };
 var notResponse = {

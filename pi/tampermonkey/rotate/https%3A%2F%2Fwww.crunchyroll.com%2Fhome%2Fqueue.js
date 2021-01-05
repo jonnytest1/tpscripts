@@ -8,18 +8,13 @@ new EvalScript('', {
         * @property {number} time
         * @property {string} url
         */
-        /**
-         * @type {StorageImplementationType<'crunchyrollOpenedVideos',Array<VideoElement>> }
-         */
-        const lSt = await reqS('Storage/localStorage');
 
         await time.waitForAsync({
             duration: 2000,
             callback: () => true
         });
         const openedVideosKey = 'crunchyrollOpenedVideos';
-        const oneWeekAgo = Date.now() - (1000 * 60 * 60 * 24 * 7);
-        const openedVideos = lSt.filter(openedVideosKey, vid => vid.time >= oneWeekAgo);
+        const openedVideos = sc.G.filter(openedVideosKey, StorageImplementation.filterDaysFunction(14, { keepLatest: true }));
         /**@type {NodeListOf<HTMLElement>} */
         const items = document.querySelectorAll('.queue-item');
         time.asyncForEach({
@@ -32,10 +27,10 @@ new EvalScript('', {
                 const episodeTitle = episodeLink.title;
                 const url = episodeLink.href;
 
-                if(+videoElement.style.width.replace('%', '') < 1 && !openedVideos.some(vid => vid.url === url)) {
-                    lSt.p(openedVideosKey, {
-                        time: Date.now(),
-                        url
+                if(+videoElement.style.width.replace('%', '') < 1 && !openedVideos.some(vid => vid.value === url)) {
+                    sc.G.p(openedVideosKey, {
+                        timestamp: Date.now(),
+                        value: url
                     });
                     open(url);
                     return true;
