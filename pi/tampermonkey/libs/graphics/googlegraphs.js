@@ -1,4 +1,5 @@
 /// <reference path="../../customTypes/index.d.ts" />
+/// <reference path="./googlegraphs.d.ts" />
 /**
  *
  * @type {{type:EvalScript<{}>}}
@@ -18,11 +19,8 @@ var googlegraphs = new EvalScript('', {
         }
 
         function onload() {
-            // @ts-ignore
             google.charts.load('current', { 'packages': ['corechart'] });
-            // @ts-ignore
             google.charts.setOnLoadCallback(() => {
-                // @ts-ignore
                 resolv({ google });
             });
         }

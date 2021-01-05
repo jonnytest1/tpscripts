@@ -1,13 +1,24 @@
-export interface GoogleCharts {
-    google: {
-        visualization: {
-            DataTable: new () => DataTable
 
-            PieChart: new (container: HTMLElement) => Chart
-            ComboChart: new (container: HTMLElement) => ComboChart
-        }
+declare global {
+    const google: GoogleChartGlobal
+}
+export interface GoogleCharts {
+    google: GoogleChartGlobal
+}
+
+interface GoogleChartGlobal {
+    visualization: {
+        DataTable: new () => DataTable
+
+        PieChart: new (container: HTMLElement) => Chart
+        ComboChart: new (container: HTMLElement) => ComboChart
+    },
+    charts: {
+        load: (...args) => any
+        setOnLoadCallback: (cb: () => any) => void
     }
 }
+
 
 interface ChartOptions {
     width?: number,
