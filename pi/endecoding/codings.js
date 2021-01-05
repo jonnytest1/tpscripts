@@ -10,15 +10,13 @@ function getEncodings() {
     let encodings = [
         {
             name: 'string to ascii number',
-            fnc: (str) => {
-                return str.split('')
-                    .map(c => c.charCodeAt(0))
-                    .join('');
-            }
+            fnc: str =>  str.split('')
+                .map(c => c.charCodeAt(0))
+                .join('')
         },
         {
             name: 'ascii number to string',
-            fnc: (str) => {
+            fnc: str => {
                 let t = '';
                 let ar = str.split('');
                 for(let i = 0; i < ar.length; i += 2) {
@@ -29,13 +27,12 @@ function getEncodings() {
                         t += String.fromCharCode(+ar[i] * 10) + (+ar[i + 1] | 0);
                     }
                 }
-
                 return t;
             }
         },
         {
             name: 'ascii digit to string',
-            fnc: (str) => {
+            fnc: str => {
                 return str.split('')
                     .map(c => String.fromCharCode(Number(c)))
                     .join('');
@@ -43,32 +40,32 @@ function getEncodings() {
         },
         {
             name: 'base 64 encode',
-            fnc: (str) => {
+            fnc: str => {
                 return btoa(str);
             }
         },
 
         {
             name: 'base 64 decode',
-            fnc: (str) => {
+            fnc: str => {
                 return atob(str);
             }
         },
         {
             name: 'sha1',
-            fnc: (str) => {
+            fnc: str => {
                 return SHA1(str);
             }
         },
         {
             name: 'sha256',
-            fnc: (str) => {
+            fnc: str => {
                 return SHA256(str);
             }
         },
         {
             name: 'MD5',
-            fnc: (str) => {
+            fnc: str => {
                 return MD5(str);
             }
         }, {
@@ -79,7 +76,7 @@ function getEncodings() {
             fnc: decodeURIComponent
         }, {
             name: 'jwt',
-            fnc: (str) => {
+            fnc: str => {
                 const nStr = str.split('.')[1];
                 const base64 = nStr.replace(/-/g, '+')
                     .replace(/_/g, '/');
@@ -93,12 +90,23 @@ function getEncodings() {
                     .join(''));
             }
         }, {
-            name: 'json',
+            name: 'json parse',
             fnc: str => JSON.parse(str)
         }, {
+            name: 'stack format',
+            fnc: str => {
+                const obj=JSON.parse(str);
+                obj.stack_trace=obj.stack_trace.replace(/\r\n/g,'<line--break>')
+                    .replace(/\n/g,'<line--break>')
+                    .replace(/\t/g,'<line--tab>');
+                const jsonStr = JSON.stringify(obj , undefined, '. ');
+                return jsonStr.replace(/<line--break>/g,'\n')
+                    .replace(/<line--tab>/g,'\t');
+            }
+        },  {
             name: 'custom',
-            onchoose: (queryValue) => {
-                return prompt('write a function that returns a string', queryValue || 'str=>');
+            onchoose: queryValue => {
+                return prompt('write a function that returns a string', queryValue || 'str => ');
             },
             fnc: (str, out) => {
                 let evl = out.val;
@@ -108,7 +116,7 @@ function getEncodings() {
             }
         }, {
             name: 'regex',
-            onchoose: (queryValue) => {
+            onchoose: queryValue => {
                 return prompt('write a matcher string', queryValue || '')
                     .replace(/\\n/gm, '\n');
             },
@@ -129,6 +137,15 @@ function getEncodings() {
 
                 return JSON.stringify(matches);
             }
+        },{
+            name:'path',
+            fnc:str=>{
+                if(str.includes('\\\\')){
+                    return str.replace(/\\\\/g, '\\');
+                }else{
+                    return str.replace(/\\/g,'\\\\');
+                }
+            }
         }
     ];
     for(let i = 2; i < 37; i++) {
@@ -137,13 +154,13 @@ function getEncodings() {
         }
         encodings.push({
             name: i + ' to dec',
-            fnc: (str) => {
+            fnc: str => {
                 return '' + parseInt(str, i);
             }
         });
         encodings.push({
             name: 'dec to ' + i,
-            fnc: (str) => {
+            fnc: str => {
                 // @ts-ignore
                 return parseInt(str, 10)
                     .toString(i)

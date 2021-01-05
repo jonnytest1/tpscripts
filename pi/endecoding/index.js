@@ -4,8 +4,8 @@
 /**
  * @typedef Encoding
  * @property {string} name
- * @property {(str:string,output?:HTMLConvElement)=>string} fnc;
- * @property {(queryValue:any)=>string} [onchoose]
+ * @property {(str: string, output?: HTMLConvElement) => string} fnc;
+ * @property {(queryValue: any) => string} [onchoose]
  *
  **/
 
