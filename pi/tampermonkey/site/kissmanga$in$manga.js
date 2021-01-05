@@ -1,8 +1,6 @@
 ///<reference path="../libs/eval-script.js" />
 new EvalScript('', {
     run: async (res, set) => {
-        const seenKey = 'kissmangaSeenMangas';
-
         if(!location.pathname.includes('kissmanga/')) {
             return;
         }
@@ -21,8 +19,8 @@ new EvalScript('', {
         );
         if(location.pathname.includes('chapter')) {
             debugger;
-            sc.G.filter(seenKey, StorageImplementation.filterDaysFunction(14, { keepLatest: true }), { mapKey: mangaName });
-            sc.G.p(seenKey, {
+            sc.G.filter('kissmangaSeenMangas', StorageImplementation.filterDaysFunction(56, { keepLatest: true }), { mapKey: mangaName });
+            sc.G.p('kissmangaSeenMangas', {
                 timestamp: Date.now(),
                 value: location.pathname
             }, { mapKey: mangaName });

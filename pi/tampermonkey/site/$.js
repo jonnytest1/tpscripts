@@ -237,6 +237,9 @@ EvalScript.type = new EvalScript('', {
                                         viewRotation: 90 + angle,
                                         additionalText: (speed) => {
                                             const remaining = localVideo.duration - localVideo.currentTime;
+                                            if(isNaN(remaining)){
+                                                return '-- : --';
+                                            }
                                             const duration = Math.round(remaining / speed);
                                             let seconds = duration % 60;
                                             let minutes = Math.floor(duration / 60);

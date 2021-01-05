@@ -13,7 +13,7 @@ var vid = new EvalScript('', {
                 /**
                  * @type {HTMLVideoElement}
                  */
-                const overlay = sc.g.point(400, 400);
+                const overlay = sc.g.point(900, 400);
                 if(overlay.tagName !== 'VIDEO') {
                     overlay.parentElement.style.zIndex = '0';
                     overlay.parentElement.style.position = 'relative';

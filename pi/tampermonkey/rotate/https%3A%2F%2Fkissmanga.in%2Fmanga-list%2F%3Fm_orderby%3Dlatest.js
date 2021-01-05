@@ -20,7 +20,7 @@ var kissmangain = new EvalScript('', {
             callback: async (key) => {
 
                 const seenMangas = sc.G.filter('kissmangaSeenMangas',
-                    StorageImplementation.filterDaysFunction(14, { keepLatest: true }),
+                    StorageImplementation.filterDaysFunction(56, { keepLatest: true }),
                     { mapKey: key });
 
                 if(!subscribed[key].shortKey || !subscribed[key].imageUrl || !subscribed[key].mangaName) {

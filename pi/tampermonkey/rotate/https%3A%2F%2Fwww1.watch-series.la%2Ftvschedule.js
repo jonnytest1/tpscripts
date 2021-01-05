@@ -12,6 +12,7 @@
 */
 
 /**
+ *
  * @type {{type:EvalScript<{}>}}
  */
 var swatchseriesschedule = new EvalScript('', {
