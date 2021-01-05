@@ -114,8 +114,7 @@ youtubeScript.reset = () => {
                     overlay.style.position = 'relative';
                     overlay.style.backgroundColor = '#d4d4d4ba';
                     overlay.style.zIndex = '9999999';
-                    // @ts-ignore
-                    const height = el.getComputedStyleValue('height');
+                    const height = window.getComputedStyle(el).height;
                     overlay.style.height = height;
                     overlay.style.marginTop = '-' + height;
                     el.appendChild(overlay);
