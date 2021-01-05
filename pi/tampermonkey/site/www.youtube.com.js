@@ -73,7 +73,66 @@ youtubeScript.reset = () => {
                 }
             }
         });
+        /**@type {NodeListOf<CustomYoutubeVideoElement>} */
+        let elements = document.querySelectorAll('ytd-item-section-renderer.ytd-section-list-renderer');
+        const previousChecked = sc.G.filter('delayedYoutubeCheck', StorageImplementation.filterDaysFunction(14));
+        for(let el of elements) {
+            if(el.querySelector('#metadata-line')) {
+                checkTime(el);
+                const channel = el.querySelector('#title-text')
+                    .textContent
+                    .trim();
+                const title = el.querySelector('#title-wrapper')
+                    .textContent
+                    .trim();
+                await sc.g.a('ytd-thumbnail-overlay-time-status-renderer', el);
+                const duration = el.querySelector('ytd-thumbnail-overlay-time-status-renderer')
+                    .textContent
+                    .trim();
+                const durationtime = durationStrToSeconds(duration);
+                /**
+                 * @type {HTMLAnchorElement}
+                 */
+                const linkElement = el.querySelector('a#thumbnail');
 
+                if(durationtime > 7200
+                    && !previousChecked.find(o => o.value === linkElement.href)) {
+                    /**
+                     * @type {HTMLImageElement}
+                     */
+                    const img = el.querySelector('#thumbnail img');
+                    GMnot({
+                        title: 'adding video for weekend ?',
+                        body: `${title}\nfrom ${channel}`,
+                        timeout: 12000,
+                        image: img.src,
+                        onclick: () => {
+                            sc.G.p('delayedYoutube', { title, url: linkElement.href });
+                        }
+                    });
+                    const overlay = document.createElement('div');
+                    overlay.style.position = 'relative';
+                    overlay.style.backgroundColor = '#d4d4d4ba';
+                    overlay.style.zIndex = '9999999';
+                    // @ts-ignore
+                    const height = el.getComputedStyleValue('height');
+                    overlay.style.height = height;
+                    overlay.style.marginTop = '-' + height;
+                    el.appendChild(overlay);
+
+                }
+                sc.G.p('delayedYoutubeCheck', {
+                    value: linkElement.href,
+                    timestamp: Date.now()
+                });
+
+                if(el.querySelector('.ytd-thumbnail-overlay-resume-playback-renderer')) {
+                    debugger;
+                    break;
+                }
+            }
+
+        }
     } else {
         /**@type {NodeListOf<CustomYoutubeVideoElement>} */
         let elements = document.querySelectorAll('ytd-grid-video-renderer');
@@ -81,6 +140,16 @@ youtubeScript.reset = () => {
             checkTime(el);
         }
     }
+
+    function durationStrToSeconds(durtationStr) {
+        const multipliers = [1, 60, 60 * 60];
+        const parts = durtationStr.split(':')
+            .reverse();
+        return parts.reduce((previous, currentElement, index) => {
+            return (+currentElement) * multipliers[index] + previous;
+        }, 0);
+    }
+
     function scroll(menuElementYoutubeIndex) {
         async function checklength() {
             console.log('awaiting progress info');

@@ -1,7 +1,41 @@
 /* gloabl GMnot */
 
+async function toDataURL(url) {
+    return fetch(url)
+    .then(r=>r.blob())
+    .then(async text=>{
+        return new Promise(res=>{
+            var reader = new FileReader();
+            reader.onloadend = ()=> {
+                res(reader.result);
+            };
+            reader.readAsDataURL(text);
+        });
+    });
+}
+
 /**
- * @param {string|{image?:string,title?:string,text?:string,body?:string,timeout?:number}} [detailsOrIcon]
+ *
+ * @typedef  {{
+    *   timeout: number,
+    *   title: string
+*       body?:string
+*       image: string;
+ *      href: string;
+ *      onclick(): void;
+ * }} not_options
+ *
+ *
+ * @typedef {{
+ *  timeout:number,
+ *  title:string
+ *  text :string,
+ *  image :string,
+ *  onclick:()=>any
+ * }} GM_not_optinos
+ *
+ * @param {string|not_options} title
+ * @param {string|not_options} [detailsOrIcon]
  * @param {Function} [onclick]
  * @param {string} [openurl]
  * @param {number} [timeout]
@@ -10,9 +44,13 @@
  * @global
  */
 //tslint:disable-next-line variable-name
-var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
+var GMnot = async(title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
+    /**
+     * @type {GM_not_optinos}
+     */
+    let details = {};
     if(!timeout) {
-        timeout = 12000;
+        details.timeout = 12000;
     }
     if(!host) {
         host = location.host;
@@ -20,30 +58,44 @@ var GMnot = (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, tim
     if(!ondone) {
         ondone = () => { return; };
     }
-    if(typeof detailsOrIcon !== 'string') {
-        detailsOrIcon.title = title;
-        detailsOrIcon.text = detailsOrIcon.body;
-        if(!detailsOrIcon.timeout) {
-            detailsOrIcon.timeout = timeout;
+    if(typeof title !== 'string') {
+        details={...title,text:title.body};
+        if(!details.timeout) {
+            details.timeout = timeout;
         }
-        return window['GM_notification'](detailsOrIcon, ondone);
+        if(details.image){
+           // details.image=await toDataURL(details.image);
+        }
+        return window['GM_notification'](details, details.onclick);
+    }
+    if(typeof detailsOrIcon !== 'string') {
+        details.title = title;
+        details.text = detailsOrIcon.body;
+        if(!details.timeout) {
+            details.timeout = timeout;
+        }
+        if(details.image){
+            //details.image=await toDataURL(details.image);
+        }
+        return window['GM_notification'](details, details.onclick);
     }
     if(detailsOrIcon === '') {
-        detailsOrIcon = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';
+        details.image = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';
     }
-    let details = {};
     details.title = title;
     details.text = text;
     details.image = detailsOrIcon;
+    if(details.image){
+        details.image=await toDataURL(details.image);
+    }
     details.timeout = timeout;
-    details.href = location.href;
     details.onclick = () => {
         if(onclick) {
             onclick();
         }
     };
     console.trace(details);
-    logKibana('DEBUG', details);
+    logKibana('DEBUG', {...details,href:location.href});
     return window['GM_notification'](details, ondone);
 };
 var notResponse = {

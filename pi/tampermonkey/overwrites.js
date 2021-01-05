@@ -121,7 +121,7 @@ function overwrites() {
 
 	let originalOpen = open;
 	// @ts-ignore
-	open = (url, target, featureFocus, ...args) => {
+	open = (url, target, featureFocus,...args) => {
 		const urlWhitelist = Object.assign(staticlist, sc.G.g('urlwhitelist', {}));
 		/**
 		 * @type {Window|WindowLike}
@@ -139,8 +139,9 @@ function overwrites() {
 			}
 			if(allowedToOpen(urlOrigin, urlWhitelist)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
-					if(location.origin === urlOrigin) {
+					if(location.origin === urlOrigin||GM_openInTab.override) {
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
+						GM_openInTab.override=false;
 					}
 				} else {
 					wind = originalOpen(url, target, featureFocus, ...args);

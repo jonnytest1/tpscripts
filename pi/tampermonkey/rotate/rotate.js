@@ -23,6 +23,11 @@ var rotateScript = new EvalScript('', {
 
         if(!document.title.startsWith('ROTATE')) {
             document.title = 'ROTATE ' + document.title;
+            Object.defineProperty(document, 'title', {
+                set: () => {
+                    //no setting after this
+                }
+            });
         }
 
         let NEXTURL = INJECT;
@@ -88,5 +93,15 @@ var rotateScript = new EvalScript('', {
         progressOverlayRegression();
         //lets see if this survives hibernate
         set.hibernateTimeout = setTimeout(progressOverlayRegression, duration * 8);
+
+        const dayOfWeek = new Date().getDay();
+        if(dayOfWeek > 5 || dayOfWeek === 0) {
+            const videos = sc.G.g('delayedYoutube');
+            videos.forEach(vidElement => {
+                GM_openInTab.override = true;
+                open(vidElement.url);
+            });
+            sc.G.s('delayedYoutube', []);
+        }
     }
 });

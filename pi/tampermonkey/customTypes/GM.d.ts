@@ -3,8 +3,13 @@ declare let GM_notification: Function
 declare let GM_getValue: Function
 declare let GM_setValue: Function
 declare let GM_setClipboard: (data: string, options?: { type: string, mimetype: string }) => void
-declare let GM_openInTab: (url: string, options?: GM_openOptions) => WindowLike
+declare let GM_openInTab: GM_Open
 declare let GM_addValueChangeListener: (key: string, listner: (key: string, oldV: any, newV: any, from_remote: boolean) => void) => void
+
+interface GM_Open {
+    (url: string, options?: GM_openOptions): WindowLike
+    override?: boolean
+}
 
 interface WindowLike {
     name: string

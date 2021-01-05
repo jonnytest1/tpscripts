@@ -11,6 +11,12 @@ export interface GreaseStorageArrayTypes {
     'openedvideos': OpenedShow
     'recentNewSeries': CheckedShow
 
+    crunchyrollOpenedVideos: TimedObject<string>
+
+    delayedYoutube: { url: string, title: string }
+
+    delayedYoutubeCheck: TimedObject<string>
+
     'tempSS': any
 
     twitchvideoposition: TimedObject<{ currentTime: number, url: string }>
