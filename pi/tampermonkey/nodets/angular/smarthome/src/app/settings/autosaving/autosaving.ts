@@ -68,7 +68,15 @@ export class AutosavingDirective {
             [this.name]: newValue,
             [this.dataRefName]: this.dataRef
           })
-        }).catch(console.error);
+        }).then(res => {
+          if (res.status === 400) {
+            res.json().then(err => {
+              ngModelRef.control.setErrors(err);
+            });
+
+          }
+        })
+          .catch(error => { debugger; });
       }, this.debounce);
 
 

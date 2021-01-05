@@ -12,20 +12,20 @@ import { ReceiverBottomsheetComponent } from './receiver-bottomsheet/receiver-bo
 import { ConnectionBottomsheetComponent } from './connection-bottomsheet/connection-bottomsheet.component';
 import { MatInputModule } from '@angular/material/input';
 import { HttpClientModule } from '@angular/common/http';
-import { ConfigurationComponent } from './configuration/configuration.component';
 import { SettingsService } from './settings.service';
 import { AutosavingDirective, ROOT_AUTOSAVE_PATH } from './autosaving/autosaving';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../environments/environment';
 import { AutosavingDirectiveProvider } from './autosaving/autosaveProvider';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 @NgModule({
     declarations: [
         SettingsComponent,
         ConnectionBottomsheetComponent,
         SenderBottomSheetComponent,
         ReceiverBottomsheetComponent,
-        ConfigurationComponent,
         AutosavingDirective,
         AutosavingDirectiveProvider,
         CodeEditorComponent
@@ -35,8 +35,8 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
         MatListModule,
         MatIconModule,
         MatCardModule,
-        MatBottomSheetModule, HttpClientModule,
-        MatSnackBarModule, MatInputModule
+        MatBottomSheetModule, HttpClientModule, MatDialogModule,
+        MatSnackBarModule, MatInputModule, MatButtonModule
     ],
     providers: [SettingsService, {
         provide: ROOT_AUTOSAVE_PATH,

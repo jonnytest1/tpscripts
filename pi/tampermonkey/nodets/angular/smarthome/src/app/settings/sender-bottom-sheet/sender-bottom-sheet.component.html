@@ -11,8 +11,28 @@
                name=name
                autosaving>
       </mat-form-field>
-      <div class="id">
-        {{data.id}} {{data.deviceKey}}
+      <div class="id right">
+        {{data.id}} {{data.deviceKey}} <br>
+        <div class="center">
+          <button class="right"
+                  color="primary"
+                  (click)="testSend()"
+                  mat-flat-button>
+            Test
+          </button>
+          <button mat-icon-button
+                  class="right"
+                  (click)="displayBattery()"
+                  aria-label="battery display">
+            <mat-icon>battery_unknown</mat-icon>
+          </button>
+
+
+        </div>
+
+
+
+
       </div>
     </mat-card-title>
     <mat-card-content>

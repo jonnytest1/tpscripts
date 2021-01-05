@@ -6,14 +6,17 @@
                (mouseenter)="sidenavOpened=true"
                (mouseleave)="sidenavOpened=false">
     <mat-nav-list>
-      <a mat-list-item
-         routerLink="setup">
-        settins
-      </a>
+      <h4> Smart Home</h4>
 
       <a mat-list-item
-         routerLink="device">
-        deviiiiiiiiiiiiiiiiices
+         routerLinkActive="activeRoute"
+         routerLink="setup">
+        Setup
+      </a>
+      <a mat-list-item
+         routerLinkActive="activeRoute"
+         routerLink="options">
+        Options
       </a>
     </mat-nav-list>
   </mat-sidenav>
@@ -30,9 +33,3 @@
   </mat-sidenav-content>
 
 </mat-sidenav-container>
-
-<div style="text-align:center">
-  <h1>
-    Smart Home
-  </h1>
-</div>

@@ -4,7 +4,6 @@ import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-shee
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Observable, forkJoin } from 'rxjs';
 import { CanvasUtil } from '../utils/context';
-import { ConfigurationComponent } from './configuration/configuration.component';
 import { ConnectionBottomsheetComponent } from './connection-bottomsheet/connection-bottomsheet.component';
 import { ConnectionHandler } from './connection-handler';
 import { ReceiverBottomsheetComponent } from './receiver-bottomsheet/receiver-bottomsheet.component';

@@ -7,9 +7,8 @@ const routes: Routes = [{
   component: SettingsComponent
   // loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule)
 }, {
-  path: 'device',
-  redirectTo: 'setup',
-  pathMatch: 'prefix'
+  path: 'options',
+  loadChildren: () => import('./options/options.module').then(m => m.OptionsModule)
 }, {
   path: '',
   redirectTo: 'setup',
