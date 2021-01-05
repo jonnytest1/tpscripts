@@ -31,7 +31,10 @@ async function getLogs() {
         tr.addEl(new Date(el.timestamp + 'Z').toLocaleString()
             .replace(', ', '\n'));
         tr.addEl(el.application);
-        tr.addEl(el.severity);
+        const td = tr.addEl(el.severity);
+        if(el.severity === 'ERROR') {
+            td.style.backgroundColor = '#e0aa7cb8';
+        }
         tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
 
         if(count % 2 === 0) {
@@ -45,6 +48,13 @@ async function getLogs() {
         let enabled = false;
         let attributesTable;
         tr.addEventListener('click', () => {
+            const selection = window.getSelection();
+            for(let i = 0; i < selection.rangeCount; i++) {
+                const range = selection.getRangeAt(i);
+                if(range.startContainer !== range.endContainer || range.startOffset !== range.endOffset) {
+                    return;
+                }
+            }
             if(!enabled) {
                 attributesTable = document.createElement('table');
                 attributesTable.style.border = '1px solid black';
@@ -73,12 +83,12 @@ async function getLogs() {
  *
  * @param {HTMLTableElement} table
  * @param {Array<T>} array
- * @param {(el:T,td:HTMLTableRowElement & {addEl:(text:String)=>void})=>void} fnc
+ * @param {(el:T,td:HTMLTableRowElement & {addEl:(text:String)=>HTMLTableDataCellElement})=>void} fnc
  */
 function appendRows(table, array, fnc) {
     array.forEach(el => {
         /**
-         * @type {HTMLTableRowElement & {addEl:(text:String)=>void}}
+         * @type {HTMLTableRowElement & {addEl:(text:String)=>HTMLTableDataCellElement}}
          */
         // @ts-ignore
         const tr = document.createElement('tr');
@@ -100,6 +110,7 @@ function appendRows(table, array, fnc) {
                 }
             });
             tr.appendChild(td);
+            return td;
         };
         fnc(el, tr);
         table.appendChild(tr);
