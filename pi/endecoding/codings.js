@@ -10,7 +10,7 @@ function getEncodings() {
     let encodings = [
         {
             name: 'string to ascii number',
-            fnc: str =>  str.split('')
+            fnc: str => str.split('')
                 .map(c => c.charCodeAt(0))
                 .join('')
         },
@@ -95,15 +95,16 @@ function getEncodings() {
         }, {
             name: 'stack format',
             fnc: str => {
-                const obj=JSON.parse(str);
-                obj.stack_trace=obj.stack_trace.replace(/\r\n/g,'<line--break>')
-                    .replace(/\n/g,'<line--break>')
-                    .replace(/\t/g,'<line--tab>');
-                const jsonStr = JSON.stringify(obj , undefined, '. ');
-                return jsonStr.replace(/<line--break>/g,'\n')
-                    .replace(/<line--tab>/g,'\t');
+                const obj = JSON.parse(str);
+                obj.stack_trace = obj.stack_trace.replace(/\r\n/g, '<line--break>')
+                    .replace(/\n/g, '<line--break>')
+                    .replace(/\t/g, '<line--tab>');
+                const jsonStr = JSON.stringify(obj, undefined, '. ');
+                return jsonStr
+                    .replace(/<line--break>/g, '\n')
+                    .replace(/<line--tab>/g, '\t');
             }
-        },  {
+        }, {
             name: 'custom',
             onchoose: queryValue => {
                 return prompt('write a function that returns a string', queryValue || 'str => ');
@@ -137,13 +138,13 @@ function getEncodings() {
 
                 return JSON.stringify(matches);
             }
-        },{
-            name:'path',
-            fnc:str=>{
-                if(str.includes('\\\\')){
+        }, {
+            name: 'path',
+            fnc: str => {
+                if(str.includes('\\\\')) {
                     return str.replace(/\\\\/g, '\\');
-                }else{
-                    return str.replace(/\\/g,'\\\\');
+                } else {
+                    return str.replace(/\\/g, '\\\\');
                 }
             }
         }
