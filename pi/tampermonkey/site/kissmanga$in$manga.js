@@ -24,6 +24,23 @@ new EvalScript('', {
                 timestamp: Date.now(),
                 value: location.pathname
             }, { mapKey: mangaName });
+            let autoscroll = sc.G.g('autoscrollEnabled');
+            sc.menu.addToMenu({
+                name: 'autoscroll',
+                mouseOver: (parnet, btn) => {
+                    autoscroll = sc.G.s('autoscrollEnabled', !autoscroll);
+                }
+            });
+            set.interval(() => {
+                if(autoscroll) {
+                    scrollBy({
+                        left: 0,
+                        top: 800,
+                        behavior: 'auto'
+                    });
+                }
+            }, 4000);
+
             sc.menu.addToMenu({
                 name: 'next',
                 rotation: 0,

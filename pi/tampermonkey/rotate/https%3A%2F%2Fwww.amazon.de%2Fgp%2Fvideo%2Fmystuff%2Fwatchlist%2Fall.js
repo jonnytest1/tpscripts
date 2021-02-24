@@ -3,12 +3,12 @@
  * @type {{type:EvalScript<{}>}}
  */
 var amazon = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
         let timer = await reqS('time');
         return;
         const items = [...document.querySelectorAll('[data-automation-id=\'list-grid\'] [data-automation-id^=\'wl-item\']')];
-        if(items.length == 0) {
+        if(items.length === 0) {
             GMnot('amazon didnt find videos');
         }
 

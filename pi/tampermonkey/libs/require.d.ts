@@ -56,6 +56,7 @@ export interface RequireMap {
     'DOM/line': void
     'DOM/table': DOMTableCosntructor
     'DOM/button': ButtonRes
+    "DOM/rotation-menu": CreateElement
 
     "site/brandad/attack": (request: RequestStorage) => Promise<Array<{
         request: string, response: string
@@ -80,6 +81,8 @@ export interface RequireMap {
     'site/kissanime/data-to-browser-db': () => Promise<Array<{ data: string, tags: Array<{ tag_name: string }> }>>
     'site/kissanime/testModel': void
     'site/kissanime/areyouhuman': unknown
+    "site/youtube/markDelayed": void
+    'site/youtube/timeset': void
 
     'Storage/SessionStorage': CustomStorage
     'Storage/crossDomainStorage': CustomStorage

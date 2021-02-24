@@ -17,7 +17,7 @@ var dep = new EvalScript('', {
         }
 
         // @ts-ignore
-        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${location.href.replace(location.search, '')}&auth=${key}`;
+        var url = `${document.window.backendUrl || 'http://localhost:4280'}?url=${encodeURIComponent(btoa(location.href.replace(location.search, '')))}&auth=${key}`;
 
         /**@param {CustomScript} script */
         function shouldCheck(script) {
@@ -163,6 +163,7 @@ var dep = new EvalScript('', {
 
             } else {
                 if(shouldCheck(scriptify(location.origin + location.pathname))) {
+                    debugger;
                     location.reload();
                 }
             }

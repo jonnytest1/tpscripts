@@ -62,13 +62,11 @@ interface ElementGetter {
 
     c0: (iF: Element, count: number) => Element,
     W: (top?: boolean, wnd?: any) => Window,
-    a: (identification: string, parent?: Element, tag?: string, finder?: Function) => Promise<any>
+    a: (identification: string | { querySelector?: string, finder?: Function }, parent?: Element, tag?: string, finder?: Function) => Promise<any>
 
     eval: EvalFnc,
     point: PointFnc
 }
-
-
 
 interface Debug {
     n: number;
@@ -104,4 +102,8 @@ declare global {
     let scriptContent: String
     let backendUrl: string
     let sc: scI
+    let setPlayerSpeed: boolean
 }
+
+
+

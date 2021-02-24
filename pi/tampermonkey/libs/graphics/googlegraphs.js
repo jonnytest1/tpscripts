@@ -5,7 +5,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var googlegraphs = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
 
         if(!document.head.querySelector('#googlechatsscript')) {

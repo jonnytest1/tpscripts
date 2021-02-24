@@ -28,7 +28,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var progressOverlay = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
         const button = await reqS('DOM/button');
 

@@ -31,7 +31,8 @@ async function toDataURL(url) {
  *  title:string
  *  text :string,
  *  image :string,
- *  onclick:()=>any
+ *  onclick:()=>any,
+ *  ondone?:()=>any
  * }} GM_not_optinos
  *
  * @param {string|not_options} title
@@ -66,7 +67,8 @@ var GMnot = async (title = '', text = '   ', detailsOrIcon = '', onclick, openur
         if(details.image) {
             // details.image=await toDataURL(details.image);
         }
-        return window['GM_notification'](details, details.onclick);
+        logKibana('DEBUG', { ...details, href: location.href });
+        return window['GM_notification'](details, details.ondone);
     }
     if(typeof detailsOrIcon !== 'string') {
         details.title = title;
@@ -77,7 +79,8 @@ var GMnot = async (title = '', text = '   ', detailsOrIcon = '', onclick, openur
         if(details.image) {
             //details.image=await toDataURL(details.image);
         }
-        return window['GM_notification'](details, details.onclick);
+        logKibana('DEBUG', { ...details, href: location.href });
+        return window['GM_notification'](details, details.ondone);
     }
     if(detailsOrIcon === '') {
         details.image = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';

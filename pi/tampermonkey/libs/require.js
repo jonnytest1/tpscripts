@@ -421,8 +421,8 @@ window.req = req;
  */
 var reqS = async function reqSImpl(path, options = {}) {
     let key;
-    if(sc.G && sc.G.g) {
-        key = sc.G.g('security_key', '');
+    if(GM_getValue) {
+        key = GM_getValue('security_key', '');
     }
     if(!key && localStorage['security_key']) {
         key = JSON.parse(localStorage['security_key']);

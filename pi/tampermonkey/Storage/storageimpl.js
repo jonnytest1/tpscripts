@@ -5,7 +5,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var storageimpl = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
 
         window.StorageImplementation = class StorageImplementationClass {
@@ -101,7 +101,7 @@ var storageimpl = new EvalScript('', {
             static filterDaysFunction(days, options = {}) {
                 return (el, index, array) => {
                     if(options.keepLatest) {
-                        const sorted = array.sort((a, b) => a.timestamp - b.timestamp);
+                        const sorted = [...array].sort((a, b) => b.timestamp - a.timestamp);
                         return sorted[0].timestamp === el.timestamp || el.timestamp > Date.now() - (1000 * 60 * 60 * 24 * days);
                     }
                     return el.timestamp > Date.now() - (1000 * 60 * 60 * 24 * days);

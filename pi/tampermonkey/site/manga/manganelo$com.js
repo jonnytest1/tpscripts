@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var manganelo$com = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
 
         reqS('DOM/CircularMenu')
@@ -35,7 +35,7 @@ var manganelo$com = new EvalScript('', {
             });
 
         const seenKey = 'manganeloSeenMangas';
-        if(!(location.href.split('manga').length === 2) && (location.pathname.split('/').length == 3)) {
+        if(!(location.href.split('manga').length === 2) && (location.pathname.split('/').length === 3)) {
             const mangaName = location.href.split('manga/')[1];
 
             const mangas = sc.g.eval('a', {

@@ -21,14 +21,14 @@ function overwrites() {
 					}
 				}
 				if(!matched) {
-					logKibana('ERROR', `blocked request to ${this.requestUrl} at ${location.href}`);
+					logKibana('ERROR', `urlwhitelist blocked request to ${this.requestUrl} at ${location.href}`);
 					debugger;
 					return;
 				}
 			}
 			if(args[0]) {
 				const orginalReadyStateChange = this.onreadystatechange;
-				this.onreadystatechange = function(...args) {
+				this.onreadystatechange = function(...eventsArgs) {
 					if(this.readyState === 4) {
 						const response = this.response;
 						Object.defineProperty(this, 'response', {
@@ -38,7 +38,7 @@ function overwrites() {
 						});
 					}
 					if(orginalReadyStateChange) {
-						orginalReadyStateChange.call(this, ...args);
+						orginalReadyStateChange.call(this, ...eventsArgs);
 					}
 				};
 			}
@@ -121,7 +121,7 @@ function overwrites() {
 
 	let originalOpen = open;
 	// @ts-ignore
-	open = (url, target, featureFocus,...args) => {
+	open = (url, target, featureFocus, ...args) => {
 		const urlWhitelist = Object.assign(staticlist, sc.G.g('urlwhitelist', {}));
 		/**
 		 * @type {Window|WindowLike}
@@ -139,9 +139,9 @@ function overwrites() {
 			}
 			if(allowedToOpen(urlOrigin, urlWhitelist)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
-					if(location.origin === urlOrigin||GM_openInTab.override) {
+					if(location.origin === urlOrigin || GM_openInTab.override) {
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
-						GM_openInTab.override=false;
+						GM_openInTab.override = false;
 					}
 				} else {
 					wind = originalOpen(url, target, featureFocus, ...args);

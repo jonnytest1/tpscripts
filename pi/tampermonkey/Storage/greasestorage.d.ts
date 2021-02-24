@@ -29,8 +29,11 @@ type GreaseArrayTypes = GreaseStorageArrayTypesFull<GreaseStorageArrayTypes>
 interface GreaseStorageObjectArrayTypes {
     'kissmangaSeenMangas': { [key: string]: Array<TimedObject<string>> }
     'manganeloSeenMangas': { [key: string]: Array<TimedObject<string>> }
+
+    crunchyrollOpenedVideosMap: { [key: string]: Array<TimedObject<string>> }
 }
 export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObjectArrayTypes {
+    autoscrollEnabled: boolean
     'basTestModeEnabled': boolean,
     "kissmangaLastCheck": number
     'LogLevel': { general: "INFO" }

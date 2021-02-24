@@ -98,7 +98,7 @@ var CustomSlider = class CustomSliderC {
         text.className = 'textField';
         text.style.left = '50%';
         text.style.whiteSpace = 'nowrap';
-        text.style.zIndex = "-10";
+        text.style.zIndex = '-10';
         if(this.textFnc) {
             text.style.fontSize = '14px';
         }

@@ -105,7 +105,8 @@ EvalScript.type = new EvalScript('', {
             if(videoElement[0]) {
                 videoElement = videoElement[0];
             }
-            if(true) {
+            debugger;
+            if(typeof setPlayerSpeed === 'undefined' || setPlayerSpeed !== false) {
                 let stdSpeed = LS.g('video_speed', 1);
                 videoElement.playbackRate = stdSpeed;
             }
@@ -143,18 +144,18 @@ EvalScript.type = new EvalScript('', {
                 Object.defineProperty(videoElement, 'currentTime', {
                     enumerable: true,
                     configurable: true,
-                    get: function() {
+                    get: () => {
                         var ct = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime')
                             .get
-                            .call(this);
+                            .call(videoElement);
                         return ct;
                     },
-                    set: function(newValue) {
+                    set: (newValue) => {
                         addAction('set time');
                         // intercept values here
                         Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,
                             'currentTime').set
-                            .call(this, newValue);
+                            .call(videoElement, newValue);
                     }
                 });
 
@@ -237,7 +238,7 @@ EvalScript.type = new EvalScript('', {
                                         viewRotation: 90 + angle,
                                         additionalText: (speed) => {
                                             const remaining = localVideo.duration - localVideo.currentTime;
-                                            if(isNaN(remaining)){
+                                            if(isNaN(remaining)) {
                                                 return '-- : --';
                                             }
                                             const duration = Math.round(remaining / speed);

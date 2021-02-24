@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var twitch = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
 
         if(await sc.g.eval('h2', { text: 'Stunden', first: true, await: true })) {

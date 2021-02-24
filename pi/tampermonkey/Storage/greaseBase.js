@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<unknown>}}
  */
 var greaseBase = new EvalScript('', {
-    async: false,
+    waitForResolver: false,
     run: async (resolv, set) => {
         /**
          * @type {import('./storage').StorageBase&{l,toClipboard}}

@@ -21,7 +21,6 @@ function logInfo(message, error) {
  * @param {any} [error]
 */
 function logKibana(level, message, error) {
-  error = { ...error };
   let jsonMessage = message;
   if(!jsonMessage && error) {
     jsonMessage = error.message;
@@ -37,7 +36,7 @@ function logKibana(level, message, error) {
           btoa(JSON.stringify(jsonMessage[i]));
           tmp[i] = jsonMessage[i];
         } catch(e) {
-          tmp[i] = 'error parsing for' + i;
+          tmp[i] = 'error parsing for ' + i;
         }
       }
       jsonMessage = JSON.stringify(tmp);
@@ -46,7 +45,8 @@ function logKibana(level, message, error) {
   let jsonData = {
     Severity: level,
     application: 'clientJS',
-    message: jsonMessage
+    message: jsonMessage,
+    url: location.href
   };
 
   if(error) {

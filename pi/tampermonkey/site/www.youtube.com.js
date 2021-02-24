@@ -30,10 +30,10 @@ youtubeScript.reset = () => {
 (async () => {
 
     /**
-    * @type {[StorageImplementationType<'mostRecentVideo',string>,CustomTimeClass,unknown]}
+    * @type {[StorageImplementationType<'mostRecentVideo',string>,CustomTimeClass,...any[]]}
     */
-    const [localStorage, time, _] = await reqS([
-        'Storage/localStorage', 'time', 'DOM/button'
+    const [localStorage, time] = await reqS([
+        'Storage/localStorage', 'time', 'DOM/button', 'site/youtube/timeset', 'site/youtube/markDelayed'
     ]);
 
     const youtubemostrecent = 'mostRecentVideo';
@@ -73,19 +73,21 @@ youtubeScript.reset = () => {
                 }
             }
         });
+        await sc.g.a({
+            querySelector: 'ytd-item-section-renderer.ytd-section-list-renderer ytd-thumbnail-overlay-time-status-renderer'
+        });
         /**@type {NodeListOf<CustomYoutubeVideoElement>} */
         let elements = document.querySelectorAll('ytd-item-section-renderer.ytd-section-list-renderer');
         const previousChecked = sc.G.filter('delayedYoutubeCheck', StorageImplementation.filterDaysFunction(14));
         for(let el of elements) {
             if(el.querySelector('#metadata-line')) {
-                checkTime(el);
                 const channel = el.querySelector('#title-text')
                     .textContent
                     .trim();
                 const title = el.querySelector('#title-wrapper')
                     .textContent
                     .trim();
-                await sc.g.a('ytd-thumbnail-overlay-time-status-renderer', el);
+
                 const duration = el.querySelector('ytd-thumbnail-overlay-time-status-renderer')
                     .textContent
                     .trim();
@@ -94,22 +96,12 @@ youtubeScript.reset = () => {
                  * @type {HTMLAnchorElement}
                  */
                 const linkElement = el.querySelector('a#thumbnail');
+                const url = new URL(linkElement.href);
+                url.searchParams.delete('t');
 
-                if(durationtime > 7200
-                    && !previousChecked.find(o => o.value === linkElement.href)) {
-                    /**
-                     * @type {HTMLImageElement}
-                     */
-                    const img = el.querySelector('#thumbnail img');
-                    GMnot({
-                        title: 'adding video for weekend ?',
-                        body: `${title}\nfrom ${channel}`,
-                        timeout: 12000,
-                        image: img.src,
-                        onclick: () => {
-                            sc.G.p('delayedYoutube', { title, url: linkElement.href });
-                        }
-                    });
+                // 2 hours
+                const twoHours = 60 * 60 * 2;
+                if(durationtime > twoHours) {
                     const overlay = document.createElement('div');
                     overlay.style.position = 'relative';
                     overlay.style.backgroundColor = '#d4d4d4ba';
@@ -117,27 +109,43 @@ youtubeScript.reset = () => {
                     const height = window.getComputedStyle(el).height;
                     overlay.style.height = height;
                     overlay.style.marginTop = '-' + height;
+
                     el.appendChild(overlay);
 
+                    if(!previousChecked.find(o => o.value === url.href)) {
+                        /**
+                         * @type {HTMLImageElement}
+                         */
+                        const img = el.querySelector('#thumbnail img');
+                        GMnot({
+                            title: 'adding video for weekend ?',
+                            body: `${title}\nfrom ${channel}`,
+                            timeout: 12000,
+                            image: img.src,
+                            onclick: () => {
+                                sc.G.p('delayedYoutube', {
+                                    title,
+                                    url: linkElement.href
+                                });
+                                overlay.style.border = '1px solid green';
+                            }
+                        });
+                    }
                 }
+
                 sc.G.p('delayedYoutubeCheck', {
-                    value: linkElement.href,
+                    value: url.href,
                     timestamp: Date.now()
                 });
 
                 if(el.querySelector('.ytd-thumbnail-overlay-resume-playback-renderer')) {
                     debugger;
-                    break;
                 }
             }
 
         }
-    } else {
-        /**@type {NodeListOf<CustomYoutubeVideoElement>} */
-        let elements = document.querySelectorAll('ytd-grid-video-renderer');
-        for(let el of elements) {
-            checkTime(el);
-        }
+    } else if(location.pathname.includes('watch') && JSON.parse(document.querySelector('#microformat script').textContent).publication[0].isLiveBroadcast) {
+        setPlayerSpeed = false;
     }
 
     function durationStrToSeconds(durtationStr) {
@@ -213,16 +221,15 @@ youtubeScript.reset = () => {
                         }
                     });
                     createdElements.push(current.autoScrollButton);
-                    checkTime(current);
                 } catch(e) {
                     debugger;
                     handleError(e);
                     throw e;
                 }
             }
-        }
-        else {
+        } else {
             setTimeout(scrollToLastSeen, 1000, menuElementYoutubeIndex);
+            return;
         }
         if(!seen) {
             setTimeout(() => {
@@ -237,41 +244,5 @@ youtubeScript.reset = () => {
                 scrollToLastSeen(menuElementYoutubeIndex);
             }, 1000);
         }
-    }
-    /**@param {CustomYoutubeVideoElement} element */
-    function checkTime(element) {
-        if(!element.wentLiveDate) {
-            /**@type {string} */
-            const wentListString = element.querySelector('#metadata-line').children[1].textContent
-                .split('vor ')[1];
-
-            if(!wentListString) {
-                setTimeout(checkTime, 1000, element);
-                return;
-            }
-            /**@type {Number} */
-            let durationOffset;
-            if(wentListString.includes('Minute')) {
-                durationOffset = (Number(wentListString.split(/ Minuten*/)[0]) * (1000 * 60));
-            } else {
-                durationOffset = (Number(wentListString.split(/ Stunden*/)[0]) * (1000 * 60 * 60));
-            }
-            const wentLiveDate = new Date(Date.now() - durationOffset);
-            element.origWentLive = wentListString;
-            element.wentLiveDate = wentLiveDate;
-        }
-        let duration = Math.floor((Date.now() - element.wentLiveDate.valueOf()) / 1000);
-        let min = duration % 60;
-        let hours = Math.floor(duration / 60);
-        /**@type {HTMLElement} */
-        const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
-        let durationStr = `${hours}:${min}`;
-        if(durationStr.includes('NaN')) {
-            durationStr = '∞';
-        } else {
-            timeTExt.style.backgroundColor = '#11d1ecb8';
-        }
-        timeTExt.textContent = `${element.origWentLive} => ${durationStr}`;
-        setTimeout(checkTime, 1000, element);
     }
 })();

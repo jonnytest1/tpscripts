@@ -75,17 +75,22 @@ var CustomTime = class CustomTimeC {
      * breaks on callback()==false
      * skips timeout on callback()==null;
      * @template T
-     * @param {{
-     *     array:Array<T>,
-     *     callback:(item:T)=>Promise<boolean|null>,
-     *     delay?:number
-     * }} options
+     * @template { keyof HTMLElementTagNameMap} V
+     * @param {import('./time').AsnyForEachOptions<T,V>} options
      */
     async asyncForEach(options) {
         const delay = options.delay || 500;
         try {
             for(let item of options.array) {
-                const nextDelay = await options.callback(item);
+                let subItem;
+                if(options.subItemType && item instanceof HTMLElement) {
+                    /**
+                     * @type {HTMLElement}
+                     */
+                    const htmlItem = item;
+                    subItem = sc.g.eval(options.subItemType, { ...options.subitemOptions, first: true, parent: htmlItem });
+                }
+                const nextDelay = await options.callback(item, subItem);
                 if(nextDelay === true) {
                     await this.waitForAsync({
                         duration: delay,

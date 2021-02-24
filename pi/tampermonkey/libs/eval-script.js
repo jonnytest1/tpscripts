@@ -13,7 +13,7 @@ class EvalScript {
      */
     static current;
     /**
-     * @typedef {Partial<(V) & { evalScript?:EvalScript}>} EvalScriptRunOptions
+     * @typedef {Partial<(V) & { evalScript?:EvalScript , interval:(cb:Function,time:number)=>number}>} EvalScriptRunOptions
      */
 
     /**
@@ -23,7 +23,7 @@ class EvalScript {
      * @property {(resolver:<T>(obj:T)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
      * @property {()=>void|true|Promise<true|void>} [afterReset]
      * @property {()=>Array<string>} [persist]
-     * @property {boolean} [async]
+     * @property {boolean} [waitForResolver]
      * @property {boolean} [cacheFncResult]
      *
      * @param {EvalScriptOptions<?>} options
@@ -44,7 +44,7 @@ class EvalScript {
             this.script.reset = () => {
                 this.reset.call(this);
             };
-            if(options.async) {
+            if(options.waitForResolver) {
                 this.script.isAsync = true;
             }
         }
@@ -53,12 +53,20 @@ class EvalScript {
         this.afterReset = options.afterReset;
         this.persist = options.persist;
         this.cacheFncResult = options.cacheFncResult || false;
-        /**@type {Partial<V & {evalScript?:any, params?:Array<any>,result?:any}>} */
+        /**@type {Partial<V & {evalScript?:any,interval:any, params?:Array<any>,result?:any}>} */
         this.options = EvalScript.persistedAttributes[this.getUrl()] || {};
         this.options.evalScript = this;
+        this.options.interval = (cb, time) => {
+            const timeIndex = setInterval(cb, time);
+            this.intervals.push(timeIndex);
+            return timeIndex;
+        };
+
         EvalScript.current = this;
         this.onload = null;
         this.loaded = false;
+
+        this.intervals = [];
         /**
          * @type {Array<()=>void>}
          */
@@ -94,6 +102,7 @@ class EvalScript {
         if(sc.menu) {
             sc.menu.removeByLib(this.getUrl());
         }
+        this.intervals.forEach(clearInterval);
         if(!this.resetFunction) {
             return;
         }

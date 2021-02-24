@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var kissmangain = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
 
         let timer = await reqS('time');

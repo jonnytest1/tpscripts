@@ -86,7 +86,7 @@ try {
 	$authCode=$queryPAramas["auth"];
 
 	
-	$requestUrl = urldecode( getQueryParams()["url"]);
+	$requestUrl = base64_decode(urldecode($queryPAramas["url"]));
 	$parsedUrl = parse_url($requestUrl);
 
 	$host=" --- no host ---";
@@ -108,7 +108,7 @@ try {
 		return;
 	}
 
-	if(!array_key_exists($queryPAramas["auth"],$permissionObject)){
+	if(!array_key_exists($authCode,$permissionObject)){
 		echo "unauthorized key" . json_encode($queryPAramas);
 		return;
 	}	

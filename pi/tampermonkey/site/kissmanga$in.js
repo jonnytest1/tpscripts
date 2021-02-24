@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var kissmanga$in = new EvalScript('', {
-    async: false,
+    waitForResolver: false,
     run: async (resolv, set) => {
         const menu = await reqS('DOM/CircularMenu');
         const links = [...document.querySelectorAll('a')]

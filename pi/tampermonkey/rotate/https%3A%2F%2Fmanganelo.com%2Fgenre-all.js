@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var manganelocom = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     run: async (resolv, set) => {
         let lastSubscribedFound = sc.G.g('manganelolatest', '');
         const seenMangas = sc.G.g('manganeloSeenMangas');

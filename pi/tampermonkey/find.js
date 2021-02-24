@@ -95,6 +95,23 @@ elementGEtter.W = (top = false, wnd) => {
     return window;
 };
 elementGEtter.a = async function get(identification, parent, tag, finder = elementGEtter) {
+    /**
+     * @type {string}
+     */
+    let searchString;
+    if(typeof identification === 'object') {
+        if(identification.querySelector) {
+            searchString = identification.querySelector;
+            finder = (id, parentElement = document) => parentElement.querySelector(id);
+        }
+        if(identification.finder) {
+            finder = identification.finder;
+        }
+
+    } else {
+        searchString = identification;
+    }
+
     if(parent) {
         //console.log("waiting for " + identification + "with parent defined");
     }
@@ -122,7 +139,7 @@ elementGEtter.a = async function get(identification, parent, tag, finder = eleme
                 setTimeout(waitTillDefined, 500, id);
             }
         }
-        setTimeout(waitTillDefined, 10, identification);
+        setTimeout(waitTillDefined, 10, searchString);
     });
 };
 elementGEtter.point = (x, y) => {
@@ -183,7 +200,7 @@ elementGEtter.eval = (type, options = {}) => {
         parent = options.parent;
     }
 
-    let xpathCommand = `//${type}${conditions}`;
+    let xpathCommand = `.//${type}${conditions}`;
 
     const iterator = document.evaluate(xpathCommand, parent, null, XPathResult.ANY_TYPE, null);
     /**

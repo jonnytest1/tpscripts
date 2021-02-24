@@ -24,10 +24,11 @@ class Rotate
 			if ($file->isDir()) {
 				continue;
 			}
-			if ($file->getExtension() == "php") {
+			$name = $file->getFilename();
+			if ($file->getExtension() == "php"||preg_match("/_disabled$/",pathinfo($name)['filename'])) {
 				continue;
 			}
-			$name = $file->getFilename();
+		
 
 			if (in_array($name, $this->notRotateSites)) {
 				continue;

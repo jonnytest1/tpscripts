@@ -2,46 +2,17 @@
 /// <reference path="../DOM/line.js" />
 /// <reference path="../DOM/button.js" />
 /// <reference path="../customTypes/index.d.ts" />
-
+/// <reference path="../DOM/customSlider.js" />
+/// <reference path="./circular-menu.d.ts" />
 /**
 *
-* @typedef {HTMLElement & {
-*      menuOption?:MenuElementItem,
-*      center?:Vector,
-*      menu?:CircularMenuInstnace,
-*      degree?:number,
-*      parentSpace?:number
-* }} CircularMenuHTMLButton
-*/
-/**
-* @typedef MenuElementItem
-* @property { MenuElementItem[] } [children]
-* @property {String} [name]
-* @property {Function} [onclick]
-* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>(boolean|void)} [mouseOver]
-* @property {(parent:HTMLElement,btn:CircularMenuHTMLButton)=>boolean|void} [mouseLeave]
-* @property {(target)=>boolean} [isValid]
-* @property {CreateElement} [creationFunction]
-* @property {Colors} [enabledColor]
-* @property {Colors} [normalColor]
-* @property {CircularMenuHTMLButton} [element]
-* @property {number} [rotation]
-* @property {Line} [line]
-* @property {string} [lib]
-* @property {OptionalStyle} [style]
-*/
 
-/**
- * @callback addToMEnuCB
- * @param {MenuElementItem} menu
- * @param {(ar:MenuElementItem[])=>MenuElementItem|MenuElementItem[]} [selector]
- * @returns {void}
- */
+*/
 
 // parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu
 /**
  * @typedef CircularMenuInstnace
- * @property {addToMEnuCB} addToMenu
+ * @property {addToMenuFnc} addToMenu
  * @property {CreateElement} createElement
  * @property {Function} [setButtons]
  * @property {()=>void} remove
@@ -57,7 +28,10 @@
  *  style:any,
  *  center:Vector,
  *  angle:number,
- *  menu:CircularMenuInstnace
+ *  context:{
+ *     menu: CircularMenuInstnace,
+ *     currentButton: MenuElementItem
+ *  }
  * )=>CircularMenuHTMLButton} CreateElement
  *
  *
@@ -79,7 +53,6 @@
 *       scale?:number
 * }) => CircularMenuInstnace} CircularConstructor
 *
-*
 */
 
 /**
@@ -95,6 +68,7 @@ new EvalScript('', {
     run: async (resolver, response) => {
         (async () => {
             await reqS('DOM/line');
+            const rotationCreator = await reqS('DOM/rotation-menu');
 
             await reqS('DOM/button');
             /**
@@ -296,7 +270,7 @@ new EvalScript('', {
                 filter(filterfnc) {
                     this.elements = this.elements.filter(filterfnc);
                 }
-                /**@type {addToMEnuCB} */
+                /**@type {addToMenuFnc} */
                 addToMenu(menu, selector = ((el) => el)) {
                     let node = selector(this.elements);
                     if(!(node instanceof Array)) {
@@ -307,6 +281,7 @@ new EvalScript('', {
                     }
                     node.push(parseMElement(menu));
                     this.initialize();
+                    return menu;
 
                 }
                 initialize(ev) {
@@ -331,7 +306,7 @@ new EvalScript('', {
                  */
                 createElement(parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) {
                     let sradius = 50;
-                    /** @type {CircularMenuHTMLButton} */
+                    /** @type {CircularMenuHTMLButton<any>} */
                     let element = crIN(parent, text, onclick, fncmouseEnter, fncMouseLeave, undefined, style);
 
                     if(text) {
@@ -395,8 +370,17 @@ new EvalScript('', {
                         let newElementCenterY = center.y + posY;
 
                         const currentButton = buttonArray[i];
+
                         /**@type {CreateElement} */
-                        let creationFunction = currentButton.creationFunction || this.createElement;
+                        let creationFunction = currentButton.creationFunction;
+
+                        if(!creationFunction && currentButton.type === 'rotate') {
+                            creationFunction = rotationCreator;
+                        }
+
+                        if(!creationFunction) {
+                            creationFunction = this.createElement;
+                        }
 
                         let newCenter = { ...center, x: newElementCenterX, y: newElementCenterY };
 
@@ -459,7 +443,10 @@ new EvalScript('', {
                             },
                             newCenter,
                             angle,
-                            this
+                            {
+                                menu: this,
+                                currentButton
+                            }
                         );
 
                         buttonInstance.center = newCenter;

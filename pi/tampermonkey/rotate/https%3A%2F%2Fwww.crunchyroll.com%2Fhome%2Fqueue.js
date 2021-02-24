@@ -2,7 +2,7 @@
 
 new EvalScript('', {
     run: async () => {
-        const time = await reqS('time');
+        const [time, btn] = await reqS(['time', 'DOM/button']);
         /**
         * @typedef VideoElement
         * @property {number} time
@@ -13,30 +13,79 @@ new EvalScript('', {
             duration: 2000,
             callback: () => true
         });
-        const openedVideosKey = 'crunchyrollOpenedVideos';
-        const openedVideos = sc.G.filter(openedVideosKey, StorageImplementation.filterDaysFunction(14, { keepLatest: true }));
+        const openedVideosMap = 'crunchyrollOpenedVideosMap';
+
         /**@type {NodeListOf<HTMLElement>} */
         const items = document.querySelectorAll('.queue-item');
         time.asyncForEach({
             array: [...items],
-            callback: async (item) => {
-                /**@type {HTMLElement} */
-                const videoElement = item.querySelector('.episode-progress');
-                /** @type {HTMLAnchorElement} */
-                const episodeLink = item.querySelector('a.anchor-to-episode');
-                const episodeTitle = episodeLink.title;
-                const url = episodeLink.href;
+            subItemType: 'a',
+            subitemOptions: {
+                text: 'Showinformationen'
+            },
+            callback: async (item, subitem) => {
 
-                if(+videoElement.style.width.replace('%', '') < 1 && !openedVideos.some(vid => vid.value === url)) {
-                    sc.G.p(openedVideosKey, {
-                        timestamp: Date.now(),
-                        value: url
-                    });
-                    open(url);
-                    return true;
+                if(!subitem) {
+                    return;
                 }
-                return;
+                console.log(subitem.href);
+
+                const openedVideosByShow = sc.G.filter(openedVideosMap, StorageImplementation.filterDaysFunction(14, {
+                    keepLatest: true
+                }), {
+                    mapKey: subitem.href
+                });
+
+                const showResponse = await fetch(subitem.href);
+                const showHTML = await showResponse.text();
+                const showDocument = new DOMParser().parseFromString(showHTML, 'text/html');
+                const episodes = [...showDocument.querySelectorAll('.list-of-seasons .portrait-grid .group-item')];
+
+                let urlToOpen = null;
+                for(let episode of episodes) {
+                    const episodeLink = episode.querySelector('a');
+                    const url = new URL(episodeLink.href);
+                    url.searchParams.delete('t');
+
+                    if(openedVideosByShow.some(el => el.value === url.href)) {
+                        break;
+                    } else {
+                        urlToOpen = url.href;
+                    }
+                }
+                if(urlToOpen) {
+                    sc.G.p(openedVideosMap, {
+                        timestamp: Date.now(),
+                        value: urlToOpen
+                    }, {
+                        mapKey: subitem.href
+                    });
+
+                    btn.crIN({
+                        parent: item,
+                        text: 'setLAtest',
+                        onclick: () => {
+                            const url = new URL(episodes[0].querySelector('a').href);
+                            url.searchParams.delete('t');
+
+                            sc.G.p(openedVideosMap, {
+                                timestamp: Date.now(),
+                                value: url.href
+                            }, {
+                                mapKey: subitem.href
+                            });
+                        }, styles: {
+                            position: 'relative'
+                        }
+                    });
+
+                    open(urlToOpen);
+                }
+
+                return true;
+
             }
         });
+
     }
 });

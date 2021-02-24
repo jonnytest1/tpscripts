@@ -6,6 +6,7 @@
  * @typedef RotateVals
  * @property {CustomTime} customTime
  * @property {any} hibernateTimeout
+ * @property {NodeJS.Timeout} overlayInterval
  */
 /**
  * @type {EvalScript<RotateVals>}
@@ -14,7 +15,9 @@ var rotateScript = new EvalScript('', {
     reset(obj) {
         sc.menu.removeByName('rotate');
         clearTimeout(obj.hibernateTimeout);
+        clearTimeout(obj.overlayInterval);
         obj.customTime.abort = true;
+
     },
     run: async (resolver, set) => {
         console.log('rotate');
@@ -39,8 +42,9 @@ var rotateScript = new EvalScript('', {
 
         sc.menu.addToMenu({
             name: 'rotate',
-            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
-                const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
+            rotation: 0,
+            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, context) => {
+                const button = context.menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, context);
                 rotationSlider = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                     scale: 0.5,
                     color: 'red',
@@ -95,7 +99,7 @@ var rotateScript = new EvalScript('', {
         set.hibernateTimeout = setTimeout(progressOverlayRegression, duration * 8);
 
         const dayOfWeek = new Date().getDay();
-        if(dayOfWeek > 5 || dayOfWeek === 0) {
+        if((dayOfWeek > 5 || dayOfWeek === 0) && new Date().getHours() > 6) {
             const videos = sc.G.g('delayedYoutube');
             videos.forEach(vidElement => {
                 GM_openInTab.override = true;
@@ -103,5 +107,15 @@ var rotateScript = new EvalScript('', {
             });
             sc.G.s('delayedYoutube', []);
         }
+
+        set.overlayInterval = setInterval(() => {
+            /**
+             * @type {HTMLVideoElement}
+             */
+            const overlay = sc.g.point(400, 400);
+            if(Number(getComputedStyle(overlay).zIndex) > 2147483600 && overlay.tagName !== 'TAMPERMONKEY-BUTTON') {
+                overlay.style.zIndex = '-1';
+            }
+        }, 300);
     }
 });

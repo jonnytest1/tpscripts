@@ -3,7 +3,7 @@
  * @type {{type:EvalScript<{}>}}
  */
 var datatobrowserdb = new EvalScript('', {
-    async: true,
+    waitForResolver: true,
     cacheFncResult: true,
     run: async (resolv, set) => {
         const idb = await reqS('libs/indexeddb');

@@ -12,7 +12,7 @@
 var ev = new EvalScript('', {
     run: async (res, set) => {
 
-        if(location.port === '54321') {
+        if(location.port === '54321' || true) {
             return;
         }
         //await reqS("learning/tensorflow");
@@ -41,7 +41,6 @@ var ev = new EvalScript('', {
         var chart = new t.google.visualization.PieChart(document.getElementById('chart_div'));
         chart.draw(data, options);
 
-        debugger;
         // await reqS('site/kissanime/buildModel');
         //await reqT('multiplemenu');
         // await reqS("DOM/rectMenu")
