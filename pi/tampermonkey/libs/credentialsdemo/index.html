@@ -1,0 +1,57 @@
+<div class="columns">
+    <div class="column">
+        <form id="credential-form"
+              autocomplete="username"
+              onsubmit="storeCredential(event)">
+            <h2>Credentials Management API</h2>
+            <p><b>Store your credentials:</b></p>
+            <p>
+                <label>login: <input type="text"
+                           name="username"
+                           required
+                           autocomplete="username">
+                </label>
+                <label>password: <input type="password"
+                           name="password"
+                           required
+                           autocomplete="current-password">
+                </label>
+            </p>
+            <p>
+                <button type="submit">Store credential</button>
+            </p>
+            <button type="submit"
+                    onclick="createCreds()">Create credential</button>
+            <p class="user-mediation">
+                <b>User mediation:</b><br />
+                <label><input type="radio"
+                           name="mediation"
+                           value="silent"> silent</label>
+                <label><input type="radio"
+                           name="mediation"
+                           value="optional"
+                           checked> optional</label>
+                <label><input type="radio"
+                           name="mediation"
+                           value="required"> required</label>
+            </p>
+            <p><button type="button"
+                        onclick="requestCredential()">Request credential</button></p>
+            <p><button type="button"
+                        onclick="preventSilentAccess()">Prevent silent access (logout)</button></p>
+
+            <hr>
+
+            <h2>Web OTP API</h2>
+            <p>
+                <button type="button"
+                        onclick="waitForSms()">Wait for OTP SMS
+                </button>
+            </p>
+        </form>
+    </div>
+    <div class="column"
+         id="result">
+    </div>
+</div>
+<script src="index.js"></script>
