@@ -56,22 +56,12 @@ function logKibana(level, message, error) {
     delete error.stack;
     jsonData = { ...jsonData, ...error };
   }
-  GM_xmlhttpRequest({
+  fetch(`https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/index.php`, {
     method: 'POST',
-    // @ts-ignore
-    url: `${document.window.backendUrl}/libs/log/index.php`,
     headers: {
       'Content-Type': 'text/plain'
     },
-    data: btoa(JSON.stringify(jsonData)),
-    onerror: console.log,
-    onabort: e => {
-      debugger;
-    },
-    onload: (res) => {
-      debugger;
-      return;
-    }
+    body: btoa(JSON.stringify(jsonData))
   });
 }
 

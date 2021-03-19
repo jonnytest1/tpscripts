@@ -1,9 +1,18 @@
 <?PHP
     include(dirname(__FILE__) . '/../../database.php');
 
+
+    $startIndex=0;
+
+    $headers=getallheaders();
+    if(key_exists("start-index",$headers)){
+        $startIndex=intval($headers["start-index"]);
+    }
+
+
     $db = new DataBase("tpscript");
     
-    $logs=$db->sql("SELECT * FROM log ORDER BY timestamp DESC LIMIT 200");
+    $logs=$db->sql("SELECT * FROM log ORDER BY `index` DESC LIMIT 100 OFFSET ?","i",array($startIndex));
 
     $sqlStr="SELECT * FROM log_attributes WHERE log_id IN ( ";
     $params=array();

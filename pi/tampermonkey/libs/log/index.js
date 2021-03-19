@@ -1,13 +1,25 @@
 
+let startIndex = 0;
+
+async function loadMore() {
+    await getLogs();
+}
+
+
 async function getLogs() {
 
-    const response = await fetch('logs.php');
+    const response = await fetch('logs.php', {
+        headers: {
+            "start-index": `${startIndex}`
+        }
+    });
     /**
      * @typedef LogElement
      * @property {string} application
      * @property {"ERROR"|"DEBUG"|"INFO"} severity
      * @property {string} timestamp
      * @property {string} message
+     * @property {number} id
      */
     /**
     * @type {Array<LogElement>}
@@ -23,20 +35,29 @@ async function getLogs() {
         newCount = +location.search.split('count=')[1]
             .split('&')[0];
     }
-
+    startIndex += logs.length;
     let count = 0;
     let errorCount = 0;
-
+    logs.sort((log1, log2) => {
+        const log2Millis = new Date(log2.timestamp + 'Z').valueOf();
+        const log1Millis = new Date(log1.timestamp + 'Z').valueOf();
+        if(log2Millis == log1Millis) {
+            return log2.id - log1.id;
+        }
+        return log2Millis - log1Millis;
+    })
     appendRows(table, logs, (el, tr) => {
         tr.addEl(new Date(el.timestamp + 'Z').toLocaleString()
-            .replace(', ', '\n'));
-        tr.addEl(el.application);
+            .replace(', ', '\n')).style.width = '3%';
+        tr.addEl(el.application).style.width = '5%';
         const td = tr.addEl(el.severity);
+        td.style.width = '5%';
         if(el.severity === 'ERROR') {
             td.style.backgroundColor = '#e0aa7cb8';
         }
-        tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
-
+        const messageTd = tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
+        messageTd.style.width = '80%';
+        messageTd.style.overflow = 'hidden';
         if(count % 2 === 0) {
             tr.style.backgroundColor = '#adff2fa3';
         }
@@ -56,8 +77,15 @@ async function getLogs() {
                 }
             }
             if(!enabled) {
+
+                const tableTr = document.createElement('tr');
+                const tableTd = document.createElement('td');
+                tableTd.colSpan = 4;
+
                 attributesTable = document.createElement('table');
                 attributesTable.style.border = '1px solid black';
+                attributesTable.style.width = '100%';
+                attributesTable.style.tableLayout = 'fixed';
                 const remainingAtts = [];
 
                 for(let key in el) {
@@ -66,10 +94,21 @@ async function getLogs() {
                     }
                 }
                 appendRows(attributesTable, remainingAtts, (atts, attRow) => {
-                    attRow.addEl(atts.key);
-                    attRow.addEl(atts.value);
+                    attRow.addEl(atts.key).style.width = '5%';
+                    const value = attRow.addEl(atts.value);
+                    value.style.borderLeft = '1px solid black';
+                    value.querySelectorAll('span')
+                        .forEach(span => {
+                            span.style.whiteSpace = 'initial';
+                            span.style.wordBreak = 'break-word';
+                        });
+                    value.style.width = '80%';
+                    value.style.textAlign = 'center';
+                    value.style.overflow = 'hidden';
                 });
-                tr.after(attributesTable);
+                tableTd.appendChild(attributesTable);
+                tableTr.appendChild(tableTd);
+                tr.after(tableTr);
             } else {
                 attributesTable.remove();
             }
@@ -110,6 +149,7 @@ function appendRows(table, array, fnc) {
                 }
             });
             tr.appendChild(td);
+            //td.style.border = '1px solid #ccc';
             return td;
         };
         fnc(el, tr);
