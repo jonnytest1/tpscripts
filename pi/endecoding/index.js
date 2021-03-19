@@ -66,7 +66,7 @@ function updateUrl() {
         } else {
             url += '&';
         }
-        url += 'amount=' + amountValue;
+        url += 'amount=' + encodeURIComponent(amountValue);
     }
     if(textValue) {
         if(!hasPushedQ) {
@@ -75,7 +75,7 @@ function updateUrl() {
         } else {
             url += '&';
         }
-        url += 'text=' + textValue;
+        url += 'text=' + encodeURIComponent(textValue);
     }
     if(matcherValue) {
         if(!hasPushedQ) {
@@ -84,7 +84,7 @@ function updateUrl() {
         } else {
             url += '&';
         }
-        url += 'matcher=' + matcherValue;
+        url += 'matcher=' + encodeURIComponent(matcherValue);
     }
     for(let t in queryPicked) {
         if(!hasPushedQ) {
@@ -93,7 +93,7 @@ function updateUrl() {
         } else {
             url += '&';
         }
-        url += `${[t]}=${queryPicked[t]}`;
+        url += `${[t]}=${encodeURIComponent(`${queryPicked[t]}`)}`;
     }
 
     window.history.pushState(undefined, '', url);
@@ -105,7 +105,7 @@ for(let i = 0; i < 50; i++) {
         const iVal = location.search.split(i + '=')[1]
             .split('&')[0];
 
-        queryPicked[i] = new Parameter(i, iVal);
+        queryPicked[i] = new Parameter(i, decodeURIComponent(iVal));
 
     }
 }
@@ -171,8 +171,8 @@ const matcherInput = document.querySelector('#matcher');
 (function setInitVariables() {
     let amountValue = location.search.includes('amount=') ? +location.search.split('amount=')[1]
         .split('&')[0] : 1;
-    let textValue = location.search.includes('text=') ? location.search.split('text=')[1]
-        .split('&')[0] : undefined;
+    let textValue = location.search.includes('text=') ? decodeURIComponent(location.search.split('text=')[1]
+        .split('&')[0]) : undefined;
     let matcherValue = location.search.includes('matcher=') ? decodeURIComponent(location.search.split('matcher=')[1]
         .split('&')[0]) : undefined;
 

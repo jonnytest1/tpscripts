@@ -9,10 +9,10 @@ function getEncodings() {
     /**@type {Array<Encoding>} */
     let encodings = [
         {
-            name: 'string to ascii number',
+            name: 'string digit to ascii number',
             fnc: str => str.split('')
                 .map(c => c.charCodeAt(0))
-                .join('')
+                .join(' ')
         },
         {
             name: 'ascii number to string',
@@ -156,16 +156,22 @@ function getEncodings() {
         encodings.push({
             name: i + ' to dec',
             fnc: str => {
-                return '' + parseInt(str, i);
+                return str.split(' ')
+                    .map(sstr => '' + parseInt(sstr, i)
+                    )
+                    .join(' ');
             }
         });
         encodings.push({
             name: 'dec to ' + i,
             fnc: str => {
                 // @ts-ignore
-                return parseInt(str, 10)
-                    .toString(i)
-                    .toUpperCase();
+                return str.split(' ')
+                    .map(sstr => parseInt(sstr, 10)
+                        .toString(i)
+                        .toUpperCase())
+                    .join(' ');
+
             }
         });
     }
