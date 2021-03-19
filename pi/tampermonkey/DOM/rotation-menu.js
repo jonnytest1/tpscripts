@@ -1,6 +1,6 @@
 /// <reference path="../customTypes/index.d.ts" />
 /**
- * @type {{type:EvalScript<{customtimes:Array<CustomTime>}>}}
+ * @type {EvalScript<{customtimes:Array<CustomTime>},TypeRegistration<"rotate">>}
  */
 var rotationMenu = new EvalScript('', {
     waitForResolver: true,
@@ -33,14 +33,21 @@ var rotationMenu = new EvalScript('', {
             };
             return button;
         }
+        /**
+         * @type {RegistrationFunction}
+         */
+        function configure(item) {
+            item.creationFunction = createRotator;
+        }
+
         setTimeout(() => {
 
-            resolv(createRotator);
+            resolv(['rotate', configure]);
         });
         return true;
     },
     reset: (set) => {
-
+        //
     }
 });
 // tslint:disable-next-line:no-unused-expression

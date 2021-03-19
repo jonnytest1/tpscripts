@@ -11,13 +11,7 @@
 
 // parent, text = '', onclick, fncmouseEnter, fncMouseLeave, style, center, menu
 /**
- * @typedef CircularMenuInstnace
- * @property {addToMenuFnc} addToMenu
- * @property {CreateElement} createElement
- * @property {Function} [setButtons]
- * @property {()=>void} remove
- * @property {(rootMenuName:String)=>void} removeByName
- * @property { (libName:string) => void } removeByLib
+
  *
  * @typedef {(
  *  parent,
@@ -67,15 +61,19 @@
 new EvalScript('', {
     run: async (resolver, response) => {
         (async () => {
-            await reqS('DOM/line');
-            const rotationCreator = await reqS('DOM/rotation-menu');
-
-            await reqS('DOM/button');
+            await reqS(['DOM/line', 'DOM/button']);
+            /**
+             * @type {MenuTypesLibrary}
+             */
+            const types = Object.fromEntries(await reqS(['DOM/rotation-menu', 'DOM/menu/timed-rotator/timed-rotator']));
             /**
              *
              * @param {MenuElementItem} props
              */
             function parseMElement(props) {
+                if(props.type) {
+                    types[props.type](props, types);
+                }
                 if(props.children) {
                     props.children = props.children.map(parseMElement);
                 }
@@ -373,10 +371,6 @@ new EvalScript('', {
 
                         /**@type {CreateElement} */
                         let creationFunction = currentButton.creationFunction;
-
-                        if(!creationFunction && currentButton.type === 'rotate') {
-                            creationFunction = rotationCreator;
-                        }
 
                         if(!creationFunction) {
                             creationFunction = this.createElement;

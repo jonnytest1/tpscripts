@@ -1,18 +1,15 @@
 /// <reference path="./line.js" />
 /// <reference path="./rotation-menu.d.ts" />
 
-
-type ElementType = "rotate" | "false"
-
-type TypeOptions = RotationTypeOptions;
-
-
 interface TypeOptionsMap {
     rotate: RotationTypeOptions
+
+    timedRotate: TimedRotationTypeOptions
 }
 
 interface TypeAttributeMap {
     rotate: RotationTypeAttributes
+    timedRotate: RotationTypeAttributes
 }
 
 interface CircularMenuHTMLButton<K extends keyof TypeOptionsMap = any> extends HTMLElement {
@@ -33,6 +30,7 @@ declare interface MenuElementItem<K extends keyof TypeOptionsMap> {
     onclick?: Function,
     mouseOver?: (parent: HTMLElement, btn: CircularMenuHTMLButton<K>) => (boolean | void)
     mouseLeave?: (parent: HTMLElement, btn: CircularMenuHTMLButton<K>) => boolean | void
+
     isValid?: (target) => boolean
 
     creationFunction?: CreateElement
@@ -50,6 +48,22 @@ declare interface MenuElementItem<K extends keyof TypeOptionsMap> {
     }
     lib?: string
     style?: OptionalStyle
+}
+
+type MenuTypesLibrary = { [P in keyof TypeOptionsMap]: RegistrationFunction };
+
+declare type RegistrationFunction<K extends keyof TypeOptionsMap = any> = (item: MenuElementItem<K>, types: MenuTypesLibrary) => void
+declare type TypeRegistration<K extends keyof TypeOptionsMap> = [K, RegistrationFunction<K>]
+
+declare interface CircularMenuInstnace {
+    addToMenu: addToMenuFnc,
+    createElement: CreateElement,
+
+    setButtons?: Function,
+
+    remove: () => void
+    removeByName: (name: string) => void
+    removeByLib: (libName: string) => void
 }
 
 

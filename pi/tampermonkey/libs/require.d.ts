@@ -56,7 +56,9 @@ export interface RequireMap {
     'DOM/line': void
     'DOM/table': DOMTableCosntructor
     'DOM/button': ButtonRes
-    "DOM/rotation-menu": CreateElement
+
+    'DOM/menu/timed-rotator/timed-rotator': TypeRegistration<"timedRotate">
+    "DOM/rotation-menu": TypeRegistration<"rotate">
 
     "site/brandad/attack": (request: RequestStorage) => Promise<Array<{
         request: string, response: string

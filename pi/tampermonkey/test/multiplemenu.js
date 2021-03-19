@@ -53,7 +53,7 @@ reqS('DOM/CircularMenu')
             testMenu.addToMenu({
                 name: 'scroll' + i,
                 creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
-                    const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
+                    const button = menu.menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
                     rotationSlider2 = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                         scale: 0.5,
                         // color: "red",

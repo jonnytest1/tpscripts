@@ -1,6 +1,7 @@
 
 /**
  * @template {unknown} V
+ * @template {any} Z=any
  */
 class EvalScript {
     /**
@@ -20,7 +21,7 @@ class EvalScript {
      * @template { Array<keyof import('./require').RequireMap> } LIB
      * @typedef EvalScriptOptions
      * @property {(obj:EvalScriptRunOptions)=>boolean|void} [reset]
-     * @property {(resolver:<T>(obj:T)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
+     * @property {(resolver:(obj:Z)=>any,set:EvalScriptRunOptions)=>Promise<boolean|void>} [run] if true waits for manual call to finish
      * @property {()=>void|true|Promise<true|void>} [afterReset]
      * @property {()=>Array<string>} [persist]
      * @property {boolean} [waitForResolver]
@@ -143,7 +144,6 @@ class EvalScript {
         }).catch(e => { debugger; });
         if(!result || !result.notAsync) {
             this.finish(result, true);
-
         }
     }
     /**

@@ -50,8 +50,8 @@ youtubeScript.reset = () => {
         sc.menu.addToMenu({
             name: 'scroll',
             mouseOver: scroll,
-            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu) => {
-                const button = menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, menu);
+            creationFunction: (parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, context) => {
+                const button = context.menu.createElement(parent, text, onclick, fncmouseEnter, fncMouseLeave, style, center, angle, context);
                 rotationSlider = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                     scale: 0.5,
                     color: 'red',

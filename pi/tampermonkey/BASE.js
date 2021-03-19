@@ -72,28 +72,19 @@ new Promise(async (resolver) => {
 
     await reqS('libs/eval-script');
 
-    await reqS('Storage/storageimpl');
-    const greaseBase = await reqS('Storage/greaseBase');
+    const [base] = await reqS(['Storage/greaseBase', 'Storage/storageimpl']);
 
-    sc.G = new StorageImplementation(greaseBase);
+    sc.G = new StorageImplementation(base);
 
-    await reqS('libs/log-level');
+    await reqS(['libs/log-level', 'libs/log/logging',]);
 
-    await reqS('libs/log/logging');
-
-    await reqS('notification');
-
-    await reqS('DOM/dependencyCheck');
+    await reqS('notification', 'DOM/dependencyCheck');
     //console.log('loaded dependencyCheck');
 
-    /**@type {import('./customTypes/declarations').ElementGetter} */
-    let find = await reqS('find');
-    // eslint-disable-neinno-unused-vars
+    // eslint-disable-no-unused-vars
+    let [find] = await reqS(['find', 'DOM/CircularMenu']);
 
-
-    await reqS('DOM/CircularMenu');
-
-    await reqS('test/php/testing');
+    reqS('test/php/testing');
     //tslint:disable-next-line variable-name
 
     resolver({});

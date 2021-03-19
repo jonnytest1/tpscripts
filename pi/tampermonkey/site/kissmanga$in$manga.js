@@ -35,11 +35,11 @@ new EvalScript('', {
                 if(autoscroll) {
                     scrollBy({
                         left: 0,
-                        top: 800,
+                        top: 700,
                         behavior: 'auto'
                     });
                 }
-            }, 4000);
+            }, 3500);
 
             sc.menu.addToMenu({
                 name: 'next',

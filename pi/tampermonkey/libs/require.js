@@ -233,6 +233,10 @@ async function req(path, options = {}) {
                 };
                 document.props.evalScripts[url] = customEvalScript;
                 const evalScr = eval.call(window, text.replace('new EvalScript(\'\'', `new EvalScript('${url.replace('$', '$$$$')}'`));
+                if(evalScr === undefined) {
+                    console.error(url + ' is undefined and may be missing its variable declaration at the end');
+                    // alert('!!!!');
+                }
                 if(!evalScr || (evalScr.name && evalScr.name === 'EvalScript')) {
                     document.props.evalScripts[url].loaded = true;
                     scr.resolve();

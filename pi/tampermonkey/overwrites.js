@@ -140,10 +140,12 @@ function overwrites() {
 			if(allowedToOpen(urlOrigin, urlWhitelist)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin || GM_openInTab.override) {
+						logKibana('DEBUG', `opening site ${url} at ${location.href}`);
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
 						GM_openInTab.override = false;
 					}
 				} else {
+					logKibana('DEBUG', `opening site ${url} at ${location.href}`);
 					wind = originalOpen(url, target, featureFocus, ...args);
 				}
 

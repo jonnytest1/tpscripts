@@ -1,8 +1,11 @@
 /// <reference path="./customSlider.js" />
 
+
 interface RotationTypeOptions {
-    onFinished(): void;
     startPercent?: number,
+}
+interface TimedRotationTypeOptions extends RotationTypeOptions {
+    onFinished(): void;
     duration: number
 }
 
