@@ -3,12 +3,14 @@
 /// <reference path="../DOM/customSlider.js" />
 /// <reference path="../time.js" />
 /**
- * @typedef {HTMLDivElement & {
+ * @typedef {HTMLElement & {
 *  videohref:String,
 *  autoScrollButton:HTMLElement&{timestmap?:HTMLDivElement},
 *  currentIndex:number,
 *  wentLiveDate:Date
 *  origWentLive:string
+*  textCmp:string
+*  timeDisplay:HTMLElement
 * }} CustomYoutubeVideoElement
 *
 */
@@ -144,10 +146,24 @@ youtubeScript.reset = () => {
             }
 
         }
-    } else if(location.pathname.includes('watch') && JSON.parse(document.querySelector('#microformat script').textContent).publication[0].isLiveBroadcast) {
-        setPlayerSpeed = false;
-    }
+    } else {
 
+        const scr = JSON.parse(document.querySelector('#microformat script').textContent);
+        if(location.pathname.includes('watch') && scr.publication && scr.publication[0].isLiveBroadcast) {
+            setPlayerSpeed = false;
+        }
+    }
+    setInterval(() => {
+        if(document.querySelector('.yt-confirm-dialog-renderer#main #confirm-button')) {
+            /**
+             * @type {HTMLElement}
+             */
+            const el = document.querySelector('.yt-confirm-dialog-renderer#main #confirm-button');
+            el.click();
+            document.querySelector('yt-confirm-dialog-renderer')
+                .remove();
+        }
+    }, 2000);
     function durationStrToSeconds(durtationStr) {
         const multipliers = [1, 60, 60 * 60];
         const parts = durtationStr.split(':')

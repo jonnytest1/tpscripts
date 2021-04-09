@@ -368,8 +368,8 @@ async function req(path, options = {}) {
                         document.props.canInjectText = false;
                         injectByEval(errorEvent.target);
                     };
-                    document.body.onerror = e => {
-                        if(e === 'Uncaught SyntaxError: Unexpected identifier') {
+                    document.body.onerror = innerError => {
+                        if(innerError === 'Uncaught SyntaxError: Unexpected identifier') {
                             alert('error in script ' + path);
                             GM_notification('error in script');
                         }

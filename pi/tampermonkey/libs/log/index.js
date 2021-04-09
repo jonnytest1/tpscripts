@@ -5,12 +5,11 @@ async function loadMore() {
     await getLogs();
 }
 
-
 async function getLogs() {
 
     const response = await fetch('logs.php', {
         headers: {
-            "start-index": `${startIndex}`
+            'start-index': `${startIndex}`
         }
     });
     /**
@@ -41,11 +40,11 @@ async function getLogs() {
     logs.sort((log1, log2) => {
         const log2Millis = new Date(log2.timestamp + 'Z').valueOf();
         const log1Millis = new Date(log1.timestamp + 'Z').valueOf();
-        if(log2Millis == log1Millis) {
+        if(log2Millis === log1Millis) {
             return log2.id - log1.id;
         }
         return log2Millis - log1Millis;
-    })
+    });
     appendRows(table, logs, (el, tr) => {
         tr.addEl(new Date(el.timestamp + 'Z').toLocaleString()
             .replace(', ', '\n')).style.width = '3%';

@@ -6,15 +6,17 @@
 var timeset = new EvalScript('', {
     waitForResolver: false,
     run: async (resolv, set) => {
+        /**
+         * @param {CustomYoutubeVideoElement} element
+         */
         function checkTime(element) {
             if(!element.querySelector('#metadata-line') || !element.querySelector('#metadata-line').children[1]) {
                 return;
             }
-            /**
-             * @type {CustomYoutubeVideoElement}
-             */
             const timeElement = element.querySelector('#metadata-line').children[1];
-            if(!timeElement.wentLiveDate) {
+            const titleText = element.querySelector('h3').textContent
+                .trim();
+            if(!element.wentLiveDate || titleText !== element.textCmp) {
 
                 /**@type {string} */
                 let wentListString = timeElement.textContent;
@@ -42,21 +44,25 @@ var timeset = new EvalScript('', {
                         .split(/ hour*/)[0]) * (1000 * 60 * 60));
                 }
                 const wentLiveDate = new Date(Date.now() - durationOffset);
-                timeElement.origWentLive = wentListString;
-                timeElement.wentLiveDate = wentLiveDate;
+                element.origWentLive = wentListString;
+                element.wentLiveDate = wentLiveDate;
+                element.textCmp = titleText;
             }
-            if(isNaN(timeElement.wentLiveDate.valueOf())) {
+            if(isNaN(element.wentLiveDate.valueOf())) {
                 return;
             }
 
-            let duration = Math.floor((Date.now() - timeElement.wentLiveDate.valueOf()) / 1000);
+            let duration = Math.floor((Date.now() - element.wentLiveDate.valueOf()) / 1000);
             let seconds = duration % 60;
             let minutes = Math.floor(duration / 60);
             let hours = Math.floor(minutes / 60);
             minutes = (minutes % 60);
-            /**@type {HTMLElement} */
-            const timeTExt = element.querySelector('#metadata-line > span:nth-child(2)');
 
+            if(!element.timeDisplay) {
+                element.timeDisplay = document.createElement('span');
+                element.querySelector('#metadata-line')
+                    .appendChild(element.timeDisplay);
+            }
             const minuteStr = minutes.toString()
                 .padStart(2, '0');
 
@@ -72,18 +78,17 @@ var timeset = new EvalScript('', {
             if(durationStr.includes('NaN')) {
                 durationStr = '∞';
             } else {
-                timeTExt.style.backgroundColor = '#11d1ecb8';
+                element.timeDisplay.style.backgroundColor = '#11d1ecb8';
             }
-            timeTExt.textContent = `${timeElement.origWentLive} => ${durationStr}`;
+            element.timeDisplay.textContent = `=> ${durationStr}`;
         }
 
         set.interval(() => {
             /**@type {NodeListOf<CustomYoutubeVideoElement>} */
             let elements = document.querySelectorAll('ytd-grid-video-renderer,ytd-item-section-renderer.ytd-section-list-renderer,ytd-rich-item-renderer');
             //
-            for(let el of elements) {
-                checkTime(el);
-            }
+            Promise.all([...elements].map(async el => checkTime(el)));
+
         }, 1000);
 
     },

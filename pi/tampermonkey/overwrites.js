@@ -16,12 +16,13 @@ function overwrites() {
 			if(this.whitelisturl && this.whitelisturl.length) {
 				let matched = false;
 				for(let matcher of this.whitelisturl) {
-					if(this.requestUrl.match(matcher).length > 0) {
+					const matches = this.requestUrl.match(matcher);
+					if(matches && matches.length > 0) {
 						matched = true;
 					}
 				}
 				if(!matched) {
-					logKibana('ERROR', `urlwhitelist blocked request to ${this.requestUrl} at ${location.href}`);
+					logKibana('WARN', `urlwhitelist blocked request to ${this.requestUrl} at ${location.href}`);
 					debugger;
 					return;
 				}
@@ -43,7 +44,7 @@ function overwrites() {
 				};
 			}
 		} catch(e) {
-			logKibana('ERROR', `error intercepting request ${e}`);
+			logKibana('ERROR', `error intercepting request ${e}`, e);
 		}
 		send.call(this, ...args);
 
@@ -131,12 +132,11 @@ function overwrites() {
 			navigate(url);
 			wind = window;
 		} else {
-			let urlOrigin;
-			try {
-				urlOrigin = new URL(url).origin;
-			} catch(e) {
-				// nvm
+			if(url.startsWith('/')) {
+				url = location.origin + url;
 			}
+			const urlOrigin = getOrigin(url);
+
 			if(allowedToOpen(urlOrigin, urlWhitelist)) {
 				if(urlWhitelist[location.origin] === 'same-origin') {
 					if(location.origin === urlOrigin || GM_openInTab.override) {
@@ -170,7 +170,12 @@ function overwrites() {
 				if(urlBlacklist.includes(location.origin) || urlBlacklist.some(blacklistURl => urlOrigin === blacklistURl)) {
 					wind = null;
 				}
-
+				GMnot('blocked open samesite', `${urlOrigin} on ${location.origin}`, '', () => {
+					urlWhitelist[urlOrigin] = 'same-origin';
+					let whitelsit = sc.G.g('urlwhitelist', {});
+					whitelsit[urlOrigin] = 'same-origin';
+					sc.G.s('urlwhitelist', whitelsit);
+				});
 				const not = new Notification(`blocked ${urlOrigin} on ${location.origin} `);
 				not.onclick = () => {
 					GM_setClipboard(location.origin);
@@ -255,4 +260,17 @@ function overwrites() {
 		open: originalOpen,
 		setInterval: originalsetInterval
 	};
+
+	function getOrigin(url) {
+		let urlOrigin;
+		try {
+			urlOrigin = new URL(url).origin;
+		} catch(e) {
+			// nvm
+		}
+		if(!urlOrigin) {
+			urlOrigin = location.origin;
+		}
+		return urlOrigin;
+	}
 }

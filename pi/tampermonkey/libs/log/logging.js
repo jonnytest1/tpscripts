@@ -16,7 +16,7 @@ function logInfo(message, error) {
   logKibana('INFO', message, error);
 }
 /** @global
- * @param {"INFO"|'ERROR'|'DEBUG'} level
+ * @param {"INFO"|'ERROR'|'DEBUG'|'WARN'} level
  * @param {string|Object} message
  * @param {any} [error]
 */
