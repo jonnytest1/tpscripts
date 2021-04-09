@@ -139,6 +139,7 @@ EvalScript.type = new EvalScript('', {
                 if(element && element.tagName === 'VIDEO') {
                     localVideo = element;
                 }
+
                 /**
                 * @type { Array<CustomVideElement>}
                 */
