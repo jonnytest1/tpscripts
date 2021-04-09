@@ -35,7 +35,7 @@ onload = function elusiveButton() {
     button.style.position = 'fixed';
     button.onclick = () => {
         alert('you did it :o \\o/');
-        logInfo('clicked button on main page oO');
+        logKibana('ERROR', 'clicked button on main page oO');
     };
     button.setPos = (x, y = 0) => {
         /**@type {number} */
