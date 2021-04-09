@@ -68,7 +68,7 @@ async function checkConnection(path) {
  */
 async function req(path, options = {}) {
 
-    await checkConnection(path);
+    checkConnection(path);
     if(options.cache === undefined) {
         options.cache = true;
     }
@@ -379,9 +379,16 @@ async function req(path, options = {}) {
                     errorFixScript.onload = onScriptLoad(errorFixScript.resolve);
                     console.log('calling standard finish for ' + errorFixScript.source);
                     setTimeout(() => {
-                        finished(undefined, false, errorFixScript);
+                        // finished(undefined, false, errorFixScript);
                     }, 1);
-
+                    setTimeout(() => {
+                        if(!errorFixScript.loaded) {
+                            if(!document.querySelector('tampermonkey_base_container')) {
+                                document.props.canInjectText = false;
+                                injectByEval(errorFixScript);
+                            }
+                        }
+                    }, 2000);
                 },
                 onerror: (e) => {
                     console.log('err', e);

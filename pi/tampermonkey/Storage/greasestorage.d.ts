@@ -1,3 +1,5 @@
+
+///<reference path="../rotate/https%3A%2F%2Fwww1.watch-series.la%2Ftvschedule_disabled.js" />
 import { TimedObject, PushOptions, PushMapOptions } from "./storage"
 
 export interface GreaseStorageArrayTypes {
@@ -51,6 +53,8 @@ export interface GreaseStorageType extends GreaseArrayTypes, GreaseStorageObject
     manganeloMangas: {
         [key: string]: {
             lastEpisode?: string,
+            imageUrl?: string,
+            mangaName?: string
         }
     }
     'novelplanet': { [key: string]: string }

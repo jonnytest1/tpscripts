@@ -1,6 +1,5 @@
 
 ///<reference path="../site/brandad/test/integrationtest.js" />
-///<reference path="../rotate/https%3A%2F%2Fwww1.watch-series.la%2Ftvschedule_disabled.js" />
 
 
 declare interface StorageImplementationConstructorType {

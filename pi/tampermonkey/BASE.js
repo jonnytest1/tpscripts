@@ -78,7 +78,7 @@ new Promise(async (resolver) => {
 
     await reqS(['libs/log-level', 'libs/log/logging',]);
 
-    await reqS('notification', 'DOM/dependencyCheck');
+    await reqS(['notification', 'DOM/dependencyCheck']);
     //console.log('loaded dependencyCheck');
 
     // eslint-disable-no-unused-vars

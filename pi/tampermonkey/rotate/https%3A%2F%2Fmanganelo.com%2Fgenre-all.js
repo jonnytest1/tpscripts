@@ -5,53 +5,79 @@
 var manganelocom = new EvalScript('', {
     waitForResolver: true,
     run: async (resolv, set) => {
-        let lastSubscribedFound = sc.G.g('manganelolatest', '');
-        const seenMangas = sc.G.g('manganeloSeenMangas');
+
+        let timer = await reqS('time');
+
         const subscribed = sc.G.g('manganeloMangas');
-        let index = 1;
-        let done = false;
-        let hasSetLatest = false;
-        let counter = 0;
-        while(!done && counter++ < 10) {
-            const siteRequest = await fetch(`https://manganelo.com/genre-all/${index++}`);
-            const html = await siteRequest.text();
 
-            const element = new DOMParser().parseFromString(html, 'text/html');
-            const mangas = element.querySelectorAll('.content-genres-item');
+        await timer.asyncForEach({
+            array: Object.keys(subscribed),
+            callback: async (manga) => {
 
-            for(let manga of mangas) {
-                const titleLink = manga.querySelector('a');
-                const mangaIdentifier = titleLink.href.split('manga/')[1]
-                    .replace('/', '');
-                let mangaViews = seenMangas[mangaIdentifier] || [];
-                if(subscribed[mangaIdentifier]) {
-                    if(!hasSetLatest) {
-                        sc.G.s('manganelolatest', mangaIdentifier);
-                        hasSetLatest = true;
+                const seenMangas = sc.G.filter('manganeloSeenMangas',
+                    StorageImplementation.filterDaysFunction(56, { keepLatest: true }),
+                    { mapKey: manga });
+
+                const siteRequest = await fetch(`https://manganelo.com/manga/${manga}`);
+                const html = await siteRequest.text();
+
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+
+                if(!subscribed[manga].imageUrl || !subscribed[manga].mangaName) {
+                    const img = sc.g.eval('img', {
+                        parent: doc.querySelector('.info-image'),
+                        first: true
+                    });
+                    if(img) {
+                        subscribed[manga].imageUrl = img.src;
                     }
-                    if(lastSubscribedFound === mangaIdentifier) {
-                        done = true;
-                    }
-                    /**
-                     * @type {HTMLAnchorElement}
-                     */
-                    const chapter = manga.querySelector('.genres-item-chap');
-                    const chapterLink = chapter.href;
-                    const chapterLinkPath = new URL(chapterLink).pathname;
-                    const displayName = manga.querySelector('h3')
-                        .querySelector('a').title;
-                    const seenChapter = mangaViews.some(mangaView => mangaView.value === chapterLinkPath);
-                    if(subscribed[mangaIdentifier].lastEpisode !== chapterLink && !seenChapter) {
-                        const wnd = open(titleLink.href + '#open=latest');
-                        GMnot(`new episode \n ${displayName}`, chapter.textContent, manga.querySelector('img').src, () => {
-                            wnd.focus();
-                        });
-                        subscribed[mangaIdentifier].lastEpisode = chapterLink;
+                    subscribed[manga].mangaName = doc.querySelector('.story-info-right h1').textContent
+                        .trim();
+                }
+
+                /**
+                * @type {HTMLAnchorElement}
+                */
+                let latestNotSeen;
+
+                const chapters = sc.g.eval('li', {
+                    parent: doc.querySelector('.row-content-chapter'),
+                });
+
+                let hasFoundSeenChapter = false;
+                for(const episode of chapters) {
+                    const chapterLink = episode.querySelector('a');
+                    const chapterName = chapterLink.textContent.trim();
+                    const chapterUrl = new URL(chapterLink.href);
+
+                    const hasSeenChapter = seenMangas.some(seenLink => seenLink.value === chapterUrl.pathname);
+
+                    hasFoundSeenChapter = hasFoundSeenChapter || hasSeenChapter;
+                    const noSeenMangaStored = seenMangas.length === 0 && latestNotSeen;
+                    if(hasSeenChapter || noSeenMangaStored) {
+                        if(latestNotSeen) {
+                            debugger;
+                            sc.G.p('manganeloSeenMangas', {
+                                timestamp: Date.now(),
+                                value: new URL(latestNotSeen.href).pathname
+                            }, { mapKey: manga });
+                            const wnd = open(latestNotSeen.href);
+                            GMnot(`new episode \n ${subscribed[manga].mangaName}`, chapterName, subscribed[manga].imageUrl, () => {
+                                wnd.focus();
+                            });
+                            return null;
+                        } else {
+                            console.log(`already seen ${chapterName} from ${subscribed[manga].mangaName}`);
+                            return null;
+                        }
+                    } else {
+                        latestNotSeen = chapterLink;
                     }
 
                 }
+                return null;
             }
-        }
+        });
         sc.G.s('manganeloMangas', subscribed);
 
     },
