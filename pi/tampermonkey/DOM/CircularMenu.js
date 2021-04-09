@@ -193,6 +193,7 @@ new EvalScript('', {
                         this.activator()
                             .then(ev => this.onActivate.call(this, ev));
                     }, undefined, {
+                        className: 'notranslate', //disable google translate
                         style: {
                             borderRadius: `${scaledRadius}px`,
                             width: `${scaledRadius}px`,
