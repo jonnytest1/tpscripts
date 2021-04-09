@@ -1,6 +1,6 @@
 /* tslint:disable */
 
-function SHA256(s) {
+export default function SHA256(s) {
 
     var chrsz = 8;
 

@@ -1,13 +1,10 @@
 
 /// <reference path="./textOutput.js" />
 /// <reference path="./parameter.js" />
-/**
- * @typedef Encoding
- * @property {string} name
- * @property {(str: string, output?: HTMLConvElement) => string} fnc;
- * @property {(queryValue: any) => string} [onchoose]
- *
- **/
+
+import { encodings } from './codings';
+import { Parameter } from './parameter';
+import { TextOutput } from './textOutput';
 
 /**
  *
@@ -33,9 +30,14 @@ function recreate(text, amount) {
     /**@type {Array<TextOutput>} */
     let outputs = [];
     for(let i = 0; i < amount; i++) {
-
-        const pickedConverter = getEncodings()[queryPicked[i] ? queryPicked[i].valueOf() : 0];
-        let output = new TextOutput(pickedConverter, i);
+        const encodingRef = queryPicked[i] ? queryPicked[i].valueOf() : 0;
+        let pickedConverter;
+        if(isNaN(+encodingRef)) {
+            pickedConverter = encodings.find(encoding => encoding.key === encodingRef);
+        } else {
+            pickedConverter = encodings[+encodingRef];
+        }
+        let output = new TextOutput(pickedConverter, i, queryPicked);
 
         if(outputs.length > 0) {
             previousText = outputs[outputs.length - 1].convertedText;
@@ -44,7 +46,7 @@ function recreate(text, amount) {
             previousText = text;
         }
         output.setPrevious(previousText, outputs[outputs.length - 1]);
-        output.addElements();
+        output.addElements(updateUrl);
 
         outputs.push(output);
 
@@ -199,3 +201,5 @@ const matcherInput = document.querySelector('#matcher');
     recreate(textValue, amountValue);
 
 })();
+
+export { queryPicked, updateUrl };

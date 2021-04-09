@@ -1,6 +1,5 @@
-///<reference path="index.js"/>
 
-class Parameter {
+export class Parameter {
     /**
      *
      * @param {number} [xIndex]
@@ -12,10 +11,10 @@ class Parameter {
         }
         if(param) {
             if(param.includes('_')) {
-                this.yIndex = +param.split('_')[0];
+                this.yIndex = param.split('_')[0];
                 this.value = decodeURIComponent(param.split('_')[1]);
             } else {
-                this.yIndex = +param;
+                this.yIndex = param;
             }
         }
     }
@@ -36,9 +35,10 @@ class Parameter {
      *
      * @param {*} xIndex
      * @param {*} yIndex
+     * @param {any} queryPicked
      * @param {any} [value]
      */
-    static setIndex(xIndex, yIndex, value) {
+    static setIndex(xIndex, yIndex, queryPicked, value) {
         if(!queryPicked[xIndex]) {
             queryPicked[xIndex] = new Parameter();
         }

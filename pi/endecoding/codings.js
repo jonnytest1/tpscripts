@@ -1,81 +1,29 @@
 ///<reference path="index.js"/>
-/// <reference path="./hashes/md5.js" />
-/// <reference path="./hashes/sha1.js" />
-/// <reference path="./hashes/sha256.js" />
+import aes from './aes/aes';
+import hashes from './hashes/hashes';
+import ascii from './transformations/ascii';
+import base64 from './transformations/base64';
 /**
  * @returns {Array<Encoding>}
  */
 function getEncodings() {
     /**@type {Array<Encoding>} */
-    let encodings = [
+    let encs = [
+        ...ascii,
+        ...base64,
+        ...aes,
+        ...hashes,
         {
-            name: 'string digit to ascii number',
-            fnc: str => str.split('')
-                .map(c => c.charCodeAt(0))
-                .join(' ')
-        },
-        {
-            name: 'ascii number to string',
-            fnc: str => {
-                let t = '';
-                let ar = str.split('');
-                for(let i = 0; i < ar.length; i += 2) {
-                    if(+ar[i] < 3) {
-                        t += String.fromCharCode((+ar[i] * 100) + (+ar[i + 1] * 10) + ((+ar[i + 2]) * 1));
-                        i++;
-                    } else {
-                        t += String.fromCharCode(+ar[i] * 10) + (+ar[i + 1] | 0);
-                    }
-                }
-                return t;
-            }
-        },
-        {
-            name: 'ascii digit to string',
-            fnc: str => {
-                return str.split('')
-                    .map(c => String.fromCharCode(Number(c)))
-                    .join('');
-            }
-        },
-        {
-            name: 'base 64 encode',
-            fnc: str => {
-                return btoa(str);
-            }
-        },
-
-        {
-            name: 'base 64 decode',
-            fnc: str => {
-                return atob(str);
-            }
-        },
-        {
-            name: 'sha1',
-            fnc: str => {
-                return SHA1(str);
-            }
-        },
-        {
-            name: 'sha256',
-            fnc: str => {
-                return SHA256(str);
-            }
-        },
-        {
-            name: 'MD5',
-            fnc: str => {
-                return MD5(str);
-            }
-        }, {
-            name: 'urlencode',
+            nameHTML: 'urlencode',
+            key: 'urlenc',
             fnc: encodeURIComponent
         }, {
-            name: 'urldecode',
+            nameHTML: 'urldecode',
+            key: 'urldec',
             fnc: decodeURIComponent
         }, {
-            name: 'jwt',
+            nameHTML: 'jwt',
+            key: 'jwt',
             fnc: str => {
                 const nStr = str.split('.')[1];
                 const base64 = nStr.replace(/-/g, '+')
@@ -90,10 +38,10 @@ function getEncodings() {
                     .join(''));
             }
         }, {
-            name: 'json parse',
+            nameHTML: 'json parse',
             fnc: str => JSON.parse(str)
         }, {
-            name: 'stack format',
+            nameHTML: 'stack format',
             fnc: str => {
                 const obj = JSON.parse(str);
                 obj.stack_trace = obj.stack_trace.replace(/\r\n/g, '<line--break>')
@@ -105,7 +53,7 @@ function getEncodings() {
                     .replace(/<line--tab>/g, '\t');
             }
         }, {
-            name: 'custom',
+            nameHTML: 'custom',
             onchoose: queryValue => {
                 return prompt('write a function that returns a string', queryValue || 'str => ');
             },
@@ -116,7 +64,7 @@ function getEncodings() {
                 return newStr;
             }
         }, {
-            name: 'regex',
+            nameHTML: 'regex',
             onchoose: queryValue => {
                 return prompt('write a matcher string', queryValue || '')
                     .replace(/\\n/gm, '\n');
@@ -139,7 +87,7 @@ function getEncodings() {
                 return JSON.stringify(matches);
             }
         }, {
-            name: 'path',
+            nameHTML: 'path',
             fnc: str => {
                 if(str.includes('\\\\')) {
                     return str.replace(/\\\\/g, '\\');
@@ -153,8 +101,8 @@ function getEncodings() {
         if(i === 10) {
             continue;
         }
-        encodings.push({
-            name: i + ' to dec',
+        encs.push({
+            nameHTML: i + ' to dec',
             fnc: str => {
                 return str.split(' ')
                     .map(sstr => '' + parseInt(sstr, i)
@@ -162,8 +110,8 @@ function getEncodings() {
                     .join(' ');
             }
         });
-        encodings.push({
-            name: 'dec to ' + i,
+        encs.push({
+            nameHTML: 'dec to ' + i,
             fnc: str => {
                 // @ts-ignore
                 return str.split(' ')
@@ -175,5 +123,7 @@ function getEncodings() {
             }
         });
     }
-    return encodings;
+    return encs;
 }
+const encodings = getEncodings();
+export { encodings };

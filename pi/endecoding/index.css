@@ -7,7 +7,7 @@
 }
 
 #textInput{
-    width:90%;
+    width:85%;
     margin-left:50px;
 }
 
@@ -36,6 +36,7 @@
 }
 td{
     height: inherit;
+    height: 20px;
 }
 .textDisplay{
     width:100%;
@@ -46,7 +47,7 @@ td{
 }
 .converterList{
     border:2px solid black;
-    height: 100%;
+    height: calc(100% - 20px);
     overflow-y: auto;
     display:block;
 }

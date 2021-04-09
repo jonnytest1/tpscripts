@@ -1,6 +1,6 @@
 /* tslint:disable */
 
-function SHA1(msg) {
+export default function SHA1(msg) {
 
     function rotate_left(n, s) {
 

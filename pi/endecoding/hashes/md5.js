@@ -1,6 +1,6 @@
 /* tslint:disable */
 
-var MD5 = (string) => {
+export default (string) => {
 
     function RotateLeft(lValue, iShiftBits) {
 

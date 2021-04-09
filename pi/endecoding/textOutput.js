@@ -1,28 +1,34 @@
 ///<reference path="index.js"/>
-///<reference path="codings.js"/>
+
+import { encodings } from './codings';
+//import { queryPicked, updateUrl } from './index';
+import { Parameter } from './parameter';
+
 /**
  * @typedef {HTMLElement &{
  *  converter?:Encoding
  *  onclick?:(any)=>any
- *  index?:number;
+ *  converterRef?:string;
  *  val?:any
  * }} HTMLConvElement
  *
  * @callback Click
  *
  */
-class TextOutput {
+export class TextOutput {
 
     /**
      *
      * @param {Encoding} converter
+     * @param {Array<Parameter>} pickedParameters
      */
-    constructor(converter, index) {
+    constructor(converter, index, pickedParameters) {
         this.next = null;
         this.converter = converter;
-        this.encodings = getEncodings();
+        this.encodings = encodings;
         this.conversionElements = [];
         this.index = index;
+        this.pickedParameters = pickedParameters;
     }
 
     /**
@@ -40,7 +46,7 @@ class TextOutput {
             return 'ERROR';
         }
         try {
-            this.convertedText = this.converter.fnc(str, this.conversionElement);
+            this.convertedText = this.converter.fnc.call(this.converter, str, this.conversionElement);
             return this.convertedText;
         } catch(e) {
             console.trace(e, str, this.converter);
@@ -73,7 +79,7 @@ class TextOutput {
         console.log(`------ finished print for ${this.previousText} ------`);
     }
 
-    addElements() {
+    addElements(updateUrl) {
         const convRow = document.querySelector('#encodingSelectors');
         const newConvList = getDefault(convRow);
         this.conversionElements = [];
@@ -82,12 +88,12 @@ class TextOutput {
             const convList = newConvList.querySelector('.converterList');
             /**@type {HTMLConvElement} */
             const newConvElement = getDefault(convList);
-            newConvElement.textContent = converter.name;
+            newConvElement.innerHTML = converter.nameHTML;
             newConvElement.converter = converter;
-            newConvElement.index = j;
+            newConvElement.converterRef = converter.key || `${j}`;
             newConvElement.onclick = (e) => {
                 /**@type {HTMLConvElement} */
-                let element = e.target;
+                let element = newConvElement;
                 this.conversionElements.forEach(el => el.style.backgroundColor = '');
                 element.style.backgroundColor = 'lightBlue';
 
@@ -95,24 +101,25 @@ class TextOutput {
                 this.conversionElement = element;
 
                 if(element.converter.onchoose) {
-                    const cutomValue = element.converter.onchoose(queryPicked[this.index].value);
+                    const chooseParam = this.pickedParameters[this.index] ? this.pickedParameters[this.index].value : undefined;
+                    const cutomValue = element.converter.onchoose(chooseParam);
                     newConvElement.val = cutomValue;
-                    Parameter.setIndex(this.index, element.index, cutomValue);
+                    Parameter.setIndex(this.index, element.converterRef, this.pickedParameters, cutomValue);
                 }
-                Parameter.setIndex(this.index, element.index);
+                Parameter.setIndex(this.index, element.converterRef, this.pickedParameters);
                 this.recalculate();
                 updateUrl();
             };
 
-            if(j === 0 && !queryPicked[this.index]) {
+            if(j === 0 && !this.pickedParameters[this.index]) {
                 newConvElement.style.backgroundColor = 'lightBlue';
                 this.conversionElement = newConvElement;
                 this.converter = converter;
                 //tslint:disable-next-line
-            } else if(queryPicked[this.index] && queryPicked[this.index].valueOf() == j) {
+            } else if(this.pickedParameters[this.index] && this.pickedParameters[this.index].valueOf() == newConvElement.converterRef) {
                 this.converter = converter;
                 this.conversionElement = newConvElement;
-                newConvElement.val = queryPicked[this.index].value;
+                newConvElement.val = this.pickedParameters[this.index].value;
                 newConvElement.style.backgroundColor = 'lightBlue';
             }
             this.conversionElements.push(newConvElement);
