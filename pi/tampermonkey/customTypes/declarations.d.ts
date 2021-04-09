@@ -44,9 +44,7 @@ export interface EvalFnc {
     <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions & { await: true }): Promise<Array<HTMLElementTagNameMap[K]>>;
 
     <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions & { first: true }): HTMLElementTagNameMap[K];
-    <K extends keyof HTMLElementTagNameMap>(type: K, options: evalFncOptions): Array<HTMLElementTagNameMap[K]>;
-
-
+    <K extends keyof HTMLElementTagNameMap, V extends HTMLElementTagNameMap[K] = HTMLElementTagNameMap[K]>(type: K, options: evalFncOptions): Array<V>;
 }
 
 interface PointFnc {

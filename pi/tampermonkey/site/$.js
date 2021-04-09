@@ -99,13 +99,28 @@ EvalScript.type = new EvalScript('', {
         addVideo(vid);
 
         /**
-         * @param {CustomVideElement} videoElement
+         * @param {CustomVideElement|Array<CustomVideElement>} vidRef
          */
-        function addVideo(videoElement) {
-            if(videoElement[0]) {
-                videoElement = videoElement[0];
+        function addVideo(vidRef) {
+            /**
+             * @type {CustomVideElement}
+             */
+            let videoElement;
+            if('length' in vidRef) {
+                videoElement = [...vidRef].reduce((collector, vidRef2) => {
+                    if(collector === null) {
+                        return vidRef2;
+                    }
+                    const cSTyle = getComputedStyle(collector);
+                    const vidRef2Style = getComputedStyle(vidRef2);
+                    if((+cSTyle.height.replace('px', '')) < (+vidRef2Style.height.replace('px', ''))) {
+                        return vidRef2;
+                    }
+                    return collector;
+                }, null);
+            } else {
+                videoElement = vidRef;
             }
-            debugger;
             if(typeof setPlayerSpeed === 'undefined' || setPlayerSpeed !== false) {
                 let stdSpeed = LS.g('video_speed', 1);
                 videoElement.playbackRate = stdSpeed;
@@ -123,6 +138,24 @@ EvalScript.type = new EvalScript('', {
                 let element = sc.g.point(parent.offsetLeft, parent.offsetTop);
                 if(element && element.tagName === 'VIDEO') {
                     localVideo = element;
+                }
+                /**
+                * @type { Array<CustomVideElement>}
+                */
+                const videos = sc.g.eval('video', {});
+                if('length' in videos) {
+                    localVideo = videos.reduce((collector, vidRef2) => {
+                        if(collector === null) {
+                            return vidRef2;
+                        }
+                        const cSTyle = getComputedStyle(collector);
+                        const vidRef2Style = getComputedStyle(vidRef2);
+                        const vidRef2Height = (+vidRef2Style.height.replace('px', ''));
+                        if((+cSTyle.height.replace('px', '')) < vidRef2Height && vidRef2Height > innerHeight / 2) {
+                            return vidRef2;
+                        }
+                        return collector;
+                    }, localVideo);
                 }
                 return localVideo;
             }
