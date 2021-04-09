@@ -12,7 +12,7 @@
 
     $db = new DataBase("tpscript");
     
-    $logs=$db->sql("SELECT * FROM log ORDER BY `index` DESC LIMIT 100 OFFSET ?","i",array($startIndex));
+    $logs=$db->sql("SELECT * FROM log ORDER BY `index` DESC LIMIT 80 OFFSET ?","i",array($startIndex));
 
     $sqlStr="SELECT * FROM log_attributes WHERE log_id IN ( ";
     $params=array();

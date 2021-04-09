@@ -15,8 +15,13 @@ var prepareScript = () => {
 function logInfo(message, error) {
   logKibana('INFO', message, error);
 }
+
+/**
+ * @typedef {"INFO"|'ERROR'|'DEBUG'|"WARN"} LogLevel
+ */
+
 /** @global
- * @param {"INFO"|'ERROR'|'DEBUG'|'WARN'} level
+ * @param {LogLevel} level
  * @param {string|Object} message
  * @param {any} [error]
 */

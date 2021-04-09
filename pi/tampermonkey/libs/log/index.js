@@ -1,4 +1,4 @@
-
+/// <reference path="./logging.js"/>
 let startIndex = 0;
 
 async function loadMore() {
@@ -15,7 +15,7 @@ async function getLogs() {
     /**
      * @typedef LogElement
      * @property {string} application
-     * @property {"ERROR"|"DEBUG"|"INFO"} severity
+     * @property {LogLevel} severity
      * @property {string} timestamp
      * @property {string} message
      * @property {number} id
@@ -52,7 +52,10 @@ async function getLogs() {
         const td = tr.addEl(el.severity);
         td.style.width = '5%';
         if(el.severity === 'ERROR') {
-            td.style.backgroundColor = '#e0aa7cb8';
+            td.style.backgroundColor = '#f9531ae6';
+        }
+        if(el.severity === 'WARN') {
+            td.style.backgroundColor = '#f9911ae6';
         }
         const messageTd = tr.addEl(el.message.length > 1000 ? el.message.substr(0, 1000) : el.message);
         messageTd.style.width = '80%';
@@ -62,7 +65,7 @@ async function getLogs() {
         }
         if(el.severity === 'ERROR' && errorCount < newCount) {
             errorCount++;
-            tr.style.backgroundColor = '#e0aa7cb8';
+            tr.style.backgroundColor = '#f9531ae6';
         }
         count++;
         let enabled = false;
