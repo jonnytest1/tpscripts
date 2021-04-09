@@ -26,9 +26,9 @@ function getEncodings() {
             key: 'jwt',
             fnc: str => {
                 const nStr = str.split('.')[1];
-                const base64 = nStr.replace(/-/g, '+')
+                const base64Str = nStr.replace(/-/g, '+')
                     .replace(/_/g, '/');
-                return decodeURIComponent(atob(base64)
+                return decodeURIComponent(atob(base64Str)
                     .split('')
                     .map(c => {
                         return '%' + ('00' + c.charCodeAt(0)

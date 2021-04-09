@@ -12,7 +12,7 @@ export class Parameter {
         if(param) {
             if(param.includes('_')) {
                 this.yIndex = param.split('_')[0];
-                this.value = decodeURIComponent(param.split('_')[1]);
+                this.value = param.split('_')[1];
             } else {
                 this.yIndex = param;
             }
@@ -25,7 +25,7 @@ export class Parameter {
 
     toString() {
         if(this.value) {
-            return `${this.yIndex}_${decodeURIComponent(this.value)}`;
+            return `${this.yIndex}_${this.value}`;
         } else {
             return '' + this.yIndex;
         }

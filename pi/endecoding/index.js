@@ -58,56 +58,34 @@ function updateUrl() {
     const textValue = textInput.value;
     const matcherValue = matcherInput.value;
 
-    let url = location.href.split('?')[0];
+    let url = new URL(location.origin + location.pathname);
 
-    let hasPushedQ = false;
     if(amountValue) {
-        if(!hasPushedQ) {
-            hasPushedQ = true;
-            url += '?';
-        } else {
-            url += '&';
-        }
-        url += 'amount=' + encodeURIComponent(amountValue);
+        url.searchParams.append('amount', amountValue);
     }
     if(textValue) {
-        if(!hasPushedQ) {
-            hasPushedQ = true;
-            url += '?';
-        } else {
-            url += '&';
-        }
-        url += 'text=' + encodeURIComponent(textValue);
+        url.searchParams.append('text', textValue);
     }
     if(matcherValue) {
-        if(!hasPushedQ) {
-            hasPushedQ = true;
-            url += '?';
-        } else {
-            url += '&';
-        }
-        url += 'matcher=' + encodeURIComponent(matcherValue);
+        url.searchParams.append('matcher', matcherValue);
+
     }
     for(let t in queryPicked) {
-        if(!hasPushedQ) {
-            hasPushedQ = true;
-            url += '?';
-        } else {
-            url += '&';
-        }
-        url += `${[t]}=${encodeURIComponent(`${queryPicked[t]}`)}`;
+        url.searchParams.append(`${[t]}`, `${queryPicked[t]}`);
     }
 
-    window.history.pushState(undefined, '', url);
+    window.history.pushState(undefined, '', url.href);
 }
+
+const currentUrl = new URL(location.href);
+
 /**@type {Array<Parameter>} */
 let queryPicked = [];
 for(let i = 0; i < 50; i++) {
-    if(location.search.includes(i + '=')) {
-        const iVal = location.search.split(i + '=')[1]
-            .split('&')[0];
-
-        queryPicked[i] = new Parameter(i, decodeURIComponent(iVal));
+    const key = `${i}`;
+    if(currentUrl.searchParams.has(key)) {
+        const iVal = currentUrl.searchParams.get(key);
+        queryPicked[i] = new Parameter(i, iVal);
 
     }
 }
@@ -171,12 +149,9 @@ const matcherInput = document.querySelector('#matcher');
 };*/
 
 (function setInitVariables() {
-    let amountValue = location.search.includes('amount=') ? +location.search.split('amount=')[1]
-        .split('&')[0] : 1;
-    let textValue = location.search.includes('text=') ? decodeURIComponent(location.search.split('text=')[1]
-        .split('&')[0]) : undefined;
-    let matcherValue = location.search.includes('matcher=') ? decodeURIComponent(location.search.split('matcher=')[1]
-        .split('&')[0]) : undefined;
+    let amountValue = currentUrl.searchParams.has('amount') ? +currentUrl.searchParams.get('amount') : 1;
+    let textValue = currentUrl.searchParams.has('text') ? currentUrl.searchParams.get('text') : undefined;
+    let matcherValue = currentUrl.searchParams.has('matcher') ? currentUrl.searchParams.get('matcher') : undefined;
 
     amountInput.value = '' + amountValue || '1';
     if(textValue) {
