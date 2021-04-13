@@ -71,7 +71,9 @@ function updateUrl() {
 
     }
     for(let t in queryPicked) {
-        url.searchParams.append(`${[t]}`, `${queryPicked[t]}`);
+        if(!amountValue || +t < +amountValue) {
+            url.searchParams.append(`${[t]}`, `${queryPicked[t]}`);
+        }
     }
 
     window.history.pushState(undefined, '', url.href);

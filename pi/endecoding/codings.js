@@ -87,7 +87,8 @@ function getEncodings() {
                 return JSON.stringify(matches);
             }
         }, {
-            nameHTML: 'path',
+            nameHTML: 'lin-win-path',
+            key: 'linwinpath',
             fnc: str => {
                 if(str.includes('\\\\')) {
                     return str.replace(/\\\\/g, '\\');
