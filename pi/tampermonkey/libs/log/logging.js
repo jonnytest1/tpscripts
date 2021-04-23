@@ -47,12 +47,19 @@ function logKibana(level, message, error) {
       jsonMessage = JSON.stringify(tmp);
     }
   }
+
   let jsonData = {
     Severity: level,
     application: 'clientJS',
     message: jsonMessage,
     url: location.href
   };
+  try {
+    // @ts-ignore
+    undefined.test();
+  } catch(stackError) {
+    jsonData.logStack = stackError.stack.replace('TypeError: Cannot read property \'test\' of undefined', '');
+  }
 
   if(error) {
     jsonData.error_message = error.message;
@@ -61,7 +68,7 @@ function logKibana(level, message, error) {
     delete error.stack;
     jsonData = { ...jsonData, ...error };
   }
-  fetch(`https://pi4.e6azumuvyiabvs9s.myfritz.net/tm/libs/log/index.php`, {
+  fetch(`${window.top.backendUrl}/libs/log/index.php`, {
     method: 'POST',
     headers: {
       'Content-Type': 'text/plain'

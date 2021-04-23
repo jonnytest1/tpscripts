@@ -30,13 +30,17 @@ function overwrites() {
 			if(args[0]) {
 				const orginalReadyStateChange = this.onreadystatechange;
 				this.onreadystatechange = function(...eventsArgs) {
-					if(this.readyState === 4) {
-						const response = this.response;
-						Object.defineProperty(this, 'response', {
-							get: () => {
-								return response;
-							}
-						});
+					try {
+						if(this.readyState === 4) {
+							const response = this.response;
+							Object.defineProperty(this, 'response', {
+								get: () => {
+									return response;
+								}
+							});
+						}
+					} catch(errorWithProp) {
+						console.error(errorWithProp);
 					}
 					if(orginalReadyStateChange) {
 						orginalReadyStateChange.call(this, ...eventsArgs);
@@ -64,7 +68,6 @@ function overwrites() {
 		'https://www.muenchner-bank.de': true,
 		'https://kissmanga.in': 'same-origin',
 		'https://kissanime.ru': 'same-origin',
-		'https://pi4.e6azumuvyiabvs9s.myfritz.net': true,
 		'https://outlook.office.com': true,
 		'https://www.youtube.com': true,
 		'https://www1.swatchseries.to': 'same-origin',
@@ -72,6 +75,8 @@ function overwrites() {
 		'https://brandad.tpondemand.com/': true,
 		'https://manganelo.com/': 'same-origin'
 	};
+	staticlist[window.top.backendUrl] = true;
+
 	const setTimeoutBlacklist = [
 		'loopIframe'
 	];
@@ -143,20 +148,34 @@ function overwrites() {
 						logKibana('DEBUG', `opening site ${url} at ${location.href}`);
 						wind = GM_openInTab(url, { active: false, insert: false });// originalOpen(url, target, featureFocus, ...args);
 						GM_openInTab.override = false;
+					} else {
+						GMnot('blocked sameorigin', `${urlOrigin} on ${location.origin}`, undefined, () => {
+							urlWhitelist[location.origin] = true;
+							let whitelsit = sc.G.g('urlwhitelist', {});
+							whitelsit[location.origin] = true;
+							sc.G.s('urlwhitelist', whitelsit);
+							open(url);
+						});
 					}
 				} else {
 					logKibana('DEBUG', `opening site ${url} at ${location.href}`);
-					wind = originalOpen(url, target, featureFocus, ...args);
+					wind = wind = GM_openInTab(url, { active: false, insert: true });
+
 				}
 
 			} else if(featureFocus === true) {
 				wind = originalOpen(url, target, featureFocus, ...args);
 			} else if(url.startsWith('http')) {
-				GMnot('blocked open', `${urlOrigin} on ${location.origin}`, '', () => {
-					urlWhitelist[urlOrigin] = 'same-origin';
-					let whitelsit = sc.G.g('urlwhitelist', {});
-					whitelsit[urlOrigin] = 'same-origin';
-					sc.G.s('urlwhitelist', whitelsit);
+				GMnot({
+					title: 'blocked open',
+					body: `${urlOrigin} on ${location.origin}`,
+					onclick: (...args) => {
+						urlWhitelist[urlOrigin] = 'same-origin';
+						let whitelsit = sc.G.g('urlwhitelist', {});
+						whitelsit[urlOrigin] = 'same-origin';
+						sc.G.s('urlwhitelist', whitelsit);
+						open(url);
+					}
 				});
 				const windowMock = { location: {}, open: () => windowMock };
 				return windowMock;
@@ -170,11 +189,12 @@ function overwrites() {
 				if(urlBlacklist.includes(location.origin) || urlBlacklist.some(blacklistURl => urlOrigin === blacklistURl)) {
 					wind = null;
 				}
-				GMnot('blocked open samesite', `${urlOrigin} on ${location.origin}`, '', () => {
+				GMnot('blocked open samesite', `${urlOrigin} on ${location.origin}`, undefined, () => {
 					urlWhitelist[urlOrigin] = 'same-origin';
 					let whitelsit = sc.G.g('urlwhitelist', {});
 					whitelsit[urlOrigin] = 'same-origin';
 					sc.G.s('urlwhitelist', whitelsit);
+					open(url);
 				});
 				const not = new Notification(`blocked ${urlOrigin} on ${location.origin} `);
 				not.onclick = () => {

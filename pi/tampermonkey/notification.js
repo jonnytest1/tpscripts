@@ -17,10 +17,10 @@ async function toDataURL(url) {
 /**
  *
  * @typedef  {{
-    *   timeout: number,
+    *   timeout?: number,
     *   title: string
 *       body?:string
-*       image: string;
+*       image?: string;
  *      href?: string;
  *      onclick(): void;
  * }} not_options
@@ -36,7 +36,7 @@ async function toDataURL(url) {
  * }} GM_not_optinos
  *
  * @param {string|not_options} title
- * @param {string|not_options} [detailsOrIcon]
+ * @param {string} [image]
  * @param {Function} [onclick]
  * @param {string} [openurl]
  * @param {number} [timeout]
@@ -45,7 +45,7 @@ async function toDataURL(url) {
  * @global
  */
 //tslint:disable-next-line variable-name
-var GMnot = async (title = '', text = '   ', detailsOrIcon = '', onclick, openurl, timeout, host, ondone) => {
+var GMnot = async (title = '', text = '   ', image = '', onclick, openurl, timeout, host, ondone) => {
     /**
      * @type {GM_not_optinos}
      */
@@ -70,24 +70,13 @@ var GMnot = async (title = '', text = '   ', detailsOrIcon = '', onclick, openur
         logKibana('DEBUG', { ...details, href: location.href });
         return window['GM_notification'](details, details.ondone);
     }
-    if(typeof detailsOrIcon !== 'string') {
-        details.title = title;
-        details.text = detailsOrIcon.body;
-        if(!details.timeout) {
-            details.timeout = timeout;
-        }
-        if(details.image) {
-            //details.image=await toDataURL(details.image);
-        }
-        logKibana('DEBUG', { ...details, href: location.href });
-        return window['GM_notification'](details, details.ondone);
-    }
-    if(detailsOrIcon === '') {
-        details.image = 'http://icons.iconarchive.com/icons/icons8/windows-8/512/Programming-System-Task-icon.png';
-    }
+
     details.title = title;
     details.text = text;
-    details.image = detailsOrIcon;
+    details.image = image;
+    if(!details.image || details.image === '') {
+        details.image = `${new URL(window.top.backendUrl).origin}/tampermonkey/libs/assets/defaulticon.jpg`;
+    }
     if(details.image) {
         details.image = await toDataURL(details.image);
     }

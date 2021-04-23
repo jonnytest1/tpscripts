@@ -48,9 +48,6 @@ var timeset = new EvalScript('', {
                 element.wentLiveDate = wentLiveDate;
                 element.textCmp = titleText;
             }
-            if(isNaN(element.wentLiveDate.valueOf())) {
-                return;
-            }
 
             let duration = Math.floor((Date.now() - element.wentLiveDate.valueOf()) / 1000);
             let seconds = duration % 60;
@@ -63,6 +60,12 @@ var timeset = new EvalScript('', {
                 element.querySelector('#metadata-line')
                     .appendChild(element.timeDisplay);
             }
+
+            if(isNaN(element.wentLiveDate.valueOf())) {
+                element.timeDisplay.textContent = '=>';
+                return;
+            }
+
             const minuteStr = minutes.toString()
                 .padStart(2, '0');
 
