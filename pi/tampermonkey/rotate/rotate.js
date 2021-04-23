@@ -21,24 +21,24 @@ var rotateScript = new EvalScript('', {
     },
     run: async (resolver, set) => {
         console.log('rotate');
-        await reqS('DOM/customSlider');
-        await reqS('time');
+        const [ls] = await reqS(['Storage/localStorage', 'DOM/customSlider', 'time']);
 
         if(!document.title.startsWith('ROTATE')) {
             document.title = 'ROTATE ' + document.title;
-            Object.defineProperty(document, 'title', {
-                set: () => {
-                    //no setting after this
-                }
-            });
+            /* Object.defineProperty(document, 'title', {
+                 set: () => {
+                     //no setting after this
+                 }
+             });*/
         }
 
-        let NEXTURL = INJECT;
         /**@type {String[]} */
         let URLS = INJECT;
         /**@type {CustomSlider} */
         let rotationSlider;
         let currentPercent = 0;
+
+        let currentlyChecking = ls.g('currentUrl', '') || URLS[0];
 
         sc.menu.addToMenu({
             name: 'rotate',
@@ -48,7 +48,7 @@ var rotateScript = new EvalScript('', {
                 rotationSlider = new CustomSlider(parent, center, undefined, (1 - currentPercent) * 100, {
                     scale: 0.5,
                     color: 'red',
-                    arcWidth: 7,
+                    arcWidth: 5,
                     skipMouseMove: true,
                     viewRotation: 90 + angle
                 });
@@ -56,8 +56,8 @@ var rotateScript = new EvalScript('', {
                 return button;
             },
             children: URLS.filter(url => !url.includes(location.href))
-                .map(URL => {
-                    let displayURL = URL.replace('https://', '');
+                .map(url => {
+                    let displayURL = url.replace('https://', '');
                     if(displayURL.startsWith('www')) {
                         let splits = displayURL.split('.');
                         splits.shift();
@@ -66,37 +66,61 @@ var rotateScript = new EvalScript('', {
                     return {
                         name: displayURL,
                         mouseOver: () => {
-                            navigate(URL);
+                            checkUrl(url, false);
                         }
                     };
                 })
         });
 
-        sc.menu.addToMenu({
-            name: 'next',
-            mouseOver: () => navigate(NEXTURL)
-        }, el => el.find(l => l.name === 'rotate'));
-
         set.customTime = new CustomTime();
-
         const duration = (1000 * 60 * 60 * 1.2 * (Math.random() + 1)) / URLS.length;
-        function progressOverlayRegression() {
-            set.customTime.waitFor({
-                duration: duration,
-                callback: () => {
-                    navigate(NEXTURL);
-                },
-                onStep: (percent) => {
-                    if(rotationSlider) {
-                        rotationSlider.setPercent(1 - percent);
-                        rotationSlider.blink();
+        checkUrl(currentlyChecking, true);
+
+        /**
+         *
+         * @param {string} url
+         * @param {boolean} reapeated
+         */
+        async function checkUrl(url, reapeated = true) {
+            //  const urlResponse = await fetch(url);
+            // const urlContent = await urlResponse.text();
+            const urlToCheck = new URL(url);
+
+            ls.s('currentUrl', urlToCheck.href);
+            sc.menu.elements.find(el => el.name === 'rotate').children
+                .forEach(child => {
+                    if(url.includes(child.name)) {
+                        child.normalColor = 'Orange';
+                    } else {
+                        child.normalColor = 'White';
                     }
-                }
-            });
+                });
+            //@ts-ignore
+            reqS('rotate/' + encodeURIComponent(urlToCheck.href.replace(urlToCheck.search, urlToCheck.search.replace(/=/g, '%3D')
+                .replace('&', '%26'))
+                .replace('#', '')), { cache: false });
+
+            const nextUrl = URLS[URLS.indexOf(url) + 1] || URLS[0];
+
+            if(reapeated) {
+                set.customTime.waitFor({
+                    duration: duration,
+                    callback: () => {
+                        checkUrl(nextUrl, true);
+                    },
+                    onStep: (percent) => {
+                        if(rotationSlider) {
+                            rotationSlider.setPercent(1 - percent);
+                            rotationSlider.blink();
+                        }
+                    }
+                });
+                clearTimeout(set.hibernateTimeout);
+                set.hibernateTimeout = setTimeout(() => {
+                    checkUrl(nextUrl, true);
+                }, duration * 8);
+            }
         }
-        progressOverlayRegression();
-        //lets see if this survives hibernate
-        set.hibernateTimeout = setTimeout(progressOverlayRegression, duration * 8);
 
         const dayOfWeek = new Date().getDay();
         if((dayOfWeek > 5 || dayOfWeek === 0) && new Date().getHours() > 6) {
@@ -108,14 +132,5 @@ var rotateScript = new EvalScript('', {
             sc.G.s('delayedYoutube', []);
         }
 
-        set.overlayInterval = setInterval(() => {
-            /**
-             * @type {HTMLVideoElement}
-             */
-            const overlay = sc.g.point(400, 400);
-            if(Number(getComputedStyle(overlay).zIndex) > 2147483600 && overlay.tagName !== 'TAMPERMONKEY-BUTTON') {
-                overlay.style.zIndex = '-1';
-            }
-        }, 300);
     }
 });

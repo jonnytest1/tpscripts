@@ -22,7 +22,7 @@ var dep = new EvalScript('', {
         /**@param {CustomScript} script */
         function shouldCheck(script) {
             script.src = script.src || script.source;
-            return script.src.includes('localhost') || script.src.includes('pi4.e6azumuvyiabvs9s.myfritz.net');
+            return script.src.includes('localhost') || script.src.includes(window.top.backendUrl);
         }
         /**
          * @param {string} urlString

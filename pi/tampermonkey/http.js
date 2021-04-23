@@ -3,6 +3,7 @@
  * @typedef httpResolv
  * @property {httpFnc} http
  * @property {(url:string,errorCheck?:boolean)=>Promise<any>} gm_fetch
+ * @property {(url:String)=>Promise<Document>} document
  * @property {sendDataFnc} sendData
   */
 /**
@@ -193,7 +194,16 @@ new EvalScript('', {
     let resolving = {
       sendData,
       http,
-      gm_fetch
+      gm_fetch,
+      document: async (url) => {
+        const response = await http('GET', url);
+        const doc = new DOMParser().parseFromString(response, 'text/html');
+        let baseEl = doc.createElement('base');
+        const requestURl = new URL(url);
+        baseEl.setAttribute('href', requestURl.origin);
+        doc.head.append(baseEl);
+        return doc;
+      }
     };
     resolver(resolving);
 

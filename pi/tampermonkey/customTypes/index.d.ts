@@ -12,8 +12,17 @@
 /// <reference path="./overwrites.d.ts" />
 /// <reference path="../BASE.js" />
 
+type CustomEvalScript = CustomScript & {
+    resolvers?: Array<Function>,
+    dispatchEvent: Function,
+    addEventListener: Function,
+    remove: Function,
+    parameters?: { [key: string]: any }
+}
+
+
 interface EvalSSCripts {
-    [key: string]: any
+    [key: string]: CustomEvalScript
 }
 
 interface Document {

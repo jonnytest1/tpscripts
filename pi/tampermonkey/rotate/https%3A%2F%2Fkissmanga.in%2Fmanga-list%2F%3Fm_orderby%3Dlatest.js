@@ -8,12 +8,6 @@ var kissmangain = new EvalScript('', {
 
         let timer = await reqS('time');
 
-        XMLHttpRequest.prototype.whitelisturl = [
-            `(.*)${location.origin.replace('.', '\\.')
-                .replace('?', '\\?')
-                .replace(/\//g, '\\/')}(.*)`
-        ];
-
         const subscribed = sc.G.g('kissmangainMangas');
         await timer.asyncForEach({
             array: Object.keys(subscribed),
@@ -24,7 +18,13 @@ var kissmangain = new EvalScript('', {
                     { mapKey: key });
 
                 if(!subscribed[key].shortKey || !subscribed[key].imageUrl || !subscribed[key].mangaName) {
-                    const response = await fetch('/kissmanga/' + key);
+                    const response = await fetch('https://kissmanga.in/kissmanga/' + key);
+
+                    if(response.status >= 400) {
+                        logKibana('ERROR', `fetch for ${key}`);
+                        return null;
+                    }
+
                     const text = await response.text();
 
                     const container = new DOMParser().parseFromString(text, 'text/html');
@@ -72,7 +72,6 @@ var kissmangain = new EvalScript('', {
                 let hasFoundSeenChapter = false;
                 for(const chapter of chapters) {
                     const chapterLink = chapter.querySelector('a');
-                    const chapterName = chapterLink.textContent.trim();
                     const chapterUrl = new URL(chapterLink.href);
 
                     const hasSeenChapter = seenMangas.some(seenLink => seenLink.value === chapterUrl.pathname);
@@ -86,11 +85,12 @@ var kissmangain = new EvalScript('', {
                                 value: new URL(latestNotSeen.href).pathname
                             }, { mapKey: key });
                             const wnd = open(latestNotSeen.href);
-                            GMnot(`new episode \n ${subscribed[key].mangaName}`, chapterName, subscribed[key].imageUrl, () => {
+                            GMnot(`new episode \n ${subscribed[key].mangaName}`, latestNotSeen.textContent.trim(), subscribed[key].imageUrl, () => {
                                 wnd.focus();
                             });
                             return null;
                         } else {
+                            const chapterName = chapterLink.textContent.trim();
                             console.log(`already seen ${chapterName} from ${subscribed[key].mangaName}`);
                             return null;
                         }
@@ -119,6 +119,7 @@ var kissmangain = new EvalScript('', {
         });
 
         sc.G.s('kissmangainMangas', subscribed);
+        sc.menu.elements.find(el => el.name === 'rotate').normalColor = 'Green';
 
     },
     reset: (set) => {

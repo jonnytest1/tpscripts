@@ -69,19 +69,19 @@ try {
     if(!array_key_exists("fileOnly", $qParams)){
         $str="//# sourceURL=http://privatescriptserver.de/".$requestUrlDecoded."\n".$str;
     }
+
     if (strpos($url, "rotate/rotate") > -1) {
         include(dirname(__FILE__) . '/rotate/rotate.php');
         include(dirname(__FILE__) . '/fileLoader.php');
 
         $fileLoader = new FileLoader();
         $rotate = new Rotate();
+        $requestUrl=NULL;
 
-        $queryPAramas = $qParams;
-        if (!array_key_exists("rotateUrl", $queryPAramas)) {
-            echo "missing rotateUrl param";
-            return;
+        if (array_key_exists("rotateUrl", $qParams)) {
+            $requestUrl = $qParams["rotateUrl"];
         }
-        $requestUrl = $qParams["rotateUrl"];
+       
         $requestUrl=urldecode($requestUrl);
         $str = $fileLoader->preProcessFileName("rotate/rotate");
         $str = $rotate->injectUrls($str, str_replace(".js", "", $requestUrl));
@@ -90,7 +90,7 @@ try {
         //$str=parseLibs($str,$url);
     }
     echo $str;
-} catch (ErrorException $e) {
+} catch (Throwable $e) {
     log_be("ERROR",$e->getMessage());
     echo "alert('failed getting file')";
 }

@@ -379,7 +379,7 @@ async function req(path, options = {}) {
                     errorFixScript.onload = onScriptLoad(errorFixScript.resolve);
                     console.log('calling standard finish for ' + errorFixScript.source);
                     setTimeout(() => {
-                        // finished(undefined, false, errorFixScript);
+                        finished(undefined, false, errorFixScript);
                     }, 1);
                     setTimeout(() => {
                         if(!errorFixScript.loaded) {
@@ -388,7 +388,7 @@ async function req(path, options = {}) {
                                 injectByEval(errorFixScript);
                             }
                         }
-                    }, 2000);
+                    }, 5000);
                 },
                 onerror: (e) => {
                     console.log('err', e);

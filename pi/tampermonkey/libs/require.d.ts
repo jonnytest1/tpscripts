@@ -59,7 +59,7 @@ export interface RequireMap {
 
     'DOM/menu/timed-rotator/timed-rotator': TypeRegistration<"timedRotate">
     "DOM/rotation-menu": TypeRegistration<"rotate">
-
+    'rotate/rotate': void
     "site/brandad/attack": (request: RequestStorage) => Promise<Array<{
         request: string, response: string
     }>>,
@@ -102,7 +102,7 @@ export interface RequireMap {
 }
 
 export interface reqSType {
-    <K extends keyof RequireMap>(path: K, options?: any): Promise<RequireMap[K]>;
+    <K extends keyof RequireMap>(path: K, options?: { cache?: boolean }): Promise<RequireMap[K]>;
     <
         K extends keyof RequireMap,
         T extends keyof RequireMap>(path: [

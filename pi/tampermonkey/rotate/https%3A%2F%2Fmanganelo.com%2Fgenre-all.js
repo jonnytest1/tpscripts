@@ -47,7 +47,7 @@ var manganelocom = new EvalScript('', {
                 let hasFoundSeenChapter = false;
                 for(const episode of chapters) {
                     const chapterLink = episode.querySelector('a');
-                    const chapterName = chapterLink.textContent.trim();
+
                     const chapterUrl = new URL(chapterLink.href);
 
                     const hasSeenChapter = seenMangas.some(seenLink => seenLink.value === chapterUrl.pathname);
@@ -61,12 +61,14 @@ var manganelocom = new EvalScript('', {
                                 timestamp: Date.now(),
                                 value: new URL(latestNotSeen.href).pathname
                             }, { mapKey: manga });
+                            debugger;
                             const wnd = open(latestNotSeen.href);
-                            GMnot(`new episode \n ${subscribed[manga].mangaName}`, chapterName, subscribed[manga].imageUrl, () => {
+                            GMnot(`new episode \n ${subscribed[manga].mangaName}`, latestNotSeen.textContent.trim(), subscribed[manga].imageUrl, () => {
                                 wnd.focus();
                             });
                             return null;
                         } else {
+                            const chapterName = chapterLink.textContent.trim();
                             console.log(`already seen ${chapterName} from ${subscribed[manga].mangaName}`);
                             return null;
                         }
@@ -79,7 +81,7 @@ var manganelocom = new EvalScript('', {
             }
         });
         sc.G.s('manganeloMangas', subscribed);
-
+        sc.menu.elements.find(el => el.name === 'rotate').normalColor = 'Green';
     },
     reset: (set) => {
         //

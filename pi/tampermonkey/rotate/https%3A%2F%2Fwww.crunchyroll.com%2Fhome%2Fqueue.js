@@ -1,23 +1,27 @@
 /// <reference path="../customTypes/index.d.ts" />
 
 new EvalScript('', {
-    run: async () => {
-        const [time, btn] = await reqS(['time', 'DOM/button']);
+    run: async (res, set) => {
+        const [time, btn, http] = await reqS(['time', 'DOM/button', 'http']);
         /**
         * @typedef VideoElement
         * @property {number} time
         * @property {string} url
         */
-
         await time.waitForAsync({
             duration: 2000,
             callback: () => true
         });
+        const reqUrl = new URL(set.evalScript.getUrl()).searchParams.get('url')
+            .replace('rotate/', '');
+        const htmlUrl = new URL(decodeURIComponent(reqUrl));
+
+        const doc = await http.document(htmlUrl.href);
         const openedVideosMap = 'crunchyrollOpenedVideosMap';
 
         /**@type {NodeListOf<HTMLElement>} */
-        const items = document.querySelectorAll('.queue-item');
-        time.asyncForEach({
+        const items = doc.querySelectorAll('.queue-item');
+        await time.asyncForEach({
             array: [...items],
             subItemType: 'a',
             subitemOptions: {
@@ -36,9 +40,7 @@ new EvalScript('', {
                     mapKey: subitem.href
                 });
 
-                const showResponse = await fetch(subitem.href);
-                const showHTML = await showResponse.text();
-                const showDocument = new DOMParser().parseFromString(showHTML, 'text/html');
+                const showDocument = await http.document(subitem.href);
                 const episodes = [...showDocument.querySelectorAll('.list-of-seasons .portrait-grid .group-item')];
 
                 let urlToOpen = null;
@@ -61,7 +63,7 @@ new EvalScript('', {
                         mapKey: subitem.href
                     });
 
-                    btn.crIN({
+                    /*btn.crIN({
                         parent: item,
                         text: 'setLAtest',
                         onclick: () => {
@@ -77,8 +79,8 @@ new EvalScript('', {
                         }, styles: {
                             position: 'relative'
                         }
-                    });
-
+                    });*/
+                    debugger;
                     open(urlToOpen);
                 }
 
@@ -87,5 +89,6 @@ new EvalScript('', {
             }
         });
 
+        sc.menu.elements.find(el => el.name === 'rotate').normalColor = 'Green';
     }
 });

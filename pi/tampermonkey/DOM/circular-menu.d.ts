@@ -56,6 +56,9 @@ declare type RegistrationFunction<K extends keyof TypeOptionsMap = any> = (item:
 declare type TypeRegistration<K extends keyof TypeOptionsMap> = [K, RegistrationFunction<K>]
 
 declare interface CircularMenuInstnace {
+
+    elements: Array<MenuElementItem<any>>
+
     addToMenu: addToMenuFnc,
     createElement: CreateElement,
 

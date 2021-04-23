@@ -56,12 +56,7 @@ globalThis.querydoc = querydoc;
  *  options?:any
  * }} CustomScript
  *
- * @typedef {CustomScript&{
- *  resolvers?:Array<Function>,
- *  dispatchEvent:Function,
- *  addEventListener:Function,
- *  remove:Function,
- * }} CustomEvalScript
+ *
  *
  *
  *  @typedef {HTMLOrSVGScriptElement & CustomScript } CustomHTMLscript

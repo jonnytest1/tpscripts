@@ -14,13 +14,12 @@ var CustomTime = class CustomTimeC {
          */
     async waitForAsync(obj) {
         return new Promise((res, err) => {
-            const options = obj;
-            const origCallback = options.callback;
-            options.callback = (...args) => {
+            const origCallback = obj.callback;
+            obj.callback = (args) => {
                 if(origCallback) {
-                    origCallback(...args);
+                    origCallback(args);
                 }
-                res(...args);
+                res(args);
             };
             this.waitFor(obj);
         });
@@ -84,11 +83,7 @@ var CustomTime = class CustomTimeC {
             for(let item of options.array) {
                 let subItem;
                 if(options.subItemType && item instanceof HTMLElement) {
-                    /**
-                     * @type {HTMLElement}
-                     */
-                    const htmlItem = item;
-                    subItem = sc.g.eval(options.subItemType, { ...options.subitemOptions, first: true, parent: htmlItem });
+                    subItem = sc.g.eval(options.subItemType, { ...options.subitemOptions, first: true, parent: item });
                 }
                 const nextDelay = await options.callback(item, subItem);
                 if(nextDelay === true) {

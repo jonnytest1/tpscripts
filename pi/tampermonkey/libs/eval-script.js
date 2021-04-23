@@ -85,15 +85,22 @@ class EvalScript {
                 document.currentScript[propName] = this[propName];
 
             } else if(document.props.evalScripts[this.url]) {
+                // @ts-ignore
                 document.props.evalScripts[this.url][propName] = this[propName];
             }
         }
     }
+
+    getSiteFilter() {
+        const reqUrlPathParts = new URL(this.getUrl()).searchParams.get('url').split('/');
+        return decodeURIComponent(reqUrlPathParts[reqUrlPathParts.length - 1]);
+    }
+
     /**
      * @returns {string}
      */
     getUrl() {
-        return this.url || this.script.src;
+        return this.url || this.script.src || this.script.source;
     }
 
     set() {
@@ -160,6 +167,7 @@ class EvalScript {
             if(typeof arg === 'function') {
                 arg = new Proxy(arg, {
                     apply: (target, thisArg, argumentsList) => {
+                        // @ts-ignore
                         this.options.params = argumentsList;
                         // @ts-ignore
                         const result = target.call(thisArg, ...argumentsList);
