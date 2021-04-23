@@ -5,10 +5,15 @@
     width: 400px;
     z-index: 3;
 }
+#loadingImage{
+    margin-left:40px;
+    transform: translateY(4px);
+    visibility: hidden;
+}
 
 #textInput{
     width:85%;
-    margin-left:50px;
+    
 }
 
 #amount{

@@ -97,7 +97,8 @@ let textInput = document.querySelector('#textInput');
 const amountInput = document.querySelector('#amount');
 /**@type {HTMLInputElement} */
 const matcherInput = document.querySelector('#matcher');
-
+/**@type {HTMLImageElement} */
+let loadingImage = document.querySelector('#loadingImage');
 //finc encoding with criteria
 //just brute forces all the combinations
 /*matcherInput.onkeypress = (e) => {
@@ -165,11 +166,27 @@ const matcherInput = document.querySelector('#matcher');
         recreate(textValue, amountValue);
         updateUrl();
     };
-
+    let inputTimeout;
     textInput.oninput = (e) => {
-        textValue = textInput.value;
-        recreate(textValue, amountValue);
-        updateUrl();
+        if(queryPicked.some(q => q.yIndex.includes('aes'))) {
+            if(inputTimeout) {
+                clearTimeout(inputTimeout);
+            }
+            inputTimeout = setTimeout(() => {
+                loadingImage.style.visibility = 'visible';
+                setTimeout(() => {
+                    inputTimeout = undefined;
+                    textValue = textInput.value;
+                    recreate(textValue, amountValue);
+                    updateUrl();
+                    loadingImage.style.visibility = 'hidden';
+                }, 10);
+            }, 500);
+        } else {
+            textValue = textInput.value;
+            recreate(textValue, amountValue);
+            updateUrl();
+        }
     };
 
     if(matcherInput.value) {

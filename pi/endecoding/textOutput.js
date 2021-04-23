@@ -45,21 +45,12 @@ export class TextOutput {
         if(str === 'ERROR') {
             return 'ERROR';
         }
-        try {
-            this.convertedText = this.converter.fnc.call(this.converter, str, this.conversionElement);
-            return this.convertedText;
-        } catch(e) {
-            console.trace(e, str, this.converter);
-            return 'ERROR';
-        }
+        this.convertedText = this.converter.fnc.call(this.converter, str, this.conversionElement);
+        return this.convertedText;
+
     }
     recalculate() {
-        let value = this.convert(this.previousText);
-        try {
-            this.textField.value = JSON.stringify(JSON.parse(value), undefined, '. ');
-        } catch(error) {
-            this.textField.value = value;
-        }
+        const value = this.convertInputElement();
         if(this.next) {
             this.next.previousText = value;
             this.next.recalculate(this.next);
@@ -130,14 +121,10 @@ export class TextOutput {
         const textRow = document.querySelector('#textFields');
         const newRow = getDefault(textRow);
         /**@type {HTMLInputElement} */
-        const textDisplay = newRow.querySelector('.textDisplay');
-        const converted = this.convert(this.previousText);
-        try {
-            textDisplay.value = JSON.stringify(JSON.parse(converted), undefined, '. ');
-        } catch(error) {
-            textDisplay.value = converted;
-        }
-        this.textField = textDisplay;
+        this.textField = newRow.querySelector('.textDisplay');
+
+        this.convertInputElement();
+
         textRow.appendChild(newRow);
 
         const printRow = document.querySelector('#printButtons');
@@ -148,6 +135,35 @@ export class TextOutput {
             this.printAll();
         };
         printRow.appendChild(newPrintElement);
+    }
+
+    convertInputElement() {
+        try {
+            this.textField.style.backgroundColor = 'initial';
+            if(!this.previousText) {
+                this.textField.value = '';
+                return null;
+            }
+            const converted = this.convert(this.previousText);
+            try {
+                if(typeof converted == "object") {
+                    this.textField.value = JSON.stringify(converted, undefined, '. ');
+                } else {
+                    this.textField.value = JSON.stringify(JSON.parse(converted), undefined, '. ');
+                }
+            } catch(error) {
+                this.textField.value = converted;
+            }
+            return converted;
+        } catch(error) {
+            console.log(error);
+            let errorMsg = error;
+            if(error.getMessage) {
+                errorMsg = error.getMessage();
+            }
+            this.textField.value = errorMsg;
+            this.textField.style.backgroundColor = '#ffab003b';
+        }
     }
 
 }

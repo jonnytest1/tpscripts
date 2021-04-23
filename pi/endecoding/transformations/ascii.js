@@ -13,6 +13,13 @@ var ascii = [
         nameHTML: 'ascii number to string',
         fnc: str => {
             let t = '';
+
+            if(str.split(' ').length > str.length / 5 || str.length < 5) {
+                return str.split(' ')
+                    .map(char => String.fromCharCode(+char))
+                    .join('');
+            }
+
             let ar = str.split('');
             for(let i = 0; i < ar.length; i += 2) {
                 if(+ar[i] < 3) {
