@@ -11,7 +11,8 @@
             "address": "192.168.178.54",
             "port": 15747,
             "localRoot": "${workspaceFolder}/pi/nodetypescript",
-            "remoteRoot": "/var/node"
+            "remoteRoot": "/var/node",
+            "restart": true
         }
     ]
 }
