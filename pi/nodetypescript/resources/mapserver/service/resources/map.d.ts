@@ -1,28 +1,28 @@
-export interface Map {
+export interface ILayer {
+    data?: Array<number>;
+    draworder?: "topdown";
+    objects?: Array<unknown>;
+    opacity?: number;
+    height: number;
+    visible?: boolean;
+    id: number;
+    name: string;
+    type: "tilelayer" | 'objectgroup';
+    width: number;
+    x: number;
+    y: number;
+    properties?: Array<{
+        name: string;
+        type: "string" | "bool";
+        value: string | boolean;
+    }>;
+}
+
+export interface MapJson {
     height: number;
     width: number
 
-    layers: Array<{
-        data?: Array<number>
-        draworder?: "topdown"
-        objects?: Array<unknown>
-        opacity?: number
-        height: number
-        visible?: boolean
-        id: number
-        name: string
-        type: "tilelayer" | 'objectgroup'
-        width: number
-        x: number
-        y: number,
-        properties?: Array<{
-
-            name: string,
-            type: "string" | "bool",
-            value: string | boolean
-
-        }>
-    }>
+    layers: Array<ILayer>
 
     tilesets: Array<{
         columns: number;

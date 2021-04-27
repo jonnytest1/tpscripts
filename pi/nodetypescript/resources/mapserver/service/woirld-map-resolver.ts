@@ -1,71 +1,102 @@
+import { GeoLocation } from '../models/location';
+import { TilePixel } from '../models/tile-pixel';
+import { Vector } from '../models/vector';
+import { MapAttributes } from './map-attributes-holder';
+import { MapJson } from './resources/map';
+import { SitesAdder } from './site-adder';
 
-import { Tile } from '../models/tile';
-import { ImageResolver } from './image-resolver';
-import { Map } from './resources/map';
-let defaultJson: Map = require('./resources/default-map.json');
+const cachingEnabled = false;
 
-class WorldMapResolver {
+export const startTileIndex = 374;  //tile:1
+export const exitTileIndex = 384; //tile:2
 
-    images: Array<Array<{ tile: Tile, imageData: Array<number>, width: number, height: number }>> = [];
+export class MapResolver extends MapAttributes {
 
-    maxX = 15;
-    maxY = 15;
+    defaultJson: MapJson = require('./resources/default-map.json');
 
-    worldZoom = 4;
+    static worldMapJsonString;
+
+    static readonly zoomIncrement = 4; //6
+    static readonly worldZoom = 3;
     readonly startLayersId = 10000;
-    completedMap: Tile;
-    worldMapJsonString: string;
 
-    readonly indexesInCompleteRow = 16 * 8;
+    readonly indexesInCompleteRow: number;
 
-    readonly debugOffset = 200000;
+    readonly debugOffset = 0;
+
+    private readonly layerAmount;
+
+    readonly completeIndexArraySize: number;
+
+    readonly startIndex: number;
+
+    startPoint = { loc: new GeoLocation(0, 0), amount: 0, sites: new Array<TilePixel>() };
+    layerStart: Vector;
+    layerEnd: Vector;
+
+    constructor(public zoom = MapResolver.worldZoom, private firstLayerX = 0, private firstLayerY = 0, layermount = MapAttributes.layerSizePerMap) {
+        super();
+        this.layerStart = new Vector(firstLayerX, firstLayerY).atLeast(0);
+        this.layerAmount = layermount;// MapResolver.layerSizePerMap//lastLayerX * Math.pow(2, zoom) - (firstLayerX * Math.pow(2, zoom))
+        this.layerEnd = this.layerStart.added(this.layerAmount)
+            .limit(MapResolver.getMaxAmountOfImagesForZoom(zoom));
+        this.indexesInCompleteRow = this.layerAmount * MapResolver.indexesPerTile;
+        this.completeIndexArraySize = this.indexesInCompleteRow * this.indexesInCompleteRow;
+        this.startIndex = this.toIndex(this.layerStart.lat, this.layerStart.lon, 0, 0);
+    }
 
     async getWorldMapJson() {
 
-        defaultJson.tilesets.length = 1;
-        defaultJson.layers = [];
-        if (this.worldMapJsonString) {
-            // return this.worldMapJsonString;
+        this.defaultJson.tilesets.length = 1;
+        this.defaultJson.layers = [];
+        if (MapResolver.worldMapJsonString && this.zoom === MapResolver.worldZoom && cachingEnabled) {
+            return MapResolver.worldMapJsonString;
         }
 
-        defaultJson.width = defaultJson.height = 16 * 256 / 32;
-        let startGid = 668;
-        const tileSize = 8;
+        this.defaultJson.width = this.defaultJson.height = this.indexesInCompleteRow;
+        let startGid = this.defaultJson.tilesets[0].firstgid + this.defaultJson.tilesets[0].tilecount;//668
+
+        await new SitesAdder(this).addSites();
+
+        const siteAverage = this.startPoint.loc.dividedBy(this.startPoint.amount);
+        let startPoint;
+        while (!startPoint || this.startPoint.sites.some(site => site.equals(startPoint))) {
+            startPoint = siteAverage.added(new GeoLocation(Math.floor(Math.random() * 8) - 4, Math.floor(Math.random() * 8) - 4))
+                .rounded();
+        }
+
         const dataArray = [];
-        const startLayerData = [];
-        for (let i = 0; i < 16; i++) {
-            for (let y = 0; y < 16; y++) {
-                const tileCount = 64;
-                defaultJson.tilesets.push({
-                    columns: 256 / 32,
-                    imageheight: 256,
-                    imagewidth: 256,
-                    image: `/image/${4}/${i}/${y}.png`,
-                    name: `tileset-${4}-${i}-${y}`,
+        for (let i = this.layerStart.lat; i < this.layerEnd.lat; i++) {
+            for (let y = this.layerStart.lon; y < this.layerEnd.lon; y++) {
+                const tileCount = Math.pow(MapResolver.indexesPerTile, 2);
+                this.defaultJson.tilesets.push({
+                    columns: MapResolver.indexesPerTile,
+                    imageheight: MapAttributes.imageSize,
+                    imagewidth: MapAttributes.imageSize,
+                    image: `/image/${this.zoom}/${i}/${y}.png`,
+                    name: `tileset-${this.zoom}-${i}-${y}`,
                     margin: 0,
                     spacing: 0,
                     tilecount: tileCount,
-                    tileheight: 32,
-                    tilewidth: 32,
+                    tileheight: MapResolver.tileSize,
+                    tilewidth: MapResolver.tileSize,
                     transparentcolor: '#fff',
                     firstgid: startGid
                 });
-                for (let tileColumn = 0; tileColumn < tileSize; tileColumn++) {
-                    for (let tileRow = 0; tileRow < tileSize; tileRow++) {
-                        const tileIndex = tileColumn * tileSize + tileRow;
-                        const rowStart = ((8 * i) + tileColumn) * this.indexesInCompleteRow;
-                        const dataIndex = rowStart + (y * tileSize) + tileRow;
+                for (let tileColumn = 0; tileColumn < MapResolver.indexesPerTile; tileColumn++) {
+                    for (let tileRow = 0; tileRow < MapResolver.indexesPerTile; tileRow++) {
+                        const tileIndex = tileColumn * MapResolver.indexesPerTile + tileRow;
+                        const dataIndex = this.toIndex(i, y, tileColumn, tileRow);
 
-                        dataArray[dataIndex] = startGid + tileIndex;
+                        dataArray[dataIndex - this.startIndex] = startGid + tileIndex;
 
-                        startLayerData.push(Math.random() < 0.05 ? 374 : 0);
                     }
                 }
                 startGid += tileCount;
             }
         }
 
-        defaultJson.layers.push({
+        this.defaultJson.layers.push({
             data: dataArray,
             name: 'background-image',
             id: 20000,
@@ -78,10 +109,15 @@ class WorldMapResolver {
             type: 'tilelayer'
         });
 
-        defaultJson.layers.push({
+        const startLayerArray = Array(this.completeIndexArraySize)
+            .fill(0);
+
+        const pixelIndex = +startPoint.lon * this.indexesInCompleteRow + +startPoint.lat;
+        startLayerArray.splice(pixelIndex - this.startIndex, 1, startTileIndex);
+        this.defaultJson.layers.push({
             'x': 0,
             'y': 0,
-            data: startLayerData,
+            data: startLayerArray,
             'name': 'start',
             properties: [
                 {
@@ -99,7 +135,7 @@ class WorldMapResolver {
 
         });
 
-        defaultJson.layers.push({
+        this.defaultJson.layers.push({
             draworder: 'topdown',
             objects: [],
             opacity: 1,
@@ -111,91 +147,25 @@ class WorldMapResolver {
             y: 0,
             type: 'objectgroup'
         });
-        for (let i = 0; i < 4; i++) {//indexesInCompleteRow
-            this.addContinuationLayersForRow(i);
+        for (let i = 0; i < this.indexesInCompleteRow; i++) {//
+            //this.addContinuationLayersForRow(i); json gets too big
         }
 
-        defaultJson.layers.sort((l1, l2) => l1.id - l2.id);
-        defaultJson.layers.forEach((layers, index) => {
+        this.defaultJson.layers.sort((l1, l2) => l1.id - l2.id);
+        this.defaultJson.layers.forEach((layers, index) => {
             layers.id = index;
         });
 
-        this.worldMapJsonString = JSON.stringify(defaultJson);
-        return this.worldMapJsonString;
-    }
-
-    addContinuationLayersForRow(currentRow: number) {
-        const firstInRow = this.indexesInCompleteRow * currentRow;
-        const endOfRow = firstInRow + this.indexesInCompleteRow - 1;
-
-        const exitArrayRight = Array(16384)
-            .fill(0);
-        exitArrayRight.splice(endOfRow, 1, 384);
-        const startArrayLeft = Array(16384)
-            .fill(0);
-        //const startArrayLeft = [374];
-        startArrayLeft.splice(firstInRow + 1, 1, 374);
-        defaultJson.layers.push({
-            data: exitArrayRight,
-            name: `exit-${currentRow}-right`,
-            id: this.startLayersId + 1 + this.debugOffset,
-            'opacity': 1,
-            'visible': true,
-            properties: [
-                {
-                    name: 'exitSceneUrl',
-                    type: 'string',
-                    value: `#start-${currentRow}-left`
-                }
-            ],
-            height: this.indexesInCompleteRow,
-            width: this.indexesInCompleteRow,
-            x: 0,
-            y: 0,
-            type: 'tilelayer'
-        });
-        defaultJson.layers.push({
-            data: startArrayLeft,
-            name: `start-${currentRow}-left`,
-            id: this.startLayersId + 5 + this.debugOffset,
-            'opacity': 1,
-            'visible': true,
-            properties: [
-                {
-                    'name': 'startLayer',
-                    'type': 'bool',
-                    'value': true
-                }
-            ],
-            height: this.indexesInCompleteRow,
-            width: this.indexesInCompleteRow,
-            x: 1,
-            y: currentRow + 1,
-            type: 'tilelayer'
-
-        });
-    }
-
-    async completeRow(x: number): Promise<void> {
-        if (!this.images[x]) {
-            this.images[x] = [];
+        const mapString = JSON.stringify(this.defaultJson);
+        if (this.zoom === MapResolver.worldZoom) {
+            MapResolver.worldMapJsonString = mapString;
         }
-
-        for (let i in arrayOfLength(this.maxY + 1)) {
-            const tileRef = new Tile();
-            tileRef.x = x;
-            tileRef.y = i;
-            tileRef.zoom = this.worldZoom;
-            await ImageResolver.loadTileData(tileRef);
-        }
-
+        return mapString;
     }
-}
 
-function arrayOfLength(length: number) {
-    return Array.from({
-        length: length
-    });
-}
+    toIndex(bigX, bigY, tileColumn, tileRow) {
+        const rowStart = ((MapResolver.indexesPerTile * bigX) + tileColumn) * this.indexesInCompleteRow;
+        return rowStart + (bigY * MapResolver.indexesPerTile) + tileRow;
+    }
 
-export const worldMapResolverInstance = new WorldMapResolver();
+}

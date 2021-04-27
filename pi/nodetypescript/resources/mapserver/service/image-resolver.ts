@@ -1,14 +1,15 @@
 import { load, save } from 'hibernatets';
+import { ResponseCodeError } from '../../../express-wrapper/response-code-error';
 import { GeoLocation } from '../models/location';
 import { Tile } from '../models/tile';
-import { worldMapResolverInstance } from './woirld-map-resolver';
+import { MapResolver } from './woirld-map-resolver';
 const fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response> = require('node-fetch');
 
 const origins = ['a', 'b', 'c'];
 
 export class ImageResolver {
 
-    static async getTileForPos(location: GeoLocation, zoom: number = worldMapResolverInstance.worldZoom): Promise<Tile> {
+    static async getTileForPos(location: GeoLocation, zoom: number = MapResolver.worldZoom): Promise<Tile> {
         const tempTile = location.toTile(zoom);
         return this.loadTileData(tempTile);
     }
@@ -35,6 +36,9 @@ export class ImageResolver {
             }
         });
         console.log(response.status);
+        if (response.status !== 200) {
+            throw new ResponseCodeError(response.status, await response.text());
+        }
         tempTile.data = await response.arrayBuffer();
         save(tempTile);
         return tempTile;

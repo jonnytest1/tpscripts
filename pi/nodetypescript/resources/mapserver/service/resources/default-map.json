@@ -6,7 +6,6 @@
             "target": "fire.json"
         }
     },
-    "height": 50,
     "infinite": false,
     "layers": [],
     "nextlayerid": 10,
@@ -45,6 +44,5 @@
     ],
     "tilewidth": 32,
     "type": "map",
-    "version": 1.5,
-    "width": 50
+    "version": 1.5
 }
