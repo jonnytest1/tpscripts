@@ -5,6 +5,12 @@
 var _19216817854 = new EvalScript('', {
     waitForResolver: true,
     run: async (resolv, set) => {
+        if(location.port !== '433') {
+            if(!(location.port==""&&location.protocol=="https:")){
+                return;
+            }
+        }
+
         await reqS('rotate/rotate');
 
         setInterval(checkNewLogs, 5000);

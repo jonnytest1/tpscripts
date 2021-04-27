@@ -56,7 +56,6 @@ var manganelocom = new EvalScript('', {
                     const noSeenMangaStored = seenMangas.length === 0 && latestNotSeen;
                     if(hasSeenChapter || noSeenMangaStored) {
                         if(latestNotSeen) {
-                            debugger;
                             sc.G.p('manganeloSeenMangas', {
                                 timestamp: Date.now(),
                                 value: new URL(latestNotSeen.href).pathname

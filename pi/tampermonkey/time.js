@@ -81,21 +81,31 @@ var CustomTime = class CustomTimeC {
         const delay = options.delay || 500;
         try {
             for(let item of options.array) {
-                let subItem;
-                if(options.subItemType && item instanceof HTMLElement) {
-                    subItem = sc.g.eval(options.subItemType, { ...options.subitemOptions, first: true, parent: item });
-                }
-                const nextDelay = await options.callback(item, subItem);
-                if(nextDelay === true) {
-                    await this.waitForAsync({
-                        duration: delay,
-                        callback: () => {
-                            //
+                try {
+                    let subItem;
+                    if(options.subItemType && item instanceof HTMLElement) {
+                        subItem = sc.g.eval(options.subItemType, { ...options.subitemOptions, first: true, parent: item });
+                    }
+                    const nextDelay = await options.callback(item, subItem);
+                    if(nextDelay === true) {
+                        await this.waitForAsync({
+                            duration: delay,
+                            callback: () => {
+                                //
+                            }
+                        });
+                    }
+                    if(nextDelay === false) {
+                        break;
+                    }
+                } catch(e) {
+                    logKibana('ERROR', {
+                        message: 'error in async forEach',
+                        ...options,
+                        ...{
+                            currentItem: item
                         }
-                    });
-                }
-                if(nextDelay === false) {
-                    break;
+                    }, e);
                 }
             }
         } catch(e) {

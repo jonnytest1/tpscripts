@@ -22,16 +22,16 @@ async function toDataURL(url) {
 *       body?:string
 *       image?: string;
  *      href?: string;
- *      onclick(): void;
+ *      onclick?:()=> void;
  * }} not_options
  *
  *
  * @typedef {{
- *  timeout:number,
+ *  timeout?:number,
  *  title:string
  *  text :string,
- *  image :string,
- *  onclick:()=>any,
+ *  image ?:string,
+ *  onclick?:()=>any,
  *  ondone?:()=>any
  * }} GM_not_optinos
  *

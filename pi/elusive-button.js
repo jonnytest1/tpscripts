@@ -33,10 +33,18 @@ onload = function elusiveButton() {
     const button = document.createElement('button');
     button.textContent = 'click me :3';
     button.style.position = 'fixed';
-    button.onclick = () => {
+    button.onclick = e => {
+        if(!e.isTrusted) {
+            return
+        }
         alert('you did it :o \\o/');
         logKibana('ERROR', 'clicked button on main page oO');
     };
+    button.onfocus = e => {
+        e.stopPropagation()
+        button.blur();
+        document.body.focus()
+    }
     button.setPos = (x, y = 0) => {
         /**@type {number} */
         let newX;

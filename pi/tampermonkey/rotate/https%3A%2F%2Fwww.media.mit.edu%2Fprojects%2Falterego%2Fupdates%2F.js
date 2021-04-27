@@ -26,11 +26,17 @@ var mediamit = new EvalScript('', {
             moduleLinkUrl.host = htmlUrl.host;
             if(moduleLinkUrl.href !== previousLink) {
                 debugger;
-                GMnot('new mit', sc.g.eval('h2', {
-                    class: ['module-title'],
-                    parent: firstModule,
-                    first: true
-                }).textContent);
+                GMnot({
+                    title: 'new mit',
+                    body: sc.g.eval('h2', {
+                        class: ['module-title'],
+                        parent: firstModule,
+                        first: true
+                    }).textContent,
+                    onclick: () => {
+                        window.open(moduleLinkUrl.href);
+                    }
+                });
                 sc.G.s('mitAlterEgoLastLink', moduleLinkUrl.href);
             }
         }, 2000);
