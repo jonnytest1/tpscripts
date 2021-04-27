@@ -1,4 +1,5 @@
-import { ResponseCodeError } from '../../../express-wrapper/response-code-error';
+
+import { ResponseCodeError } from 'express-hibernate-wrapper';
 import { Address } from '../models/address';
 import { BoundingBox } from '../models/bounding-box';
 import { GeoLocation } from '../models/location';

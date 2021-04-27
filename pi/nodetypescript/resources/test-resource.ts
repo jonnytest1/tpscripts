@@ -1,4 +1,4 @@
-import { Path } from '../express-wrapper/express-wrapper';
+import { Path } from 'express-hibernate-wrapper';
 
 @Path('test')
 export class TestResource {

@@ -1,9 +1,9 @@
 import { config } from 'dotenv';
+import { initialize } from 'express-hibernate-wrapper';
 import * as session from 'express-session';
 import { updateDatabase } from 'hibernatets';
+import passport = require('passport');
 import * as auth from './credentials/auth';
-import { initialize } from './express-wrapper/express-wrapper';
-import { worldMapResolverInstance } from './resources/mapserver/service/woirld-map-resolver';
 const hbs = require('hbs');
 
 config({
@@ -18,15 +18,18 @@ updateDatabase(__dirname + '/resources/mapserver/models')
                 app.set('view engine', 'html');
                 app.engine('html', hbs.__express);
                 app.set('views', './views');
-                app.use(session({
-                    secret: 'secret', // You should specify a real secret here
-                    resave: true,
-                    saveUninitialized: false,
-                    proxy: true,
-                    cookie: {
-                        httpOnly: true
-                    }
-                }));
+                app.use(passport.initialize());
+                app.use(passport.session());
+
+                /* app.use(session({
+                     secret: 'secret', // You should specify a real secret here
+                     resave: true,
+                     saveUninitialized: false,
+                     proxy: true,
+                     cookie: {
+                         httpOnly: true
+                     }
+                 }));*/
             }, postresource: app => {
                 app.use('/auth', auth.default);
             },

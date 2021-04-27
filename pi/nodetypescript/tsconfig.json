@@ -5,6 +5,8 @@
         "baseUrl": "./",
         "moduleResolution": "node",
         "target": "es6",
+        "emitDecoratorMetadata": true,
+        "useDefineForClassFields": true,
         "typeRoots": [
             "node_modules/@types",
             "customTypes/*"
@@ -14,7 +16,7 @@
         "lib": [
             "dom",
             "es6"
-        ] 
+        ]
     },
     "include": [
         "./"

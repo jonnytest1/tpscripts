@@ -1,5 +1,5 @@
+import { ResponseCodeError } from 'express-hibernate-wrapper';
 import { load, save } from 'hibernatets';
-import { ResponseCodeError } from '../../../express-wrapper/response-code-error';
 import { GeoLocation } from '../models/location';
 import { Tile } from '../models/tile';
 import { MapResolver } from './woirld-map-resolver';

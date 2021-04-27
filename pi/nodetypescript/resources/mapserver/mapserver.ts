@@ -1,8 +1,7 @@
+import { GET, HttpRequest, HttpResponse, Path, POST, ResponseCodeError } from 'express-hibernate-wrapper';
 import { promises } from 'fs';
 import { load, save } from 'hibernatets';
 import { type } from 'os';
-import { GET, HttpRequest, HttpResponse, Path, POST } from '../../express-wrapper/express-wrapper';
-import { ResponseCodeError } from '../../express-wrapper/response-code-error';
 import { GeoLocation } from './models/location';
 import { Site } from './models/site';
 import { Tile } from './models/tile';
@@ -94,7 +93,7 @@ export class Mapserver {
         });
 
         const pixel = new SitesAdder(new MapResolver()).getFirstTilePixelWithMultipleSites(sites);
-
+        console.log(`${pixel.zoom} - ${pixel.lon} - ${pixel.lat}`)
         const topLevelJsonString = await new MapResolver(pixel.zoom, pixel.lon, pixel.lat).getWorldMapJson();
         res.set('Content-Type', 'application/json')
             .send(topLevelJsonString);

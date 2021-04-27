@@ -72,14 +72,14 @@ export class SitesAdder extends MapAttributes {
                     newZoom += MapResolver.zoomIncrement;
                 }
 
-                const pixel = exampleSite.getLocation()
+                const targetSite = exampleSite.getLocation()
                     .toTilePixel(newZoom)
                     .dividedBy(MapResolver.imageSize)
                     .rounded()
                     .subtract(0, 1)
                     .subtract(MapAttributes.layerSizePerMap / 2);
 
-                const site = new Site(`${sitePrefix}/${newZoom}/lat/${pixel.lon}/lon/${pixel.lat}/site.json`, geoLocation);
+                const site = new Site(`${sitePrefix}/${newZoom}/lat/${targetSite.lon}/lon/${targetSite.lat}/site.json`, geoLocation);
                 this.addSite(site, true);
             } else {
                 const site = pixelSites[0];

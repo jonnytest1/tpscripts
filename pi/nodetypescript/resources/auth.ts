@@ -1,12 +1,11 @@
-import { GET, Path } from '../express-wrapper/express-wrapper';
+import { GET, Path } from 'express-hibernate-wrapper';
 
-@Path("")
+@Path('')
 export class AuthenticationResources {
 
-    private static users: { [username: string]: any } = {}
+    private static users: { [username: string]: any } = {};
 
-
-    @GET({ path: "" })
+    @GET({ path: '' })
     async index(req, res) {
         // Check session
         if (req.session.username) {
@@ -18,11 +17,11 @@ export class AuthenticationResources {
         res.render('index.html');
     }
 
-    @GET({ path: "reauth" })
+    @GET({ path: 'reauth' })
     async reauth(req, res) {
         const username = req.session.username;
 
-        console.log("reauth:" + username)
+        console.log('reauth:' + username);
         if (!username) {
             res.redirect(302, '/nodetype/rest');
             return;
@@ -34,9 +33,9 @@ export class AuthenticationResources {
         res.render('reauth.html', { username: username });
     }
 
-    @GET({ path: "/home" })
+    @GET({ path: '/home' })
     async home(req, res) {
-        if (!req.session.username || req.session['signed-in'] != 'yes') {
+        if (!req.session.username || req.session['signed-in'] !== 'yes') {
             // If user is not signed in, redirect to `/`.
             res.redirect(307, '/');
             return;
@@ -45,9 +44,8 @@ export class AuthenticationResources {
         res.render('home.html', { username: req.session.username });
     }
 
-
-    @GET({ path: ".well-known/assetlinks.json" })
+    @GET({ path: '.well-known/assetlinks.json' })
     async asetlinks(req, res) {
-        console.error("assetlinks")
+        console.error('assetlinks');
     }
 }

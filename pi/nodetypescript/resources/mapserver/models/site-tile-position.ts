@@ -20,4 +20,12 @@ export class SiteTilePosition {
     toTilePixel() {
         return new TilePixel(this.tileY, this.tileX, this.zoom);
     }
+
+    static fromTilePixel(pixel: TilePixel) {
+        const tilePos = new SiteTilePosition();
+        tilePos.tileY = pixel.lon;
+        tilePos.tileX = pixel.lat;
+        tilePos.zoom = pixel.zoom;
+        return tilePos;
+    }
 }
