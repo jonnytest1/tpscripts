@@ -113,7 +113,7 @@ export class SitesAdder extends MapAttributes {
             const pixel = site.getLocation()
                 .toTilePixel(zoom)
                 .dividedBy(MapResolver.tileSize)
-                .rounded();
+                .floored();  //coudl be worse ...
             tilePosition = new SiteTilePosition();
             tilePosition.tileX = pixel.lat;
             tilePosition.tileY = pixel.lon;
@@ -148,8 +148,9 @@ export class SitesAdder extends MapAttributes {
         const pixel = site.getLocation()
             .toTilePixel(this.zoom)
             .dividedBy(MapResolver.tileSize)
-            .rounded()
-            .subtract(0, 1);//(-right +left,-down +up)
+            .floored();
+        // .rounded()
+        //.subtract(0, 1);//(-right +left,-down +up)
 
         console.log(pixel, site.url);
         const pixelIndex = +pixel.lon * this.indexesInCompleteRow + +pixel.lat;
