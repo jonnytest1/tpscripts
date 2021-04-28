@@ -28,7 +28,22 @@ export class Vector {
     subtract(amount: number, amountLat?: number) {
         const newVector: this = this.clone();
         newVector.lat = this.lat - amount;
-        newVector.lon = this.lon - (amountLat || amount);
+        let difflat = amountLat;
+        if (difflat === undefined) {
+            difflat = amount;
+        }
+
+        newVector.lon = this.lon - difflat;
+        return newVector;
+    }
+    floored(lat = true, lon = true) {
+        const newVector: this = this.clone();
+        if (lat) {
+            newVector.lat = Math.floor(this.lat);
+        }
+        if (lon) {
+            newVector.lon = Math.floor(this.lon);
+        }
         return newVector;
     }
 

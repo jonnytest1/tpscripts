@@ -93,7 +93,7 @@ export class Mapserver {
         });
 
         const pixel = new SitesAdder(new MapResolver()).getFirstTilePixelWithMultipleSites(sites);
-        console.log(`${pixel.zoom} - ${pixel.lon} - ${pixel.lat}`)
+        console.log(`${pixel.zoom} - ${pixel.lon} - ${pixel.lat}`);
         const topLevelJsonString = await new MapResolver(pixel.zoom, pixel.lon, pixel.lat).getWorldMapJson();
         res.set('Content-Type', 'application/json')
             .send(topLevelJsonString);

@@ -109,17 +109,17 @@ export class SitesAdder extends MapAttributes {
 
         for (let site of sites) {
             let tilePosition = site.tilePositions.find(position => position.zoom === zoom);
-            if (!tilePosition) {
-                const pixel = site.getLocation()
-                    .toTilePixel(zoom)
-                    .dividedBy(MapResolver.tileSize)
-                    .rounded();
-                tilePosition = new SiteTilePosition();
-                tilePosition.tileX = pixel.lat;
-                tilePosition.tileY = pixel.lon;
-                tilePosition.zoom = zoom;
-                site.tilePositions.push(tilePosition);
-            }
+            //if (!tilePosition) {
+            const pixel = site.getLocation()
+                .toTilePixel(zoom)
+                .dividedBy(MapResolver.tileSize)
+                .rounded();
+            tilePosition = new SiteTilePosition();
+            tilePosition.tileX = pixel.lat;
+            tilePosition.tileY = pixel.lon;
+            tilePosition.zoom = zoom;
+            //site.tilePositions.push(tilePosition);
+            //}
 
             if (boundingBox && !boundingBox.includes(tilePosition.toTilePixel())) {
                 continue;
@@ -134,6 +134,10 @@ export class SitesAdder extends MapAttributes {
             }
             tilePixelArray.push(site);
         }
+
+        for (const entry of siteMap.keys()) {
+            console.log(entry, siteMap.get(entry).map(site => site.url));
+        }
         return siteMap;
     }
 
@@ -145,8 +149,9 @@ export class SitesAdder extends MapAttributes {
             .toTilePixel(this.zoom)
             .dividedBy(MapResolver.tileSize)
             .rounded()
-            .subtract(0, 1);
+            .subtract(0, 1);//(-right +left,-down +up)
 
+        console.log(pixel, site.url);
         const pixelIndex = +pixel.lon * this.indexesInCompleteRow + +pixel.lat;
         const icon = site.iconIndex || (group ? cityIconIndex : houseIndex);
         siteExitArray.splice(pixelIndex - this.startIndex, 1, icon);
@@ -155,7 +160,7 @@ export class SitesAdder extends MapAttributes {
         this.startPoint.amount++;
         this.defaultJson.layers.push({
             data: siteExitArray,
-            name: `exit-${pixel.lon}-${pixel.lat}-left`,
+            name: `exit-${this.startPoint.amount}-left`,
             id: 30000 + 10,
             'opacity': 0.8,
             'visible': true,

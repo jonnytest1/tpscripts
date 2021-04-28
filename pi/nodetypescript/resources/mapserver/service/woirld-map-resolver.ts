@@ -34,7 +34,7 @@ export class MapResolver extends MapAttributes {
     layerStart: Vector;
     layerEnd: Vector;
 
-    constructor(public zoom = MapResolver.worldZoom, private firstLayerX = 0, private firstLayerY = 0, layermount = MapAttributes.layerSizePerMap) {
+    constructor(public zoom = MapResolver.worldZoom, firstLayerX = 0, firstLayerY = 0, layermount = MapAttributes.layerSizePerMap) {
         super();
         this.layerStart = new Vector(firstLayerX, firstLayerY).atLeast(0);
         this.layerAmount = layermount;// MapResolver.layerSizePerMap//lastLayerX * Math.pow(2, zoom) - (firstLayerX * Math.pow(2, zoom))
